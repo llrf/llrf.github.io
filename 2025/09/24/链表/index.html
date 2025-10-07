@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>链表 | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="目录一、 单链表二、 双链表 链表数据结构学习笔记：单链表专题 一、引言：为什么需要链表？在数据结构中，线性表有两种主要实现方式： 顺序表（数组）：元素在内存中是连续存放的。链表：元素分散存放，通过指针连接起来。 顺序表的优点是能快速按下标访问，但缺点是： 插入、删除需要移动大量元素，效率低。   长度固定，不够灵活。 链表的优点是： 插入、删除效率高，只需修改指针。 长度可动态变化，不受限制。缺">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>链表 | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="目录一、 单链表二、 双链表 链表数据结构学习笔记：单链表专题 一、引言：为什么需要链表？在数据结构中，线性表有两种主要实现方式： 顺序表（数组）：元素在内存中是连续存放的。链表：元素分散存放，通过指针连接起来。 顺序表的优点是能快速按下标访问，但缺点是： 插入、删除需要移动大量元素，效率低。   长度固定，不够灵活。 链表的优点是： 插入、删除效率高，只需修改指针。 长度可动态变化，不受限制。缺">
 <meta property="og:type" content="article">
 <meta property="og:title" content="链表">
 <meta property="og:url" content="http://example.com/2025/09/24/%E9%93%BE%E8%A1%A8/index.html">
@@ -84,13 +84,13 @@
       const activateDarkMode = () => {
         document.documentElement.setAttribute('data-theme', 'dark')
         if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
         }
       }
       const activateLightMode = () => {
         document.documentElement.setAttribute('data-theme', 'light')
         if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
         }
       }
 
@@ -99,7 +99,10 @@
 
       const theme = saveToLocal.get('theme')
     
-          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
         
       
       const asideStatus = saveToLocal.get('aside-status')
