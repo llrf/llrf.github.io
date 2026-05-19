@@ -1,0 +1,417 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>7-1 以工作流方式编排旅行规划的团队协同 | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="7-1 以工作流方式编排旅行规划的团队协同1. 一句话定位你已经在第 6 章用 AgentScope 把”主管 + 三专员 + 汇总”这套五人编制串成了 Agent 自主代理的版本；这一集换轨——同样五个角色，改用工作流编排（Graph 引擎为核心）来摆位置，决定谁在前谁在后、谁和谁并行、谁汇聚到谁。本集只画图、不写代码，目标是把”业务依赖”翻译成”DAG 拓扑”。 2. 主体2.1 先把上一阶段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="7-1 以工作流方式编排旅行规划的团队协同">
+<meta property="og:url" content="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="7-1 以工作流方式编排旅行规划的团队协同1. 一句话定位你已经在第 6 章用 AgentScope 把”主管 + 三专员 + 汇总”这套五人编制串成了 Agent 自主代理的版本；这一集换轨——同样五个角色，改用工作流编排（Graph 引擎为核心）来摆位置，决定谁在前谁在后、谁和谁并行、谁汇聚到谁。本集只画图、不写代码，目标是把”业务依赖”翻译成”DAG 拓扑”。 2. 主体2.1 先把上一阶段">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://llrf.github.io/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f012_t0103.5s_anchor.jpg">
+<meta property="article:published_time" content="2026-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-19T22:09:32.783Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://llrf.github.io/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f012_t0103.5s_anchor.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "7-1 以工作流方式编排旅行规划的团队协同",
+  "url": "https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/",
+  "image": "https://llrf.github.io/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f012_t0103.5s_anchor.jpg",
+  "datePublished": "2026-05-19T16:00:00.000Z",
+  "dateModified": "2026-05-19T22:09:32.783Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '7-1 以工作流方式编排旅行规划的团队协同',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">68</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f012_t0103.5s_anchor.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">7-1 以工作流方式编排旅行规划的团队协同</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">7-1 以工作流方式编排旅行规划的团队协同</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-19T22:09:32.783Z" title="更新于 2026-05-20 06:09:32">2026-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC7%E7%AB%A0-Graph-%E6%90%AD%E5%BB%BA%E6%97%85%E6%B8%B8%E8%A7%84%E5%88%92%E5%B7%A5%E4%BD%9C%E6%B5%81%EF%BC%8C%E5%83%8F%E6%8B%BC%E7%A7%AF%E6%9C%A8%E4%B8%80%E6%A0%B7%E8%BD%BB%E6%9D%BE/">第7章 Graph 搭建旅游规划工作流，像拼积木一样轻松</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="7-1-以工作流方式编排旅行规划的团队协同"><a href="#7-1-以工作流方式编排旅行规划的团队协同" class="headerlink" title="7-1 以工作流方式编排旅行规划的团队协同"></a>7-1 以工作流方式编排旅行规划的团队协同</h1><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>你已经在第 6 章用 AgentScope 把”主管 + 三专员 + 汇总”这套五人编制串成了 Agent 自主代理的版本；这一集换轨——同样五个角色，改用<strong>工作流编排</strong>（Graph 引擎为核心）来摆位置，决定谁在前谁在后、谁和谁并行、谁汇聚到谁。本集只画图、不写代码，目标是把”业务依赖”翻译成”DAG 拓扑”。</p>
+<h2 id="2-主体"><a href="#2-主体" class="headerlink" title="2. 主体"></a>2. 主体</h2><h3 id="2-1-先把上一阶段产物列清楚"><a href="#2-1-先把上一阶段产物列清楚" class="headerlink" title="2.1 先把上一阶段产物列清楚"></a>2.1 先把上一阶段产物列清楚</h3><p>旅行规划这个需求过去几集已经孵出来 <strong>5 个 Agent</strong>——三个干活的、一个调度的、一个善后的：</p>
+<p><img src="/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f012_t0103.5s_anchor.jpg" alt="概念 5 个 Agent 编制的可视化"></p>
+<ul>
+<li><strong>路线制定 Agent</strong>：地点搜索、经纬度转换、路线规划、距离计算、路线可视化</li>
+<li><strong>行程规划 Agent</strong>：景点信息搜索、抓网页&#x2F;抓图、天气查询、本地文件、表格制作</li>
+<li><strong>费用统筹 Agent</strong>：数学计算、表格制作、网络抓取、脚本制作</li>
+<li><strong>主管 Agent</strong>：意图识别 + 任务拆解（用户 raw prompt 的第一站）</li>
+<li><strong>汇总 Agent</strong>：整合三个干活 Agent 的执行结果，做最终交付</li>
+</ul>
+<p>这 5 个角色在 5-2 &#x2F; 5-3 &#x2F; 5-4 &#x2F; 5-5 已经各自立过卡片了（同模板：角色定义 + 能力清单）。本集不动这套编制，只决定<strong>他们怎么连线</strong>。</p>
+<h3 id="2-2-两条范式的分岔"><a href="#2-2-两条范式的分岔" class="headerlink" title="2.2 两条范式的分岔"></a>2.2 两条范式的分岔</h3><p>讲师把多 Agent 协同拆成两条对立的设计思想——</p>
+<p><img src="/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f013_t0106.7s_scene.jpg" alt="概念 Agent 自主代理 vs 工作流编排的可视化"></p>
+<ul>
+<li><strong>Agent 自主代理</strong>（Agentic 为核心）：代表是 AgentScope（SAA 生态），靠 ReAct 思维框架让 Agent 自己想”下一步用什么工具走什么路”。第 6 章主线。</li>
+<li><strong>工作流编排</strong>（Graph 引擎&#x2F;图形引擎为核心）：代表是 JManus（Java 版 Manus），节点和边显式声明，开发者画拓扑。SAA 也内置了 Graph 引擎（这就是 4-9 那个 DAG Graph 标签的伏笔）。</li>
+</ul>
+<blockquote>
+<p>讲师口误：屏幕上只列了两种，但他口播说”第三种是工作流编排”——中间那”第二种”消失了。按上下文判断，对立面只有两种，按你自己的理解归类即可。</p>
+</blockquote>
+<p>本集开始走第二条。</p>
+<h3 id="2-3-三种工作流拓扑（这是本集骨架）"><a href="#2-3-三种工作流拓扑（这是本集骨架）" class="headerlink" title="2.3 三种工作流拓扑（这是本集骨架）"></a>2.3 三种工作流拓扑（这是本集骨架）</h3><p>把 5 个 Agent 摆成 DAG，可能的拓扑形态有三种——</p>
+<p><strong>形态 ①：线性串行</strong></p>
+<p>主管 → 路线 → 行程 → 费用 → 汇总 → 用户。一条直线，前一个完成才轮到后一个。</p>
+<p><strong>形态 ②：完全并行 + 汇总</strong></p>
+<p>主管把任务<strong>同时</strong>派给路线、行程、费用三人，三人各干各的，结果都汇到汇总 Agent，再返回用户。</p>
+<p><strong>形态 ③：混合（并行 + 顺序汇聚）</strong></p>
+<p>路线和行程并行干活，干完都汇给费用统筹做加总，三家最后再汇给汇总 Agent。</p>
+<p>三种拓扑哪种合身？这就到了<strong>取舍出现在 §2.4</strong>。</p>
+<h3 id="2-4-业务依赖驱动拓扑选择（取舍）"><a href="#2-4-业务依赖驱动拓扑选择（取舍）" class="headerlink" title="2.4 业务依赖驱动拓扑选择（取舍）"></a>2.4 业务依赖驱动拓扑选择（取舍）</h3><blockquote>
+<p>取舍出现在 §2.4：选哪种拓扑不是凭直觉，是看业务依赖。</p>
+</blockquote>
+<p>把”费用统筹”这件事拆开看——它要算的是 <strong>路线费 + 景点费 + 住宿费 + 餐饮费</strong>。前一项是路线 Agent 的产出（深圳→惠州的车费&#x2F;距离），后三项是行程 Agent 的产出（景点&#x2F;住宿&#x2F;餐饮安排）。</p>
+<p>由此推出两条铁律：</p>
+<ul>
+<li><strong>路线 Agent 和行程 Agent 互不依赖</strong> → 可以并行</li>
+<li><strong>费用 Agent 依赖前两者的输出</strong> → 必须排在它俩之后</li>
+</ul>
+<p>这就<strong>否决了形态 ②</strong>——形态 ② 把费用和路线&#x2F;行程平级并行，但费用根本没东西可算；也<strong>否决了形态 ①</strong>——把它们串成一条直线浪费了路线&#x2F;行程的并行机会。</p>
+<p>唯一合身的是 <strong>形态 ③</strong>：路线 ∥ 行程 → 费用 → 汇总。</p>
+<p>这里有个<strong>反直觉的认知翻转</strong>：5-2 ~ 5-5 一直把”费用统筹”当作和路线、行程<strong>平级</strong>的第三个专员；到这集突然降格成<strong>二级汇聚节点</strong>——它的真实身份是”消费别人输出的求和器”，不是平起平坐的干活者。<strong>这就是把”业务依赖”翻译成”工作流拓扑”的真正学问</strong>——卡片立得对不对，要靠拓扑来检验。</p>
+<h3 id="2-5-定型最终工作流（加工增量在-§2-5）"><a href="#2-5-定型最终工作流（加工增量在-§2-5）" class="headerlink" title="2.5 定型最终工作流（加工增量在 §2.5）"></a>2.5 定型最终工作流（加工增量在 §2.5）</h3><blockquote>
+<p>加工增量在 §2.5：消化稿”重新组织顺序”那一节把讲师的论述抽象成了”形态 ① ② ③ + 业务依赖判据”的双层结构；这里继续把每个节点的输入输出语义补出来，方便后续翻译成 Graph 代码。</p>
+</blockquote>
+<p><img src="/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f015_t0194.4s_scene.jpg" alt="概念 旅行规划场景的多 Agent 协同工作流的可视化"></p>
+<p>最终拓扑（f015 那张图）按时间顺序读：</p>
+<ol>
+<li><strong>用户 Prompt</strong> → 主 Agent（主管）</li>
+<li><strong>主 Agent</strong>：接收任务 → 意图识别 → 任务分解。把”路线相关”派给路线制定专员，把”行程相关”派给行程规划经理。</li>
+<li><strong>路线制定专员 ∥ 行程规划经理</strong>：并行干活（两者输入互不依赖）</li>
+<li><strong>路线 + 行程的输出 → 费用统筹管家</strong>：做费用加总（这是第一个汇聚点）</li>
+<li><strong>路线 + 行程 + 费用的输出 → 汇总 Agent</strong>：整合成表格&#x2F;图表（这是第二个汇聚点）</li>
+<li><strong>汇总 Agent → 用户</strong>：流式输出最终交付</li>
+</ol>
+<p>注意此处出现了<strong>两个汇聚点</strong>——费用统筹是”二级汇聚”，汇总 Agent 是”三级汇聚”。两者职能完全不同：</p>
+<ul>
+<li><strong>费用统筹</strong> 只 sum 费用数字</li>
+<li><strong>汇总 Agent</strong> sum 全量结果（路线 + 行程 + 费用），产出面向用户的表格</li>
+</ul>
+<p>第一遍听非常容易把这两个”汇总”混成一个角色，要分清。</p>
+<h3 id="2-6-主管-Agent-的两职-流式输出"><a href="#2-6-主管-Agent-的两职-流式输出" class="headerlink" title="2.6 主管 Agent 的两职 + 流式输出"></a>2.6 主管 Agent 的两职 + 流式输出</h3><p>主管 Agent 干两件事：<strong>意图识别</strong>（理解用户到底想要什么）+ <strong>任务拆解</strong>（把 raw prompt 路由到正确的子节点）。它是整张 DAG 的入口路由器。</p>
+<p>汇总 Agent 的产物以<strong>流式</strong>形式返给用户——这点呼应 6-5 ChatClient 的 SSE 流。在 Graph 引擎里，”流式输出”很可能是 DAG 的终端节点特殊属性，而不是普通 ChatClient.stream，留待下集代码看。</p>
+<h3 id="2-7-工作流编排的卖点"><a href="#2-7-工作流编排的卖点" class="headerlink" title="2.7 工作流编排的卖点"></a>2.7 工作流编排的卖点</h3><p>为什么选工作流编排而不是 Agent 自主代理？讲师明说一句话：<strong>可视化</strong>。</p>
+<p>DAG 摆出来后，<strong>谁在哪个节点、谁和谁并行、谁汇聚到谁——一眼看清</strong>。相比 ReAct 自主代理那种”LLM 自己决策黑盒”，工作流编排在调试、复审、向团队解释方面有压倒性优势。这是它存在的根本理由。</p>
+<h2 id="3-没-get-的点"><a href="#3-没-get-的点" class="headerlink" title="3. 没 get 的点"></a>3. 没 get 的点</h2><ul>
+<li>讲师说”有三种设计思想”但只列出了两种（自主代理、工作流编排）——中间那”第二种”是真的有，还是口误？大概率是口误，但留个尾巴。</li>
+<li>f015 里费用统筹既是”接收者”又是”发送者”（既接路线&#x2F;行程的输出，又发给汇总 Agent）——代码层面这种二段汇聚是用 <code>SequentialAgent</code> 嵌套 <code>ParallelAgent</code> 实现，还是直接在 Graph 里画两条 edge？6-8 提过这些组合 Agent，但这里属于哪种待下集验证。</li>
+<li>主管 Agent 的”任务拆解”是 LLM 推理动态产出（动态拓扑），还是开发者在 Graph 里写死（静态拓扑）？工作流编排范式倾向后者——那”拆解”还需要 LLM 吗？如果不需要，主管 Agent 就退化成纯路由器，不需要大模型。</li>
+<li>“流式输出”的实现层：是汇总 Agent 内部 stream（普通 ChatClient.stream），还是 Graph 引擎把整个 DAG 的中间状态流式吐出？前者是常规手法，后者是 SAA Graph 的特性。</li>
+</ul>
+<h2 id="4-跟其他集连接"><a href="#4-跟其他集连接" class="headerlink" title="4. 跟其他集连接"></a>4. 跟其他集连接</h2><h3 id="上承"><a href="#上承" class="headerlink" title="上承"></a>上承</h3><ul>
+<li><a href="../5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/notes.md">5-1</a> 把旅行规划拆出四象限需求（景点&#x2F;交通&#x2F;住宿&#x2F;餐饮）；本集把这些需求节点连成有向图。</li>
+<li><a href="../5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/notes.md">5-2</a> &#x2F; <a href="../5-3_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%A1%8C%E7%A8%8B%E8%A7%84%E5%88%92%E7%BB%8F%E7%90%86Agent/notes.md">5-3</a> &#x2F; <a href="../5-4_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B4%B9%E7%94%A8%E7%BB%9F%E7%AD%B9%E7%AE%A1%E5%AE%B6Agent/notes.md">5-4</a> 给三个干活 Agent 立了卡片；本集<strong>不再添新角色</strong>，只决定它们的拓扑位置——并且用拓扑反过来检验了 5-4 卡片里那条隐藏的真相：”费用统筹其实是汇聚节点”。</li>
+<li><a href="../5-5_Agent%E5%9B%A2%E9%98%9F%E5%92%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%97%A0%E7%BC%9D%E5%8D%8F%E4%BD%9C/notes.md">5-5</a> 给出了”主管 + 三专员 + 汇总”的五人编制；本集是 5-5 编制下的<strong>第一种排兵布阵</strong>（工作流派）。</li>
+<li><a href="../3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/notes.md">3-12</a> 的”多 Agent 五步骨架”在本集表现为”主管派单 → 并行执行 → 二级汇聚 → 三级汇聚 → 返回”。</li>
+<li><a href="../4-9_SpringAi_Alibaba_11_%E4%BB%A5bom%E6%96%B9%E5%BC%8F%E5%AF%BC%E5%85%A5%E4%BE%9D%E8%B5%96/notes.md">4-9</a> 提到的 <strong>DAG Graph</strong> 标签——本集就是用 DAG 去表达多 Agent 协同的视觉化案例。</li>
+</ul>
+<h3 id="下启"><a href="#下启" class="headerlink" title="下启"></a>下启</h3><ul>
+<li>下一集大概率开始用 SAA 1.1 的 Graph API 把这张 f015 拓扑图<strong>翻译成代码</strong>——节点是 ReactAgent &#x2F; FlowAgent，边是 Graph 的 edge。</li>
+<li><a href="../6-8_SpringAi_11_Agent%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C%E5%90%88%E4%BD%9C/notes.md">6-8</a> 已经预演过 <code>ReactAgent vs FlowAgent</code>、<code>ParallelAgent</code>、<code>SequentialAgent</code>、<code>LlmRoutingAgent</code>——7-x 接下来应该把它们装到 OverAllState 上跑完整链路。</li>
+<li>“流式输出”在汇总 Agent 端会用 SSE 实现，呼应 6-5。</li>
+</ul>
+<h3 id="横向"><a href="#横向" class="headerlink" title="横向"></a>横向</h3><ul>
+<li>与 <a href="../6-6_SpringAi_11_%E6%AD%A3%E5%BC%8F%E8%BF%9B%E5%85%A5Agent%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E6%97%B6%E4%BB%A3/notes.md">6-6</a> → <a href="../6-8_SpringAi_11_Agent%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C%E5%90%88%E4%BD%9C/notes.md">6-8</a> 形成<strong>镜像</strong>：6-x 是同一需求用”主管 + tools(subAgent)”的 Agent 自主代理派实现；7-x 是用”Graph + 节点边”的工作流派实现。<strong>同一目标的两条技术路径</strong>。</li>
+<li>与 <a href="../3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/notes.md">3-10 A2A 协议</a> 的差别：A2A 是把节点拆到不同进程&#x2F;团队（跨公司协作）；本集所有节点同进程同 Graph（同公司内部协作）。</li>
+<li>与 <a href="../3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/notes.md">3-11 主流多 Agent 框架</a> 的”规划-执行-验证三层分工”对应：主管 &#x3D; 规划，三专员 &#x3D; 执行，汇总 Agent &#x3D; 验证&#x2F;呈现。</li>
+</ul>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">多 Agent 协同（5 角色编制：主管 + 路线 + 行程 + 费用 + 汇总）</span><br><span class="line">├─ 范式一：Agent 自主代理（Agentic 核心）→ 第 6 章主线（AgentScope）</span><br><span class="line">└─ 范式二：工作流编排（Graph 引擎核心）→ 第 7 章主线 ★本集</span><br><span class="line">   │</span><br><span class="line">   ├─ 三种工作流拓扑</span><br><span class="line">   │  ├─ ① 线性串行：主管 → 路线 → 行程 → 费用 → 汇总</span><br><span class="line">   │  ├─ ② 完全并行：主管 → &#123;路线, 行程, 费用&#125; → 汇总</span><br><span class="line">   │  └─ ③ 混合（并行 + 顺序汇聚）：主管 → &#123;路线 ∥ 行程&#125; → 费用 → 汇总 ★中选</span><br><span class="line">   │</span><br><span class="line">   ├─ 拓扑选择判据：业务依赖</span><br><span class="line">   │  ├─ A 是否消费 B 的输出？→ 是则 B → A 边</span><br><span class="line">   │  └─ 否则 A ∥ B 可并行</span><br><span class="line">   │</span><br><span class="line">   ├─ 旅行规划的依赖关系</span><br><span class="line">   │  ├─ 路线 ⊥ 行程（互不依赖）</span><br><span class="line">   │  ├─ 费用 ⊃ 路线费 + 景点费 + 住宿费 + 餐饮费 → 依赖路线 + 行程</span><br><span class="line">   │  └─ 汇总 ⊃ 路线 + 行程 + 费用 → 三家都要</span><br><span class="line">   │</span><br><span class="line">   └─ 工作流编排的卖点：可视化</span><br><span class="line">      ├─ 节点位置一眼可见</span><br><span class="line">      ├─ 并行/串行/汇聚关系一眼可见</span><br><span class="line">      └─ 调试/复审/团队解释成本远低于 ReAct 黑盒</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-自测题"><a href="#6-自测题" class="headerlink" title="6. 自测题"></a>6. 自测题</h2><p><strong>Q1</strong>：旅行规划的 5 个 Agent 中，哪个的真实身份是”汇聚节点”而不是”和路线&#x2F;行程平级的干活者”？说明理由。</p>
+<details><summary>参考答案</summary>
+
+<p>费用统筹 Agent。它要算的是”路线费 + 景点费 + 住宿费 + 餐饮费”，其中路线费来自路线 Agent，景点&#x2F;住宿&#x2F;餐饮费来自行程 Agent。它必须在路线和行程之后才有数据可消费，本质是<strong>消费别人输出做求和</strong>的二级汇聚节点。5-4 立卡片时把它和路线&#x2F;行程平级，是从”职能描述”角度看；这一集从”工作流拓扑”角度看，必须降格成汇聚点。</p>
+</details>
+
+<p><strong>Q2</strong>：三种工作流拓扑里，旅行规划场景为什么不能选”完全并行”形态？</p>
+<details><summary>参考答案</summary>
+
+<p>完全并行（主管 → {路线, 行程, 费用} → 汇总）要求三个干活 Agent 输入互不依赖。但费用 Agent 的输入恰恰是路线和行程的输出——并行调起时费用根本没数据可算。强行并行只会让费用 Agent 拿空输入跑空结果。所以必须改成混合形态（路线 ∥ 行程 → 费用 → 汇总）。</p>
+</details>
+
+<p><strong>Q3</strong>：f015 那张最终工作流图里有几个”汇聚点”？分别汇什么、谁是消费者？</p>
+<details><summary>参考答案</summary>
+
+<p>两个汇聚点：</p>
+<ul>
+<li><strong>二级汇聚</strong>（费用统筹管家）：汇路线 Agent 的”路线费”+ 行程 Agent 的”景点&#x2F;住宿&#x2F;餐饮费”，消费者是费用统筹自己，产出”总费用”。</li>
+<li><strong>三级汇聚</strong>（汇总 Agent）：汇路线 Agent 的全量结果 + 行程 Agent 的全量结果 + 费用 Agent 的总费用，消费者是用户，产出表格&#x2F;图表面向交付。</li>
+</ul>
+<p>第一遍听这两个”汇总”很容易混成一个，记住”费用只汇钱、汇总汇全量”。</p>
+</details>
+
+<p><strong>Q4</strong>：Agent 自主代理 vs 工作流编排，对应的核心引擎分别叫什么？SAA 同时支持两种吗？</p>
+<details><summary>参考答案</summary>
+
+<ul>
+<li>Agent 自主代理 → Agentic 为核心（代表：AgentScope，靠 ReAct 思维框架）</li>
+<li>工作流编排 → <strong>Graph 引擎</strong>（图形引擎）为核心（代表：JManus）</li>
+</ul>
+<p>SAA 1.1 两种都支持——Agentic 那条线就是 6-6 ~ 6-8 的 ReactAgent；Graph 那条线就是 4-9 提到过的 <strong>DAG Graph</strong> 标签，本集开始展开。</p>
+</details>
+
+<p><strong>Q5</strong>：相比 Agent 自主代理（ReAct），工作流编排的核心卖点是什么？为什么这个卖点对生产环境很重要？</p>
+<details><summary>参考答案</summary>
+
+<p>核心卖点是<strong>可视化</strong>：节点位置、并行&#x2F;串行&#x2F;汇聚关系一眼看清。</p>
+<p>生产环境重要性：</p>
+<ol>
+<li><strong>调试</strong>——出 bug 时能立刻定位是哪个节点的问题，不用 trace LLM 的内部决策链</li>
+<li><strong>复审</strong>——团队 review 时不用读代码，看图就懂业务流</li>
+<li><strong>解释</strong>——和非技术方对齐时图比代码直观</li>
+<li><strong>稳定性</strong>——静态拓扑可预测，不会出现 ReAct 那种”LLM 今天选 A 工具明天选 B 工具”的飘移</li>
+</ol>
+<p>ReAct 的”自主决策”在 demo 阶段很惊艳，但生产环境要的是确定性。这就是为什么”工作流”这条路一直没死。</p>
+</details>
+
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>一句话定义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>工作流编排</td>
+<td>多 Agent 协同的第二条范式，节点 + 边显式声明，对立面是 Agent 自主代理</td>
+</tr>
+<tr>
+<td>Graph 引擎</td>
+<td>工作流编排的核心实现，也叫图形引擎，SAA &#x2F; JManus 内置</td>
+</tr>
+<tr>
+<td>三种工作流拓扑</td>
+<td>线性串行 &#x2F; 完全并行+汇总 &#x2F; 混合（并行+顺序汇聚），本质是 DAG 的三种形态</td>
+</tr>
+<tr>
+<td>业务依赖→拓扑映射</td>
+<td>选哪种拓扑由 A 是否消费 B 的输出决定，不能凭直觉</td>
+</tr>
+<tr>
+<td>费用统筹的双重身份</td>
+<td>表面是和路线&#x2F;行程平级的专员，本质是消费两者输出的二级汇聚节点</td>
+</tr>
+<tr>
+<td>汇总 Agent vs 费用统筹 Agent</td>
+<td>前者汇全量结果给用户，后者只汇费用数字，是两个不同层级的汇聚</td>
+</tr>
+<tr>
+<td>主管 Agent 的两职</td>
+<td>意图识别 + 任务拆解，把用户 raw prompt 路由到正确的子节点</td>
+</tr>
+<tr>
+<td>工作流可视化优势</td>
+<td>节点位置 &#x2F; 并行串行汇聚关系一眼可见，调试和复审成本远低于 ReAct 黑盒</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/">https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="/images/agent-learning/7-1_%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C/f012_t0103.5s_anchor.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-7-5_%E6%90%AD%E5%BB%BA%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%9A%84%E6%B5%81%E7%A8%8B%E9%A1%BA%E5%BA%8FEdge/" title="7-5_搭建工作流的流程顺序Edge"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">7-5_搭建工作流的流程顺序Edge</div></div><div class="info-2"><div class="info-item-1">一句话定位工作流四对象的第三块——边。7-3 你 new 出空蓝图 StateGraph，7-4 用 addNode 把两个干活的节点塞进去；这一集用 addEdge 把节点之间画箭头串成一条单向链：用户 Prompt → node1 → node2 → 大模型输出。 主体1. 一个 API 一句话：addEdge(String, String)1public StateGraph addEdge(String sourceId, String targetId) throws GraphStateException  两参都是 String，就是节点的 id。不传节点对象——节点对象在 addNode 阶段已经按 id 注册过了，addEdge 阶段全程只认字符串。这个解耦你要记住：addNode 管”谁存在”、addEdge 管”谁连谁”，互不重叠。 源码内部把这两个字符串包成 new Edge(sourceId, new EdgeValue(targetId))，扔进 this.edges.elements 这个列表里。 2. 第一条边：node1 → node27-4 注...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-7-3_%E6%90%AD%E5%BB%BA%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%9A%84%E6%A1%86%E6%9E%B6%E8%93%9D%E5%9B%BEStateGraph/" title="7-3_搭建工作流的框架蓝图StateGraph"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">7-3_搭建工作流的框架蓝图StateGraph</div></div><div class="info-2"><div class="info-item-1">一句话定位StateGraph 是工作流的”空蓝图”——一个能装节点（addNode）和箭头（addEdge）的容器。7-2 你造好了贯穿全流程的状态包 OverAllState，这一集你把”装东西的图”本身 new 出来，但还不往里装。 主体1. 工作流四对象，第二个登场SAA 1.1 的工作流（DAG Graph）由四类对象拼起来：  OverAllState——KV 状态包，每个 key 带 Append&#x2F;Replace 更新策略（7-2 全程在讲的东西） 节点（NodeAction）——干活的执行单元 边（Edge）——节点之间的箭头连线，决定执行顺序 StateGraph——把上面三者装进去的”蓝图”对象  这一集只造第 4 个，第 2、3 个下集再说。 2. 构造方法：表面两参，本质三参12345StateGraph stateGraph = new StateGraph(    &quot;parallel&quot;,                          // 1. 工作流名称    () -&gt; &#123; /* ... */ re...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"><img class="cover" src="/images/agent-learning/3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;</div></div><div class="info-2"><div class="info-item-1">3-1 大模型困境：数据获取与整合上的”抓瞎”§1 一句话定位看完这一集，你应该能用一句话回答：”LLM 为什么需要外挂？”  §2 主体讲解先把 LLM 的”世界”立起来要看懂这一集后面所有的”反例”，你得先接受一个心智模型： LLM 没有”现实世界”，它只有一个向量空间。 它学过的每一个概念——林黛玉、星巴克、卢浮宫的某幅名画——在这个空间里都对应一个唯一的点（一个上千维的向量）。它做的所有”思考”，都是在这个空间里做几何运算：找邻居、量距离、走向量加法。 这件事一旦想透，三个看上去很神奇的能力就立刻不神奇了：  百科全书 —— 红楼梦整本书早被嵌入进去了，林黛玉的”性格特征””结局””出现章节”都是她那个点周围的邻居。问到她，模型不过是在做一次邻域查询。 猜意图 —— “咖啡馆里来杯星巴克”，”星巴克”这三个字在向量空间里有好几个候选位置（品牌、咖啡馆、饮料），模型借助上下文里的”咖啡馆””来一杯”两个锚点，做概率运算选最近的那个。 迁就口吻 —— “用广东人语气回答”也是空间里的一个方向向量，把答案沿着这个方向偏移即可。   所以”智能”的本质是：对静态、公开、历史语料的...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" title="3-12 多Agent的核心执行流程"><img class="cover" src="/images/agent-learning/3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/f002_t0185.9s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-12 多Agent的核心执行流程</div></div><div class="info-2"><div class="info-item-1"> 摘要：本集梳理多Agent团队的核心执行流程，主轴是”外层5步团队流水线 + 内层5步个体循环”的嵌套骨架。取舍出现在 §2.1（先讲多Agent大图、再下钻到单Agent，与原素材”从小到大”的顺序相反）。加工增量在 §2.4（把”通信 + 中间结果存储”重新定位为”协作落地的两个工程接口”，并补了一张三层视角图）。   1. 一句话定位多Agent骨架 &#x3D; 外层团队5步 + 内层个体5步的嵌套。 2. 主体讲解2.1 先抓总图：多Agent的五步骨架如果你只能记一张图，就记这张：一个用户请求进来，要走五步才能拿到结果。    步骤 做什么 谁来做    1. 意图识别 听懂用户到底要什么 LLM 的推理能力   2. 任务初始化 把”想要”翻译成”任务实体” 系统   3. 任务规划 &#x2F; 复杂任务划分 把大任务切成可执行子任务 主管 Agent   4. 任务执行 多个专业 Agent 协同跑各自的子任务 多个子 Agent   5. 结果整合 把碎片产出拼回一个完整答案 主管 Agent   注意你看到 1→5 是顺序的，但第 4 步本身是个”团队子过...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-2_%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8_Function_Calling_/" title="3-2 困境解决方案：函数调用（Function Calling）"><img class="cover" src="/images/agent-learning/3-2_%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8_Function_Calling_/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-2 困境解决方案：函数调用（Function Calling）</div></div><div class="info-2"><div class="info-item-1">3-2 困境解决方案：函数调用（Function Calling） 来源：慕课网 imooc.com，视频 3-2 困境解决方案：函数调用( Function Calling ).mp4（约 9 分钟）本笔记基于自动化 pipeline：whisper 转录 + scenedetect 关键帧 + PaddleOCR + Claude 多模态读图。原始产物：transcript.txt &#x2F; frame_index.json &#x2F; frames/。   一、本集主旨承接 3-1 留下的悬念——大模型有「无法获取实时数据」「无法拥有用户私有数据」两个致命缺陷。本集给出统一解法：让 LLM 自己根据外部 API 文档生成调用程序，去取实时数据；同样的机制也能去读用户本地文件 &#x2F; 数据库。这个”自主调用外部能力”的程序就叫 Function Calling（函数调用）。 123456783-1 留下的两个困境              3-2 给出的统一解法┌──────────────────┐         ┌──────────────────────...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/" title="3-11 主流的多Agent开发框架"><img class="cover" src="/images/agent-learning/3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/f001_t0000.6s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-11 主流的多Agent开发框架</div></div><div class="info-2"><div class="info-item-1">主流的多Agent开发框架 摘要：这是一张”6 个多 Agent 框架的对比地图”，不是任何单个框架的实操课。读完你应该能在面试里五秒回答”AutoGen 和 CrewAI 差在哪、LangChain 为什么也算多 Agent 框架、Manus 凭什么是本课主角”。取舍出现在 §2.1（讲解顺序重排），加工增量在 §2.6 和 §3（横向对比表 + 反直觉判断）。    1. 一句话定位把 6 个主流多 Agent 框架按”自动化程度 &#x2F; 灵活度”摆成一张地图，钉住 JManus 的位置。  2. 主体讲解2.1 先看全景，再看细节（这里做了一次取舍）原视频是按 “演进背景 → AutoGen → CrewAI → LangChain → Manus → JoyAgent → muAgent” 顺序逐个介绍的。但你如果跟着这个顺序学，会发现每听到一个框架都没有锚点——因为根本没有对照对象。 所以这份笔记把顺序换成：先把对比表压进脑子 → Manus（本课主角）→ CrewAI（最强对照组）→ AutoGen（差一点的对照组）→ LangChain（造轮子底座）→ Joy...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/" title="3-3 Function Calling 就是大模型的&quot;跑腿小弟&quot;"><img class="cover" src="/images/agent-learning/3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/f002_t0009.8s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-3 Function Calling 就是大模型的&quot;跑腿小弟&quot;</div></div><div class="info-2"><div class="info-item-1">3-3 Function Calling 就是大模型的”跑腿小弟” 来源：慕课网 imooc.com，视频 3-3 Function Calling就是大模型的跑腿小弟.mp4（约 13 分钟）本笔记基于自动化 pipeline：whisper 转录 + scenedetect 关键帧 + PaddleOCR + Claude 多模态读图。原始产物：transcript.txt &#x2F; frame_index.json &#x2F; frames/。   一、本集主旨承接 3-2 的”调用外部 API 解决实时性问题”思路，本集要拆穿一个最容易被忽略的隐藏角色：当我们说”大模型会调用天气 API”时，真正干这件事的并不是大模型本身，而是它体内的一个小弟——Function Calling（函数调用），并且 Function Calling 也只是”传话的”，真正执行 HTTP 请求的还在大模型外部。 讲师围绕两个核心问题铺开：    # 核心问题 一句话答案    Q1 第三方应用的 API 到底是谁调用的？ 大模型内部的 Function Calling（调用者），但执行...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/" title="3-5 对比 Function Calling 与 MCP 的不同"><img class="cover" src="/images/agent-learning/3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/f006_t0222.4s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-5 对比 Function Calling 与 MCP 的不同</div></div><div class="info-2"><div class="info-item-1">3-5 对比 Function Calling 与 MCP 的不同1. 一句话定位看完你能用一张对位表把 FC 和 MCP 说清楚，并解释为什么后者注定要替代前者。 2. 主体讲解先把对位表立起来你只要记住一句话：LLM 自己从来不亲自调外部 API，永远派一个”小弟”出门。FC 和 MCP 的所有差异，都是这个”小弟”长什么样、住在哪里、谁来管。     Function Calling MCP    小弟住哪 模型内部的一个调用模块 模型外部的两个节点（客户端 + 服务端）   工具描述怎么来 开发人员手动投喂给模型 客户端主动向服务端拉取工具列表   工具谁写 每家大模型公司自己写一套 任何第三方写一次，所有 LLM 都能用   这张表就是这一集的全部。下面三段把它拆开。 不同点一：小弟的位置（在内还是在外） 你看这张图里”小弟”这两个字贴在 Function Calling 上——它是大模型自带的一个内置模块。LLM 判断”用户问的是深圳今天天气，我没有实时数据”，于是它在内部把任务交给 Function Calling 这个模块：「你拿着深圳这个参数，去调墨迹天气 AP...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">68</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#7-1-%E4%BB%A5%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%96%B9%E5%BC%8F%E7%BC%96%E6%8E%92%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C"><span class="toc-number">1.</span> <span class="toc-text">7-1 以工作流方式编排旅行规划的团队协同</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93"><span class="toc-number">1.2.</span> <span class="toc-text">2. 主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%85%88%E6%8A%8A%E4%B8%8A%E4%B8%80%E9%98%B6%E6%AE%B5%E4%BA%A7%E7%89%A9%E5%88%97%E6%B8%85%E6%A5%9A"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 先把上一阶段产物列清楚</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%B8%A4%E6%9D%A1%E8%8C%83%E5%BC%8F%E7%9A%84%E5%88%86%E5%B2%94"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 两条范式的分岔</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E4%B8%89%E7%A7%8D%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%8B%93%E6%89%91%EF%BC%88%E8%BF%99%E6%98%AF%E6%9C%AC%E9%9B%86%E9%AA%A8%E6%9E%B6%EF%BC%89"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 三种工作流拓扑（这是本集骨架）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E4%B8%9A%E5%8A%A1%E4%BE%9D%E8%B5%96%E9%A9%B1%E5%8A%A8%E6%8B%93%E6%89%91%E9%80%89%E6%8B%A9%EF%BC%88%E5%8F%96%E8%88%8D%EF%BC%89"><span class="toc-number">1.2.4.</span> <span class="toc-text">2.4 业务依赖驱动拓扑选择（取舍）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%AE%9A%E5%9E%8B%E6%9C%80%E7%BB%88%E5%B7%A5%E4%BD%9C%E6%B5%81%EF%BC%88%E5%8A%A0%E5%B7%A5%E5%A2%9E%E9%87%8F%E5%9C%A8-%C2%A72-5%EF%BC%89"><span class="toc-number">1.2.5.</span> <span class="toc-text">2.5 定型最终工作流（加工增量在 §2.5）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E4%B8%BB%E7%AE%A1-Agent-%E7%9A%84%E4%B8%A4%E8%81%8C-%E6%B5%81%E5%BC%8F%E8%BE%93%E5%87%BA"><span class="toc-number">1.2.6.</span> <span class="toc-text">2.6 主管 Agent 的两职 + 流式输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%BC%96%E6%8E%92%E7%9A%84%E5%8D%96%E7%82%B9"><span class="toc-number">1.2.7.</span> <span class="toc-text">2.7 工作流编排的卖点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B2%A1-get-%E7%9A%84%E7%82%B9"><span class="toc-number">1.3.</span> <span class="toc-text">3. 没 get 的点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.4.</span> <span class="toc-text">4. 跟其他集连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%89%BF"><span class="toc-number">1.4.1.</span> <span class="toc-text">上承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E5%90%AF"><span class="toc-number">1.4.2.</span> <span class="toc-text">下启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%AA%E5%90%91"><span class="toc-number">1.4.3.</span> <span class="toc-text">横向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">1.5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98"><span class="toc-number">1.6.</span> <span class="toc-text">6. 自测题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">1.7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册"><img src="/images/agent-learning/4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringAi 1.1 A2A的服务注册"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册">SpringAi 1.1 A2A的服务注册</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现"><img src="/images/agent-learning/4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/f075_t0722.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-14_SpringAi_11_A2A的服务发现"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现">4-14_SpringAi_11_A2A的服务发现</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议"><img src="/images/agent-learning/4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/f100_t0692.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试 SpringAi 1.1 实现的 A2A 协议"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议">测试 SpringAi 1.1 实现的 A2A 协议</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard"><img src="/images/agent-learning/4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/f034_t0423.3s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-15_SpringAi_11_A2A的元数据AgentCard"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard">4-15_SpringAi_11_A2A的元数据AgentCard</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/" title="5-1_旅行规划的复合任务拆解"><img src="/images/agent-learning/5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/f008_t0151.2s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="5-1_旅行规划的复合任务拆解"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/" title="5-1_旅行规划的复合任务拆解">5-1_旅行规划的复合任务拆解</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
