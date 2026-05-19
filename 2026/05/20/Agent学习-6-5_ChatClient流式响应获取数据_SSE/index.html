@@ -1,0 +1,350 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>6-5_ChatClient流式响应获取数据_SSE | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="1. 一句话定位把 6-4 那条 prompt().call().content() 链里的 .call() 改成 .stream()，返回类型从 String 变成 Flux&lt;String&gt;，再给 @GetMapping 加上 produces &#x3D; TEXT_EVENT_STREAM_VALUE——你就拿到了”浏览器一字字蹦”的那种打字机效果，背后协议是 SSE。 2. 主体2.1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6-5_ChatClient流式响应获取数据_SSE">
+<meta property="og:url" content="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="1. 一句话定位把 6-4 那条 prompt().call().content() 链里的 .call() 改成 .stream()，返回类型从 String 变成 Flux&lt;String&gt;，再给 @GetMapping 加上 produces &#x3D; TEXT_EVENT_STREAM_VALUE——你就拿到了”浏览器一字字蹦”的那种打字机效果，背后协议是 SSE。 2. 主体2.1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://llrf.github.io/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f005_t0039.1s_anchor.jpg">
+<meta property="article:published_time" content="2026-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-19T20:14:43.852Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://llrf.github.io/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f005_t0039.1s_anchor.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "6-5_ChatClient流式响应获取数据_SSE",
+  "url": "https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/",
+  "image": "https://llrf.github.io/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f005_t0039.1s_anchor.jpg",
+  "datePublished": "2026-05-19T16:00:00.000Z",
+  "dateModified": "2026-05-19T20:14:43.852Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '6-5_ChatClient流式响应获取数据_SSE',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">55</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">9</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f005_t0039.1s_anchor.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">6-5_ChatClient流式响应获取数据_SSE</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">6-5_ChatClient流式响应获取数据_SSE</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-19T20:14:43.852Z" title="更新于 2026-05-20 04:14:43">2026-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC6%E7%AB%A0-%E5%A4%9A-Agent-ReAct%E6%9E%B6%E6%9E%84%EF%BC%8CSpringAi%E8%BF%88%E5%85%A5Agent%E6%96%B0%E6%97%B6%E4%BB%A3/">第6章 多 Agent + ReAct架构，SpringAi迈入Agent新时代</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>把 6-4 那条 <code>prompt().call().content()</code> 链里的 <code>.call()</code> 改成 <code>.stream()</code>，返回类型从 <code>String</code> 变成 <code>Flux&lt;String&gt;</code>，再给 <code>@GetMapping</code> 加上 <code>produces = TEXT_EVENT_STREAM_VALUE</code>——你就拿到了”浏览器一字字蹦”的那种打字机效果，背后协议是 SSE。</p>
+<h2 id="2-主体"><a href="#2-主体" class="headerlink" title="2. 主体"></a>2. 主体</h2><h3 id="2-1-现象先纠错：打字机效果是后端能力，不是前端动画"><a href="#2-1-现象先纠错：打字机效果是后端能力，不是前端动画" class="headerlink" title="2.1 现象先纠错：打字机效果是后端能力，不是前端动画"></a>2.1 现象先纠错：打字机效果是后端能力，不是前端动画</h3><p>你大概也曾以为 ChatGPT 网页那种”一字一字蹦出来”是 JS 用 setTimeout 拼出来的渲染特效。这集第一刀就砍掉这个直觉：那是后端在用 SSE 实时推每个 chunk，前端拿到一段就贴一段，根本没有动画层。</p>
+<p>这件事一旦扳过来，后面所有改造的目的就变得清楚——你要让 SpringBoot API 也具备”按 token 顺序持续推”的能力。</p>
+<p><img src="/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f005_t0039.1s_anchor.jpg" alt="概念 流式响应的可视化"></p>
+<h3 id="2-2-两个前提条件（需求侧）"><a href="#2-2-两个前提条件（需求侧）" class="headerlink" title="2.2 两个前提条件（需求侧）"></a>2.2 两个前提条件（需求侧）</h3><p>要让后端能”一字字蹦”，API 必须同时满足两件事：</p>
+<ol>
+<li><strong>与大模型保持长连接</strong>——HTTP 一来一回就断的模式不够用，大模型还在算下一个 token 时连接不能挂掉。</li>
+<li><strong>大模型能主动推</strong>——不能每出一个 token 都要客户端再发一次请求，那延迟和握手开销直接爆掉。</li>
+</ol>
+<p>把这两条独立列出来，比把它们和”SSE 怎么工作”混在一起讲清楚得多。<strong>加工增量在 §2.2</strong>：消化稿里这两条前提是我从思路推导那段单独抽出来的，原讲解是边讲思路边引出 SSE，我把”需求侧 &#x3D; 前提条件”和”供给侧 &#x3D; SSE 机制”切成两节。</p>
+<h3 id="2-3-SSE-是-HTTP-的子用法（供给侧）"><a href="#2-3-SSE-是-HTTP-的子用法（供给侧）" class="headerlink" title="2.3 SSE 是 HTTP 的子用法（供给侧）"></a>2.3 SSE 是 HTTP 的子用法（供给侧）</h3><p>这是第二个反直觉点。SSE 不是另起炉灶的新协议，建连那一刻发的就是普通 HTTP 请求，只是请求头里多塞一行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accept: text/event-stream</span><br></pre></td></tr></table></figure>
+
+<p>服务端看到这个头，才决定”这个响应不一次性写完，改成持续推”。所以前面 3-6 和 4-4 提过的”SSE 协议”，在 Java API ↔ 大模型这条线上的落地就这么一行请求头加一行 produces。</p>
+<p><img src="/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f047_t0320.4s_anchor.jpg" alt="概念 SSE 通道建立三步的可视化"></p>
+<p>通道建立三步：</p>
+<ol>
+<li>客户端发普通 HTTP，但带 <code>Accept: text/event-stream</code></li>
+<li>服务端识别该头，把响应模式从”一次写完”切成”持续推”</li>
+<li>长连接保持，服务端 emit 一段你收一段</li>
+</ol>
+<p>另外一条不要忘：<strong>SSE 是单向的</strong>。长连接一旦建立，客户端只收不发。要再问一句就得开新请求。这点拿来跟 4-4 讲过的 WebSocket 双向对照刚好。</p>
+<p><img src="/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f068_t0575.2s_anchor.jpg" alt="概念 SSE 单向通信的可视化"></p>
+<h3 id="2-4-Spring-AI-三处改造（代码侧）"><a href="#2-4-Spring-AI-三处改造（代码侧）" class="headerlink" title="2.4 Spring AI 三处改造（代码侧）"></a>2.4 Spring AI 三处改造（代码侧）</h3><p>回到 6-4 的那条三段式链，你要动的就三个地方：</p>
+<p><strong>① <code>.call()</code> 改成 <code>.stream()</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 6-4 的版本</span></span><br><span class="line">chatClient.prompt(message).call().content();      <span class="comment">// 返回 String</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 6-5 的版本</span></span><br><span class="line">chatClient.prompt(message).stream().content();    <span class="comment">// 返回 Flux&lt;String&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f101_t0814.2s_anchor.jpg" alt="概念 call → stream 单字改造的可视化"></p>
+<p><strong>② 方法返回类型从 <code>String</code> 改成 <code>Flux&lt;String&gt;</code></strong></p>
+<p>如果忘了改，IDE 立刻给你红线：<code>Incompatible types: Found &#39;reactor.core.publisher.Flux&lt;java.lang.String&gt;&#39;, required &#39;java.lang.String&#39;</code>。这条报错本身就是把”返回类型变了”这件事按到你脸上。</p>
+<p><img src="/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f095_t0769.6s_anchor.jpg" alt="概念 Flux&lt;String&gt; 返回类型的可视化"></p>
+<p><strong>③ <code>@GetMapping</code> 加 <code>produces</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(value = &quot;/simple/stream&quot;, produces = MediaType.TEXT_EVENT_STREAM_VALUE)</span></span><br><span class="line"><span class="keyword">public</span> Flux&lt;String&gt; <span class="title function_">streamChat</span><span class="params">(String message)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> chatClient.prompt(message).stream().content();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>produces</code> 这一行是”告诉服务端要按 SSE 来写响应头&#x2F;响应体”在代码侧的落地。不写的话，Spring 不会把这个 endpoint 当 SSE 处理，前面的改造就白做了。</p>
+<p><img src="/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f123_t0920.1s_scene.jpg" alt="概念 produces &#x3D; MediaType.TEXT_EVENT_STREAM_VALUE 的可视化"></p>
+<h3 id="2-5-ChatClient-ChatModel-的-Builder-封装（顺手补一刀）"><a href="#2-5-ChatClient-ChatModel-的-Builder-封装（顺手补一刀）" class="headerlink" title="2.5 ChatClient &#x3D; ChatModel 的 Builder 封装（顺手补一刀）"></a>2.5 ChatClient &#x3D; ChatModel 的 Builder 封装（顺手补一刀）</h3><p><code>ChatClient.create(ChatModel)</code> 这帧明确告诉你：ChatClient 拿一个 ChatModel 进去就能造出来。以后业务侧只跟 ChatClient 打交道，ChatModel 退到底层。这条 6-4 已经讲过，这集只是借机再强调——它是你后面所有调用（call、stream、加 prompt、加 tools）的统一入口。</p>
+<p><strong>取舍出现在 §2.5</strong>：讲师在选用什么协议时其实没有显式对比，但你在脑子里要记住——WebSocket 能双向、能更通用，但本场景客户端就是只收不发，SSE 单向 + 基于普通 HTTP 头切换 &#x3D; 更轻量。够用就别上 WebSocket。</p>
+<h2 id="3-没-get-的点"><a href="#3-没-get-的点" class="headerlink" title="3. 没 get 的点"></a>3. 没 get 的点</h2><ul>
+<li><strong><code>Flux&lt;String&gt;</code> 在 WebMVC（Tomcat）下到底能不能直接吃？</strong> 视频里没切依赖、没改启动类，看起来 WebMVC 直接吞下了 Flux 返回类型。Spring 应该有适配层（大概率走 Servlet 3.0 异步 + reactive adapter），但具体路径要查。</li>
+<li><strong>每一个 <code>String</code> 是一个 token 还是一段 chunk？</strong> 视频里 APIFox 能看见流式蹦字，但没特地打印颗粒度。猜测是大模型 SSE 推什么就 emit 什么（按 chunk 不按 token），但要写个 <code>.doOnNext(System.out::println)</code> 验证一次。</li>
+<li><strong>前端怎么消费 <code>Flux&lt;String&gt;</code>？</strong> APIFox 看见的是”分块到达”，但真到浏览器侧渲染打字机，就要 <code>EventSource</code> 或 <code>fetch</code> 的 ReadableStream。这集没讲，后续应该会补。</li>
+<li><strong>Accept vs Content-Type</strong>：严格说客户端发 <code>Accept</code>，服务端响应 <code>Content-Type</code>，<code>produces</code> 控制的是后者。这两者讲解时被笼统说成”请求头”，自己写代码时要分清。</li>
+</ul>
+<h2 id="4-跟其他集的连接"><a href="#4-跟其他集的连接" class="headerlink" title="4. 跟其他集的连接"></a>4. 跟其他集的连接</h2><p><strong>上承</strong></p>
+<ul>
+<li>6-4：给了 <code>ChatClient.prompt().call().content()</code> 三段式链。本集就在这条链上把中间那一段从 <code>.call()</code> 改成 <code>.stream()</code>。</li>
+<li>4-4 MCP 的通信 SSE 实时传输：第一次讲 SSE 协议本身（单向 vs WebSocket 双向、text&#x2F;event-stream、长连接）。本集是同一套 SSE 在”Java API ↔ 大模型”线上的复用。</li>
+<li>3-6 体验 MCP JManus 配置 MCP 服务：那里提过 SSE 是 MCP 三种传输方式之一。</li>
+</ul>
+<p><strong>下启</strong></p>
+<ul>
+<li>6-6 之后大概率会讲：ChatModel 直接做流式（对照本集的 ChatClient 版本）、或者前端怎么用 EventSource 消费 <code>Flux&lt;String&gt;</code>。</li>
+<li>流式 + 工具调用 &#x2F; 流式 + RAG 的组合（边检索边推 token）。</li>
+</ul>
+<p><strong>横向</strong></p>
+<ul>
+<li>4-7 WebFlux 框架：<code>Flux&lt;String&gt;</code> 就是 reactor 反应式的核心类型，本集第一次把它放进业务代码。produces&#x3D;text&#x2F;event-stream 这条线其实暗含”要能撑住长连接”，Tomcat NIO 也行但 WebFlux 更对路。</li>
+<li>4-10 SAA 1.1 整合 MCP：提到 Streamable HTTP 是 SSE 的升级版——SSE 是基础，Streamable HTTP 是 2025 之后的演进。</li>
+</ul>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">打字机效果（现象）</span><br><span class="line">    │</span><br><span class="line">    └── 后端能力，不是前端动画</span><br><span class="line">            │</span><br><span class="line">            ├── 前提条件 ①：长连接</span><br><span class="line">            ├── 前提条件 ②：服务端主动推</span><br><span class="line">            │       │</span><br><span class="line">            │       └── 满足两条 → 选 SSE（轻量、单向够用）</span><br><span class="line">            │                   │</span><br><span class="line">            │                   ├── 客户端：Accept: text/event-stream</span><br><span class="line">            │                   ├── 服务端：识别该头后持续推</span><br><span class="line">            │                   └── 通道：单向（客户端只收不发）</span><br><span class="line">            │</span><br><span class="line">            └── Spring AI 三处改造</span><br><span class="line">                    │</span><br><span class="line">                    ├── .call() → .stream()</span><br><span class="line">                    ├── String → Flux&lt;String&gt;</span><br><span class="line">                    └── @GetMapping(produces = TEXT_EVENT_STREAM_VALUE)</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-自测题（5-卡）"><a href="#6-自测题（5-卡）" class="headerlink" title="6. 自测题（5 卡）"></a>6. 自测题（5 卡）</h2><ol>
+<li>浏览器里大模型一字字蹦出字来，到底是前端 JS 做的动画，还是后端推的？依据是什么？</li>
+<li>要让后端 API 具备”流式返回”的能力，必须同时满足哪两个前提条件？</li>
+<li>客户端怎么”告诉”服务端这次请求走 SSE？请写出完整的请求头键值对。</li>
+<li>从 6-4 的 <code>.call()</code> 链改造成 SSE 流式接口，Controller 方法上要动的三个地方分别是什么？</li>
+<li><code>produces = MediaType.TEXT_EVENT_STREAM_VALUE</code> 这一行在 SSE 通信里扮演什么角色？不写会怎样？</li>
+</ol>
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>一句话说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>流式响应</td>
+<td>大模型按 chunk 顺序持续推，浏览器一字字蹦的真实成因；是后端能力，不是前端动画</td>
+</tr>
+<tr>
+<td>ChatClient 对 ChatModel 的 Builder 封装</td>
+<td><code>ChatClient.create(ChatModel)</code> 即可，业务侧只用 ChatClient，不再裸用 ChatModel</td>
+</tr>
+<tr>
+<td>call → stream 单字改造</td>
+<td><code>.call()</code> 一次性返回 String；<code>.stream()</code> 流式返回，配 <code>.content()</code> 得到 Flux</td>
+</tr>
+<tr>
+<td>Flux<String> 返回类型</td>
+<td>Controller 方法签名必须从 <code>public String</code> 改成 <code>public Flux&lt;String&gt;</code>，否则 IDE 报 Incompatible types</td>
+</tr>
+<tr>
+<td>SSE 两大前提条件</td>
+<td>① 与大模型保持长连接；② 大模型能主动推。普通 HTTP 一来一回都不满足</td>
+</tr>
+<tr>
+<td>SSE 通道建立三步</td>
+<td>① 客户端发普通 HTTP 但带 <code>Accept: text/event-stream</code>；② 服务端识别该头；③ 服务端持续推</td>
+</tr>
+<tr>
+<td>SSE 单向通信</td>
+<td>长连接建立后客户端只收不发；想再问就得开新请求。与 WebSocket 双向区分</td>
+</tr>
+<tr>
+<td>produces &#x3D; MediaType.TEXT_EVENT_STREAM_VALUE</td>
+<td><code>@GetMapping</code> 上必须显式声明，否则服务端不会按 SSE 写响应头&#x2F;响应体</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/">https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="/images/agent-learning/6-5_ChatClient%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE_SSE/f005_t0039.1s_anchor.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-6-6_SpringAi_11_%E6%AD%A3%E5%BC%8F%E8%BF%9B%E5%85%A5Agent%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E6%97%B6%E4%BB%A3/" title="6-6_SpringAi_11_正式进入Agent自主决策时代"><img class="cover" src="/images/agent-learning/6-6_SpringAi_11_%E6%AD%A3%E5%BC%8F%E8%BF%9B%E5%85%A5Agent%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E6%97%B6%E4%BB%A3/f002_t0057.5s_anchor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">6-6_SpringAi_11_正式进入Agent自主决策时代</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位这一集是 SAA 1.1 的入门钥匙：你不再 ChatClient.prompt().call() 直接打 LLM，而是先用 ReActAgent.builder() 拼一个智能体出来，让它带着大脑、手脚、记忆、人设替你做规划和决策。  2. 主体2.1 1.0 vs 1.1 心智模型差（B：是什么）1.0 时代你拿到的是一根电话线 —— ChatClient 上一头接你，一头接 LLM，你说什么它转什么。1.1 时代你拿到的是一个秘书 —— ReActAgent 帮你接电话、帮你决定要不要打、要不要查资料、要不要写下来。秘书内部仍然在用电话（ChatModel），但你不直接碰那根线了。 讲师特别强调了一句”1.0 的 ChatClient 在 1.1 里同样适用”。这话其实是给你台阶下：纯对话场景你完全可以继续用 ChatClient，ReActAgent 不是替代品而是升级品——它在 ChatClient 之上多包了规划和决策两层能力。  2.2 依赖两件套和 BOM 的坑（C：怎么用）1.1 在 pom 里只多两条依赖： 12345678910&lt;dep...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-6-4_%E5%92%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BA%92%E5%8A%A8%E7%9A%84%E7%AA%97%E5%8F%A3ChatClient%E5%AF%B9%E8%B1%A1/" title="6-4_和大模型互动的窗口ChatClient对象"><img class="cover" src="/images/agent-learning/6-4_%E5%92%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E4%BA%92%E5%8A%A8%E7%9A%84%E7%AA%97%E5%8F%A3ChatClient%E5%AF%B9%E8%B1%A1/f001_t0000.0s_scene.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">6-4_和大模型互动的窗口ChatClient对象</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位你把上一集 UserMessage → Prompt → call → 三层剥皮 的糖葫芦串压成 chatClient.prompt(msg).call().content() 一行——代价是 ChatClient 不是简单 POJO，注入进来还得 .build() 一次才能用。 2. 主体2.1 痛点：上一集的代码有多丑 把 6-3 写的 simpleChat 拉出来看一眼：四个 new、一次 call、三层 getResult().getOutput().getText()、外加判空——光”问大模型一句话”就铺了 20 行。这一集要做的事就一句话：把这 20 行压成一行。 12345678910// 6-3 写法（糖葫芦串）UserMessage userMessage = new UserMessage(message);Prompt prompt = new Prompt(userMessage);ChatResponse chatResponse = chatModel.call(prompt);if (chatResponse.getResult() ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" title="3-12 多Agent的核心执行流程"><img class="cover" src="/images/agent-learning/3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/f002_t0185.9s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-12 多Agent的核心执行流程</div></div><div class="info-2"><div class="info-item-1"> 摘要：本集梳理多Agent团队的核心执行流程，主轴是”外层5步团队流水线 + 内层5步个体循环”的嵌套骨架。取舍出现在 §2.1（先讲多Agent大图、再下钻到单Agent，与原素材”从小到大”的顺序相反）。加工增量在 §2.4（把”通信 + 中间结果存储”重新定位为”协作落地的两个工程接口”，并补了一张三层视角图）。   1. 一句话定位多Agent骨架 &#x3D; 外层团队5步 + 内层个体5步的嵌套。 2. 主体讲解2.1 先抓总图：多Agent的五步骨架如果你只能记一张图，就记这张：一个用户请求进来，要走五步才能拿到结果。    步骤 做什么 谁来做    1. 意图识别 听懂用户到底要什么 LLM 的推理能力   2. 任务初始化 把”想要”翻译成”任务实体” 系统   3. 任务规划 &#x2F; 复杂任务划分 把大任务切成可执行子任务 主管 Agent   4. 任务执行 多个专业 Agent 协同跑各自的子任务 多个子 Agent   5. 结果整合 把碎片产出拼回一个完整答案 主管 Agent   注意你看到 1→5 是顺序的，但第 4 步本身是个”团队子过...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/" title="3-10 多Agent跨部门协作：A2A协议"><img class="cover" src="/images/agent-learning/3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/f010_t0375.0s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-10 多Agent跨部门协作：A2A协议</div></div><div class="info-2"><div class="info-item-1">多Agent跨部门协作：A2A协议1. 一句话定位A2A 是远程 agent 之间通过中心协调者通信协作的协议。 2. 主体讲解2.1 先扔结论：A2A 到底是什么如果你只能记一句话，记这个：A2A &#x3D; Agent-to-Agent，Google 提的、用来让两个远程 agent 互相通信 + 协作的协议。它和你之前学过的 MCP 是兄弟关系，但解决的问题完全不同：MCP 让 agent 调用外部工具，A2A 让 agent 调用另一个 agent。 但这里有一个让你少走弯路的前置认知：A2A 并不是所有”多 agent 场景”都要用的协议。你下面要先搞清楚”远程 agent vs 同模型多 agent”这条分界线，否则会把它套到不该套的地方。 2.2 划线：什么时候才轮到 A2A 出场先记住一个定义性的约定：一个 agent 只挂一个大模型。就像人只有一个大脑——这不是技术限制，是给 agent 下的定义。所以：  一个 agent 用了 QWen，就不可能同时挂 OpenAI。 你想让 QWen 和 DeepSeek 一起干活？那就是两个 agent，而且天然分布在...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/" title="3-11 主流的多Agent开发框架"><img class="cover" src="/images/agent-learning/3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/f001_t0000.6s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-11 主流的多Agent开发框架</div></div><div class="info-2"><div class="info-item-1">主流的多Agent开发框架 摘要：这是一张”6 个多 Agent 框架的对比地图”，不是任何单个框架的实操课。读完你应该能在面试里五秒回答”AutoGen 和 CrewAI 差在哪、LangChain 为什么也算多 Agent 框架、Manus 凭什么是本课主角”。取舍出现在 §2.1（讲解顺序重排），加工增量在 §2.6 和 §3（横向对比表 + 反直觉判断）。    1. 一句话定位把 6 个主流多 Agent 框架按”自动化程度 &#x2F; 灵活度”摆成一张地图，钉住 JManus 的位置。  2. 主体讲解2.1 先看全景，再看细节（这里做了一次取舍）原视频是按 “演进背景 → AutoGen → CrewAI → LangChain → Manus → JoyAgent → muAgent” 顺序逐个介绍的。但你如果跟着这个顺序学，会发现每听到一个框架都没有锚点——因为根本没有对照对象。 所以这份笔记把顺序换成：先把对比表压进脑子 → Manus（本课主角）→ CrewAI（最强对照组）→ AutoGen（差一点的对照组）→ LangChain（造轮子底座）→ Joy...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-4_%E6%9B%B4%E4%BC%98%E7%9A%84%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_MCP/" title="3-4 更优的困境解决方案：MCP"><img class="cover" src="/images/agent-learning/3-4_%E6%9B%B4%E4%BC%98%E7%9A%84%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_MCP/f005_t0307.2s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-4 更优的困境解决方案：MCP</div></div><div class="info-2"><div class="info-item-1">§1 一句话定位把”各家自研的跑腿”换成”行业共享的外包”，工具一次开发、多模型通吃。 §2 主体讲解2.1 先回到 Function Calling 留下的两个坑3-3 给 LLM 配了个跑腿小弟 Function Calling（下文简称 FC）。它解决了 LLM 不会调 API、不会读本地文件、不会 CRUD 数据库的能力问题。但你顺着用一段时间会发现两件事很别扭： 第一件：一个跑腿照顾不过来无穷的需求。 A 用户问天气、B 用户问股票分时图、C 用户问交通状况——跑腿小弟得自己把每个 API 的调用函数都写一遍。视频里把这点叫作”忙不过来”，但你冷静想一下：忙不忙其实不是问题，写得完就行。真正的问题在下一条。 第二件，也是真正的痛点：N 家模型 × M 个工具的笛卡尔积爆炸。 OpenAI 有自己的 FC，DeepSeek、豆包、千问各有自己的 FC，互相不通用。你写一个”调高德地图”的工具，想给五家模型用，就得照着五套规范各写一遍。开发者扛不动这种重复劳动。  取舍：视频里把第一个坑（忙不过来）讲得比第二个坑还重，但落到工程现实，”忙不过来”靠多写几个函数就行，生态层面...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"><img class="cover" src="/images/agent-learning/3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;</div></div><div class="info-2"><div class="info-item-1">3-1 大模型困境：数据获取与整合上的”抓瞎”§1 一句话定位看完这一集，你应该能用一句话回答：”LLM 为什么需要外挂？”  §2 主体讲解先把 LLM 的”世界”立起来要看懂这一集后面所有的”反例”，你得先接受一个心智模型： LLM 没有”现实世界”，它只有一个向量空间。 它学过的每一个概念——林黛玉、星巴克、卢浮宫的某幅名画——在这个空间里都对应一个唯一的点（一个上千维的向量）。它做的所有”思考”，都是在这个空间里做几何运算：找邻居、量距离、走向量加法。 这件事一旦想透，三个看上去很神奇的能力就立刻不神奇了：  百科全书 —— 红楼梦整本书早被嵌入进去了，林黛玉的”性格特征””结局””出现章节”都是她那个点周围的邻居。问到她，模型不过是在做一次邻域查询。 猜意图 —— “咖啡馆里来杯星巴克”，”星巴克”这三个字在向量空间里有好几个候选位置（品牌、咖啡馆、饮料），模型借助上下文里的”咖啡馆””来一杯”两个锚点，做概率运算选最近的那个。 迁就口吻 —— “用广东人语气回答”也是空间里的一个方向向量，把答案沿着这个方向偏移即可。   所以”智能”的本质是：对静态、公开、历史语料的...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/" title="3-3 Function Calling 就是大模型的&quot;跑腿小弟&quot;"><img class="cover" src="/images/agent-learning/3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/f002_t0009.8s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-3 Function Calling 就是大模型的&quot;跑腿小弟&quot;</div></div><div class="info-2"><div class="info-item-1">3-3 Function Calling 就是大模型的”跑腿小弟” 来源：慕课网 imooc.com，视频 3-3 Function Calling就是大模型的跑腿小弟.mp4（约 13 分钟）本笔记基于自动化 pipeline：whisper 转录 + scenedetect 关键帧 + PaddleOCR + Claude 多模态读图。原始产物：transcript.txt &#x2F; frame_index.json &#x2F; frames/。   一、本集主旨承接 3-2 的”调用外部 API 解决实时性问题”思路，本集要拆穿一个最容易被忽略的隐藏角色：当我们说”大模型会调用天气 API”时，真正干这件事的并不是大模型本身，而是它体内的一个小弟——Function Calling（函数调用），并且 Function Calling 也只是”传话的”，真正执行 HTTP 请求的还在大模型外部。 讲师围绕两个核心问题铺开：    # 核心问题 一句话答案    Q1 第三方应用的 API 到底是谁调用的？ 大模型内部的 Function Calling（调用者），但执行...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">55</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">9</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93"><span class="toc-number">2.</span> <span class="toc-text">2. 主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%8E%B0%E8%B1%A1%E5%85%88%E7%BA%A0%E9%94%99%EF%BC%9A%E6%89%93%E5%AD%97%E6%9C%BA%E6%95%88%E6%9E%9C%E6%98%AF%E5%90%8E%E7%AB%AF%E8%83%BD%E5%8A%9B%EF%BC%8C%E4%B8%8D%E6%98%AF%E5%89%8D%E7%AB%AF%E5%8A%A8%E7%94%BB"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 现象先纠错：打字机效果是后端能力，不是前端动画</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%B8%A4%E4%B8%AA%E5%89%8D%E6%8F%90%E6%9D%A1%E4%BB%B6%EF%BC%88%E9%9C%80%E6%B1%82%E4%BE%A7%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 两个前提条件（需求侧）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-SSE-%E6%98%AF-HTTP-%E7%9A%84%E5%AD%90%E7%94%A8%E6%B3%95%EF%BC%88%E4%BE%9B%E7%BB%99%E4%BE%A7%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 SSE 是 HTTP 的子用法（供给侧）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Spring-AI-%E4%B8%89%E5%A4%84%E6%94%B9%E9%80%A0%EF%BC%88%E4%BB%A3%E7%A0%81%E4%BE%A7%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 Spring AI 三处改造（代码侧）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-ChatClient-ChatModel-%E7%9A%84-Builder-%E5%B0%81%E8%A3%85%EF%BC%88%E9%A1%BA%E6%89%8B%E8%A1%A5%E4%B8%80%E5%88%80%EF%BC%89"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 ChatClient &#x3D; ChatModel 的 Builder 封装（顺手补一刀）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B2%A1-get-%E7%9A%84%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">3. 没 get 的点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">4. 跟其他集的连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98%EF%BC%885-%E5%8D%A1%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">6. 自测题（5 卡）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现"><img src="/images/agent-learning/4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/f075_t0722.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-14_SpringAi_11_A2A的服务发现"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现">4-14_SpringAi_11_A2A的服务发现</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard"><img src="/images/agent-learning/4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/f034_t0423.3s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-15_SpringAi_11_A2A的元数据AgentCard"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard">4-15_SpringAi_11_A2A的元数据AgentCard</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册"><img src="/images/agent-learning/4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringAi 1.1 A2A的服务注册"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册">SpringAi 1.1 A2A的服务注册</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议"><img src="/images/agent-learning/4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/f100_t0692.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试 SpringAi 1.1 实现的 A2A 协议"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议">测试 SpringAi 1.1 实现的 A2A 协议</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/" title="5-2_团队成员路线制定专员Agent"><img src="/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f008_t0320.0s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="5-2_团队成员路线制定专员Agent"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/" title="5-2_团队成员路线制定专员Agent">5-2_团队成员路线制定专员Agent</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
