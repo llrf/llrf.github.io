@@ -1,0 +1,392 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>10-1_Agent的牛马小弟SubAgent | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="1. 一句话定位SubAgent 是主 Agent 在干活时，把某个”单个专业场景”（写 SQL、CRUD、登录接口）外包给一个跑在独立上下文里的小弟，唯一目的就是不让这点专业脏活污染主上下文。 2. 主体2.1 先把上一集的三层架构在脑子里挂好这集前 4 分钟全在复述上一集，把那张图想清楚再往下读会舒服很多：  总协调 Agent（总监级）：只做规划和需求切分，自己不下场。 Agent 主管（领">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10-1_Agent的牛马小弟SubAgent">
+<meta property="og:url" content="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="1. 一句话定位SubAgent 是主 Agent 在干活时，把某个”单个专业场景”（写 SQL、CRUD、登录接口）外包给一个跑在独立上下文里的小弟，唯一目的就是不让这点专业脏活污染主上下文。 2. 主体2.1 先把上一集的三层架构在脑子里挂好这集前 4 分钟全在复述上一集，把那张图想清楚再往下读会舒服很多：  总协调 Agent（总监级）：只做规划和需求切分，自己不下场。 Agent 主管（领">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://llrf.github.io/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg">
+<meta property="article:published_time" content="2026-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-20T02:55:24.552Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://llrf.github.io/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "10-1_Agent的牛马小弟SubAgent",
+  "url": "https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/",
+  "image": "https://llrf.github.io/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg",
+  "datePublished": "2026-05-19T16:00:00.000Z",
+  "dateModified": "2026-05-20T02:55:24.552Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '10-1_Agent的牛马小弟SubAgent',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">98</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">10-1_Agent的牛马小弟SubAgent</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">10-1_Agent的牛马小弟SubAgent</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-20T02:55:24.552Z" title="更新于 2026-05-20 10:55:24">2026-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC10%E7%AB%A0-Skills-%E8%AE%A9-Agent-%E6%8C%89%E7%85%A7%E4%B8%93%E4%B8%9A%E6%B5%81%E7%A8%8B%E5%B7%A5%E4%BD%9C/">第10章 Skills 让 Agent 按照专业流程工作</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>SubAgent 是主 Agent 在干活时，把某个”单个专业场景”（写 SQL、CRUD、登录接口）外包给一个跑在<strong>独立上下文</strong>里的小弟，唯一目的就是<strong>不让这点专业脏活污染主上下文</strong>。</p>
+<h2 id="2-主体"><a href="#2-主体" class="headerlink" title="2. 主体"></a>2. 主体</h2><h3 id="2-1-先把上一集的三层架构在脑子里挂好"><a href="#2-1-先把上一集的三层架构在脑子里挂好" class="headerlink" title="2.1 先把上一集的三层架构在脑子里挂好"></a>2.1 先把上一集的三层架构在脑子里挂好</h3><p>这集前 4 分钟全在复述上一集，把那张图想清楚再往下读会舒服很多：</p>
+<ul>
+<li><strong>总协调 Agent</strong>（总监级）：只做规划和需求切分，自己不下场。</li>
+<li><strong>Agent 主管</strong>（领域主管，前端 &#x2F; 后端 &#x2F; 测试 &#x2F; 运维 &#x2F; 安全 &#x2F; 产品 等）：拿到本领域的任务后，<strong>继续切</strong>，再派给下面的执行者。</li>
+<li><strong>Agent 执行者</strong>（初级 &#x2F; 实习生程序员）：真正动手，具有领域知识，能自己组合工具、调 MCP 和 Function Calling，<strong>不用反复问大模型”我该用啥工具”</strong>。</li>
+</ul>
+<p>每一层内部都跑同一个循环：<strong>ReAct</strong>——思考、执行、再思考”结果对不对、和目标有没有出入”、有偏差就动态调整。讲师反复强调这一条，不是凑数，是后面 SubAgent 出场时的语境：SubAgent 内部也是这个循环，只是壳子不一样。</p>
+<p><img src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg" alt="三层架构 + ReAct 循环"></p>
+<h3 id="2-2-SubAgent-是从哪一层”再切一刀”"><a href="#2-2-SubAgent-是从哪一层”再切一刀”" class="headerlink" title="2.2 SubAgent 是从哪一层”再切一刀”"></a>2.2 SubAgent 是从哪一层”再切一刀”</h3><p>⚠️ 这里很容易踩坑：<strong>SubAgent 不是三层架构里的”执行者 Agent”</strong>。执行者还在主线的上下文链里——它和主管、总协调共用同一条 context。SubAgent 是从执行者<strong>再外挂出去</strong>的一类角色。</p>
+<p>讲师举的例子很具体：执行者正在写一个登录接口，过程中要查数据库——这就需要<strong>写 SQL</strong>。”写 SQL”对登录接口这个主线来说，是一个<strong>单个专业场景</strong>。如果不剥离：</p>
+<ul>
+<li>执行者的上下文会塞满 SQL 表结构、字段类型、报错调试痕迹；</li>
+<li>一旦 SQL 卡住，整个主线节奏被打断；</li>
+<li>想并行做”另一个 CRUD 接口”？没法做，因为只有一条 context。</li>
+</ul>
+<p>把”写 SQL”剥成一个 SubAgent，问题就反过来：</p>
+<ol>
+<li>SubAgent 在**独立的上下文（独立的 LLM context window）**里跑——讲师嘴里那个”独立的容器”其实是这个意思，<strong>不是 Docker 容器、不是进程隔离</strong>。</li>
+<li>主上下文只看到结果，不沾过程，<strong>不被污染</strong>。</li>
+<li>多个 SubAgent 可以<strong>并行</strong>——一个写 SQL、一个写 CRUD、一个数据分析、一个登录接口，同时跑。</li>
+<li>哪怕某个 SubAgent <strong>挂了</strong>，主线任务不受牵连。</li>
+</ol>
+<p>讲师把第 4 点放最后，但<strong>核心收益其实是 2 + 3</strong>：上下文不污染和可并行。容错只是副产品。这条是我对讲师叙述的取舍——他原话顺序会让人误以为”隔离主要为容错”，反过来想效率更好用。</p>
+<p><img src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f025_t0406.6s_anchor.jpg" alt="SubAgent 独立上下文，不污染主上下文"></p>
+<h3 id="2-3-Claude-三连发：MCP-Skills-SubAgent"><a href="#2-3-Claude-三连发：MCP-Skills-SubAgent" class="headerlink" title="2.3 Claude 三连发：MCP &#x2F; Skills &#x2F; SubAgent"></a>2.3 Claude 三连发：MCP &#x2F; Skills &#x2F; SubAgent</h3><p>讲师在中段画了一张并列图，把 Anthropic（讲师口中的”它”）连续推出的三个前瞻概念排成一排：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>解决的问题</th>
+<th>装的是什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MCP</td>
+<td>工具接入要个统一标准</td>
+<td>工具协议</td>
+</tr>
+<tr>
+<td>Skills</td>
+<td>Agent 怎么获得领域知识</td>
+<td>领域知识</td>
+</tr>
+<tr>
+<td>SubAgent</td>
+<td>主上下文怎么不被脏活污染</td>
+<td>独立的上下文</td>
+</tr>
+</tbody></table>
+<p>三个东西<strong>不重复也不替代</strong>。我之前会把 Skills 和 SubAgent 混着想——其实它们是正交的：<strong>Skills 让一个 Agent 懂一门手艺，SubAgent 让一个 Agent 暂时变成两个</strong>。一个 SubAgent 自己内部也可以挂 Skills。</p>
+<p><img src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f028_t0430.6s_anchor.jpg" alt="Claude 的三连发：MCP &#x2F; Skills &#x2F; SubAgent"></p>
+<h3 id="2-4-切分粒度的判据（我加工的增量）"><a href="#2-4-切分粒度的判据（我加工的增量）" class="headerlink" title="2.4 切分粒度的判据（我加工的增量）"></a>2.4 切分粒度的判据（我加工的增量）</h3><p>讲师只说”单个专业场景”，没给可操作的判据。我把它整理成一条经验线，给一年后的我直接用：</p>
+<blockquote>
+<p><strong>该不该剥成 SubAgent，看这个子任务的中间过程会不会把主上下文塞脏。</strong></p>
+</blockquote>
+<ul>
+<li>写 SQL：中间会冒出表结构、字段类型、试错——<strong>剥</strong>。</li>
+<li>CRUD：中间会冒出大量样板代码、字段映射——<strong>剥</strong>。</li>
+<li>登录接口：中间会冒出加密算法选型、token 格式调试——<strong>剥</strong>。</li>
+<li>在 IT 部里”塞给实习生”的活，几乎都是这类——这是讲师的直觉，可惜他没显式说出来。</li>
+</ul>
+<p>不剥的反例（讲师没讲，我补的）：主线的核心判断、跨子任务的串联决策、最终的结果汇总——这些必须留在主上下文里，剥出去反而割裂。</p>
+<h2 id="3-没-get-的点"><a href="#3-没-get-的点" class="headerlink" title="3. 没 get 的点"></a>3. 没 get 的点</h2><ul>
+<li><strong>SubAgent 怎么被调起？</strong> 是主 Agent 像调函数一样 <code>spawn</code>，还是像 Skills 那样声明式注册？本集只讲是什么，没讲怎么写。</li>
+<li><strong>SubAgent 之间能通信吗？</strong> 还是只能经主 Agent 中转？讲师只强调”不污染主上下文”，没说彼此。</li>
+<li><strong>结果怎么回收到主上下文？</strong> 只回 final result 还是带摘要？这是”不污染”承诺的真正技术点，没讲。</li>
+<li><strong>SubAgent 出错后，主 Agent 是重试、降级、还是放弃？</strong> 讲师只说”不连累主线”，没说补偿机制。</li>
+<li>**和 A2A &#x2F; Nacos 那一套的取舍——**SubAgent 本地、A2A 远程，9 章里两个词同时出现说明工程化时混用，但分工边界还没明说。</li>
+</ul>
+<h2 id="4-跟其他集连接"><a href="#4-跟其他集连接" class="headerlink" title="4. 跟其他集连接"></a>4. 跟其他集连接</h2><h3 id="上承"><a href="#上承" class="headerlink" title="上承"></a>上承</h3><ul>
+<li><a href="../3-9_%E6%90%9E%E5%AE%9A%E5%A4%8D%E6%9D%82%E6%B4%BB%E5%84%BF%E5%BE%97%E9%9D%A0%E5%A4%9A%E4%B8%AAAgent%E5%8D%8F%E4%BD%9C/notes.md">3-9 多 Agent 协作</a> &#x2F; <a href="../3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/notes.md">3-12 多 Agent 核心执行流程</a>：给了”主管 + 专科”两层骨架，本集在执行者下面<strong>再加一类角色</strong>。注意：是”加一类”，不是”加一层”——SubAgent 是平铺挂载的外包工，不是塔顶又架了一层。</li>
+<li><a href="../3-7_%E5%85%B7%E6%9C%89%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E7%9A%84Agent_Skills/notes.md">3-7 Agent Skills</a>：讲师明确把 Skills 和 SubAgent 并列为 Anthropic 的两个前瞻性概念。<strong>Skills 装知识、SubAgent 装独立上下文</strong>，互补。</li>
+<li>9-10（上一集，远程 Agent 封装为工具）：本集是开 10 章新主题，但 9 章关键词里已经出现 Subagent，说明工程化场景在 9 章已经隐式用上，10-1 是回头补讲概念。</li>
+</ul>
+<h3 id="下启"><a href="#下启" class="headerlink" title="下启"></a>下启</h3><ul>
+<li>后续 10-x 大概率会进 Claude Code 实操（具体声明语法、调度规则）或者用 AgentScope 把 SubAgent 实现一遍——本集纯概念，不给代码。</li>
+</ul>
+<h3 id="横向"><a href="#横向" class="headerlink" title="横向"></a>横向</h3><ul>
+<li><a href="../3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/notes.md">3-10 A2A 协议</a> &#x2F; <a href="../4-11_SpringAi_11_A2A%E7%9A%843%E4%B8%AA%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6/notes.md">4-11~4-16 SAA A2A</a>：<strong>两套并行的”派外活”思路</strong>——A2A 走”远程独立 Agent + 服务发现（Nacos）”，跨进程跨厂商；SubAgent 走”本地独立上下文 + 派单”，同进程同厂商。前者解决组织间的协作，后者解决一个 Agent 内部的上下文卫生。</li>
+<li><a href="../8-5_Manus%E6%98%AF%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84Ai_Agent/notes.md">8-5 Manus 自主决策</a>：那集把”隔离容器”作为规划模块的产物——和本集”独立上下文”是<strong>同一思路的两个名字</strong>，讲师在不同章用了不同词汇，本质都是 context 隔离。</li>
+</ul>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">                     总协调 Agent（规划+切分）</span><br><span class="line">                            │</span><br><span class="line">      ┌─────────────┬───────┴──────┬────────────┐</span><br><span class="line">     前端主管     后端主管        测试主管      运维主管 ...</span><br><span class="line">      │              │               │</span><br><span class="line">   执行者(实习生)   执行者          执行者</span><br><span class="line">      │</span><br><span class="line">      ├──[主上下文]── 主线工作 ──────────────────►</span><br><span class="line">      │</span><br><span class="line">      │  ↓ 把&quot;单个专业场景&quot;剥出去</span><br><span class="line">      │</span><br><span class="line">      ├── SubAgent(写SQL)        ┐</span><br><span class="line">      ├── SubAgent(CRUD)         │ 各自独立 context</span><br><span class="line">      ├── SubAgent(登录接口)     │ 可并行</span><br><span class="line">      └── SubAgent(数据分析)     ┘ 错了不连累主线</span><br><span class="line"></span><br><span class="line">      每一层内部 = ReAct 循环（思考-执行-反思-调整）</span><br><span class="line"></span><br><span class="line">Claude 三连发：MCP（工具协议） + Skills（领域知识） + SubAgent（上下文隔离）</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-自测题（5-张卡）"><a href="#6-自测题（5-张卡）" class="headerlink" title="6. 自测题（5 张卡）"></a>6. 自测题（5 张卡）</h2><ol>
+<li><p>SubAgent 和三层架构里的”执行者 Agent”是同一个东西吗？</p>
+<ul>
+<li>不是。执行者还在主上下文链里；SubAgent 是从执行者<strong>再外挂</strong>出去的独立 context，是平铺架构里的第四类角色，不是第四层。</li>
+</ul>
+</li>
+<li><p>SubAgent 存在的<strong>核心动机</strong>是什么？容错算不算？</p>
+<ul>
+<li>核心动机是”主上下文不被专业脏活污染” + “可并行”。容错（出错不连累主线）是副产品，不是首要动机。</li>
+</ul>
+</li>
+<li><p>讲师所说的”独立的容器”具体指什么？</p>
+<ul>
+<li>指独立的 <strong>LLM context window</strong>，不是 Docker 容器、不是进程隔离。</li>
+</ul>
+</li>
+<li><p>MCP &#x2F; Skills &#x2F; SubAgent 三者的分工？</p>
+<ul>
+<li>MCP 是工具接入的统一协议；Skills 让 Agent 装载领域知识；SubAgent 让 Agent 把单个专业场景剥到独立上下文里跑。三者正交、互补。</li>
+</ul>
+</li>
+<li><p>一个子任务该不该剥成 SubAgent，你怎么判断？</p>
+<ul>
+<li>看这个子任务的<strong>中间过程</strong>会不会把主上下文塞脏（大量样板代码 &#x2F; 字段映射 &#x2F; 试错痕迹 &#x2F; 领域专属对话）。会就剥，不会就留。</li>
+</ul>
+</li>
+</ol>
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SubAgent &#x2F; 子代理</td>
+<td>主 Agent 派出去的、在独立上下文里跑的专业场景执行者</td>
+</tr>
+<tr>
+<td>单个专业场景</td>
+<td>SubAgent 的切分粒度——比”代码领域”再细一层，如写 SQL &#x2F; CRUD &#x2F; 登录接口</td>
+</tr>
+<tr>
+<td>独立上下文</td>
+<td>SubAgent 的本质——独立 LLM context window，不是进程或容器隔离</td>
+</tr>
+<tr>
+<td>主上下文不被污染</td>
+<td>SubAgent 存在的核心动机</td>
+</tr>
+<tr>
+<td>并行处理</td>
+<td>多个 SubAgent 同时跑，是 Claude Code 体感快的真因</td>
+</tr>
+<tr>
+<td>三层架构挂载点</td>
+<td>SubAgent 挂在”执行者 Agent”外侧，是第四类角色而非第四层</td>
+</tr>
+<tr>
+<td>Claude 三连发：MCP &#x2F; Skills &#x2F; SubAgent</td>
+<td>Anthropic 连续推出的三个前瞻概念，分别管工具协议、领域知识、上下文隔离</td>
+</tr>
+<tr>
+<td>ReAct 思维过程</td>
+<td>思考-执行-反思-调整循环，每个 Agent（含 SubAgent）内部都走这个循环</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/">https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-2_Agent_Skills%E5%B0%B1%E6%98%AF%E4%B8%AA%E4%B8%93%E5%B1%9E%E5%B7%A5%E4%BD%9C%E6%B5%81/" title="10-2_Agent_Skills就是个专属工作流"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">10-2_Agent_Skills就是个专属工作流</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Skills 不是”会用工具”，是”一整套写死的 SOP + 每步该用哪个工具”的领域知识包；它反过来指挥 MCP 只吐你需要的那一两个工具，跟 SubAgent 区别在于 Skills 可移植可复用、SubAgent 用完即弃。 2. 主体2.1 先把”为啥还要 Skills”这个疑问钉死听完前几集你大概率会冒出一个问题：有 MCP 就能调工具了，Skills 不就是多一层吗？ 这正是本集要回应的。 回顾纯 MCP 路径下你会踩的坑（见 f010）：  MCP 一股脑把所有工具描述塞进上下文 → 上下文先吃掉一大块。 Agent 自己不知道该用哪个 → 反复问 LLM”我该用哪个” → 烧 token、多轮往返。  第一层补丁（3-7 那集讲过）是：给 Agent 灌点领域知识，让它自己挑工具、让 MCP 按需返回。本集要在这层补丁上再加码——Skills 不止是”挑工具的脑子”，它装的是整套 SOP。 2.2 SOP 才是 Skills 的真身 加工增量：讲师在这里转折得很快，原话基本是”agent skills 它不只是调用工具，它是一个包含了一整套 SOP...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"><img class="cover" src="/images/agent-learning/3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/f001_t0000.0s_scene.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">3-1 大模型困境：数据获取与整合上的"抓瞎"</div></div><div class="info-2"><div class="info-item-1">3-1 大模型困境：数据获取与整合上的”抓瞎”§1 一句话定位看完这一集，你应该能用一句话回答：”LLM 为什么需要外挂？”  §2 主体讲解先把 LLM 的”世界”立起来要看懂这一集后面所有的”反例”，你得先接受一个心智模型： LLM 没有”现实世界”，它只有一个向量空间。 它学过的每一个概念——林黛玉、星巴克、卢浮宫的某幅名画——在这个空间里都对应一个唯一的点（一个上千维的向量）。它做的所有”思考”，都是在这个空间里做几何运算：找邻居、量距离、走向量加法。 这件事一旦想透，三个看上去很神奇的能力就立刻不神奇了：  百科全书 —— 红楼梦整本书早被嵌入进去了，林黛玉的”性格特征””结局””出现章节”都是她那个点周围的邻居。问到她，模型不过是在做一次邻域查询。 猜意图 —— “咖啡馆里来杯星巴克”，”星巴克”这三个字在向量空间里有好几个候选位置（品牌、咖啡馆、饮料），模型借助上下文里的”咖啡馆””来一杯”两个锚点，做概率运算选最近的那个。 迁就口吻 —— “用广东人语气回答”也是空间里的一个方向向量，把答案沿着这个方向偏移即可。   所以”智能”的本质是：对静态、公开、历史语料的...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-2_Agent_Skills%E5%B0%B1%E6%98%AF%E4%B8%AA%E4%B8%93%E5%B1%9E%E5%B7%A5%E4%BD%9C%E6%B5%81/" title="10-2_Agent_Skills就是个专属工作流"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">10-2_Agent_Skills就是个专属工作流</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Skills 不是”会用工具”，是”一整套写死的 SOP + 每步该用哪个工具”的领域知识包；它反过来指挥 MCP 只吐你需要的那一两个工具，跟 SubAgent 区别在于 Skills 可移植可复用、SubAgent 用完即弃。 2. 主体2.1 先把”为啥还要 Skills”这个疑问钉死听完前几集你大概率会冒出一个问题：有 MCP 就能调工具了，Skills 不就是多一层吗？ 这正是本集要回应的。 回顾纯 MCP 路径下你会踩的坑（见 f010）：  MCP 一股脑把所有工具描述塞进上下文 → 上下文先吃掉一大块。 Agent 自己不知道该用哪个 → 反复问 LLM”我该用哪个” → 烧 token、多轮往返。  第一层补丁（3-7 那集讲过）是：给 Agent 灌点领域知识，让它自己挑工具、让 MCP 按需返回。本集要在这层补丁上再加码——Skills 不止是”挑工具的脑子”，它装的是整套 SOP。 2.2 SOP 才是 Skills 的真身 加工增量：讲师在这里转折得很快，原话基本是”agent skills 它不只是调用工具，它是一个包含了一整套 SOP...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-4_Skills%E7%9A%84%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" title="10-4_Skills的渐进式加载机制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">10-4_Skills的渐进式加载机制</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Skills 文件夹塞了一堆东西（领域知识、流程模板、工具说明、脚本资源），但它不一次性灌进上下文——分三段按时序拉，先目录、再工具、最后资源。 2. 主体痛点先摆出来上一集说 Skills 是”技能系统”，比 MCP 多出了领域知识 + 工作流程模板。你立刻应该有一个疑问：  MCP 一股脑把所有工具推过来已经把上下文撑爆了。现在 Skills 文件夹里东西更多——知识、流程、说明书、脚本、资源——这不是更糟？  Skills 的设计就是回应这个疑问的。它把”加载”拆成三段，每段时机不同。 三段加载（时序很关键）   阶段 加载什么 触发时机 大小    ① 元数据 技能名称 + 描述 + 操作步骤索引 Skill 一被挂上就读 极小   ② 工具 这次任务真正要用的那几个工具 智能体读完元数据、确认要执行时 中等   ③ 附加资源 脚本、指令、参考资料 执行到具体那一步时 不定，按需   注意第 16 帧画布上写得很直白：元数据 → 技能名称 / 描述 / 操作步骤，旁边一行小字”完成之后被释放”。元数据本身就是被设计成可丢弃的临时路标。 元数据 &#x3D;...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-5_Skills%E7%9A%84%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%A0%87%E5%87%86/" title="Skills 的文件结构标准"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">Skills 的文件结构标准</div></div><div class="info-2"><div class="info-item-1">Skills 的文件结构标准1. 一句话定位Skills 是一个文件夹，文件夹里以 SKILL.md 为入口索引，Agent 先把这个 md 加载进上下文，再按需拉脚本&#x2F;资源&#x2F;指令——上一集讲的”渐进式加载”，落到磁盘上就长这样。 2. 主体2.1 为什么一定是”文件夹”，而不是一个大 prompt你装一个完整的专业 SOP（领域知识 + 工作流 + 工具调用逻辑），那玩意往往几千上万字，外加示例数据、API 文档、脚本代码——一次性塞进上下文窗口会爆，复制粘贴又难以版本化。 文件夹解决两个问题：  分级懒加载：Agent 先吃索引（SKILL.md），到正文写”要用 examples.md &#x2F; execute_api.py”时才按需拉细节。 可移植性：把整个文件夹拷给 B Agent，B 立刻具备和 A 一样的技能——不是 fine-tune，不是 prompt 复制，文件夹本身 &#x3D; 技能包。   加工增量：讲师按”先讲是什么 → 再讲怎么用”的顺序展开，我把它倒过来重写为”先讲为什么必须是文件夹”，因为如果不先想清楚”上下文为什么会爆”...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/" title="总结 Agent 从助手到自主协作的进化过程"><img class="cover" src="/images/agent-learning/10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/f006_t0077.7s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">总结 Agent 从助手到自主协作的进化过程</div></div><div class="info-2"><div class="info-item-1">总结 Agent 从助手到自主协作的进化过程1. 一句话定位这一集把前面 10 章学到的全部零件（LLM、Agent、MCP、ReAct、工作流、多 Agent、SubAgent、Skills）按”出现顺序 + 各自补的洞”穿成一条五阶段时间线，是整套课程的收口图。 2. 主体：五个阶段，其实是”补五个洞”视频按阶段讲，但你听完会发现：每跳一阶段都在补上一阶段留下的洞。把”阶段”换成”洞”来记会更顺手。 阶段 1：LLM 只会问答你给 prompt，它返回内容（哪怕是图、视频，多模态也只是返回形式更花）。 留下的洞：不会自主决策。你问 A，它就答 A，不会自己把 A 拆成 A+B 再去解 B。  阶段 2：Agent 学会用工具为了让 LLM 能查数据库、生成 PPT、调第三方 API，加上”使用工具”的能力 —— 这就是 Agent。MCP 是这个阶段的工程标准化产物：在它之前各家自己写 function call，之后所有大模型基于同一套接口调同一个工具，省掉重复造轮子。  留下的三个洞（重点，整集的转折点）：  还是不会自主决策——MCP 没解决这个，它只解决”接口统一” ...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-7_SpringAi_112%E5%AE%9E%E7%8E%B0Agent%E8%A3%85%E8%BD%BDSkills/" title="10-7_SpringAi_112实现Agent装载Skills"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">10-7_SpringAi_112实现Agent装载Skills</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位你要把 3-7 学的”领域工作流 Skills”在 SAA 1.1.2 里真正落地——办法是走 .hooks() 而不是 .tools()，再按 resources/skills/&lt;技能名&gt;/SKILL.md 这条硬路径把 Markdown 喂进去。 2. 主体2.1 三个版本号别看晕打开 pom.xml 第一眼会撞见仨版本号，长得像但分属三条线：    角色 坐标 版本    主 BOM spring-ai-alibaba-bom 1.1.2.0   扩展 BOM spring-ai-alibaba-extensions-bom 1.1.2.1   SpringBoot spring-boot-dependencies 3.5.x    加工增量：视频按”主 BOM → 扩展 BOM → SpringBoot”顺讲，但没强调为什么扩展 BOM 尾号要错一位。我的解读是阿里把仓库拆成”主仓 + 扩展仓”两条独立发布线——dashscope starter 这种”非核心连接器”归扩展仓，所以版本号独立递增，第一眼看起来像抄错的 .0 vs .1，其实是两...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"><img class="cover" src="/images/agent-learning/3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;</div></div><div class="info-2"><div class="info-item-1">3-1 大模型困境：数据获取与整合上的”抓瞎”§1 一句话定位看完这一集，你应该能用一句话回答：”LLM 为什么需要外挂？”  §2 主体讲解先把 LLM 的”世界”立起来要看懂这一集后面所有的”反例”，你得先接受一个心智模型： LLM 没有”现实世界”，它只有一个向量空间。 它学过的每一个概念——林黛玉、星巴克、卢浮宫的某幅名画——在这个空间里都对应一个唯一的点（一个上千维的向量）。它做的所有”思考”，都是在这个空间里做几何运算：找邻居、量距离、走向量加法。 这件事一旦想透，三个看上去很神奇的能力就立刻不神奇了：  百科全书 —— 红楼梦整本书早被嵌入进去了，林黛玉的”性格特征””结局””出现章节”都是她那个点周围的邻居。问到她，模型不过是在做一次邻域查询。 猜意图 —— “咖啡馆里来杯星巴克”，”星巴克”这三个字在向量空间里有好几个候选位置（品牌、咖啡馆、饮料），模型借助上下文里的”咖啡馆””来一杯”两个锚点，做概率运算选最近的那个。 迁就口吻 —— “用广东人语气回答”也是空间里的一个方向向量，把答案沿着这个方向偏移即可。   所以”智能”的本质是：对静态、公开、历史语料的...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">98</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93"><span class="toc-number">2.</span> <span class="toc-text">2. 主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%85%88%E6%8A%8A%E4%B8%8A%E4%B8%80%E9%9B%86%E7%9A%84%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84%E5%9C%A8%E8%84%91%E5%AD%90%E9%87%8C%E6%8C%82%E5%A5%BD"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 先把上一集的三层架构在脑子里挂好</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-SubAgent-%E6%98%AF%E4%BB%8E%E5%93%AA%E4%B8%80%E5%B1%82%E2%80%9D%E5%86%8D%E5%88%87%E4%B8%80%E5%88%80%E2%80%9D"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 SubAgent 是从哪一层”再切一刀”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-Claude-%E4%B8%89%E8%BF%9E%E5%8F%91%EF%BC%9AMCP-Skills-SubAgent"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 Claude 三连发：MCP &#x2F; Skills &#x2F; SubAgent</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%88%87%E5%88%86%E7%B2%92%E5%BA%A6%E7%9A%84%E5%88%A4%E6%8D%AE%EF%BC%88%E6%88%91%E5%8A%A0%E5%B7%A5%E7%9A%84%E5%A2%9E%E9%87%8F%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 切分粒度的判据（我加工的增量）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B2%A1-get-%E7%9A%84%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">3. 没 get 的点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">4. 跟其他集连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%89%BF"><span class="toc-number">4.1.</span> <span class="toc-text">上承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E5%90%AF"><span class="toc-number">4.2.</span> <span class="toc-text">下启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%AA%E5%90%91"><span class="toc-number">4.3.</span> <span class="toc-text">横向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98%EF%BC%885-%E5%BC%A0%E5%8D%A1%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">6. 自测题（5 张卡）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/" title="10-1_Agent的牛马小弟SubAgent"><img src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="10-1_Agent的牛马小弟SubAgent"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/" title="10-1_Agent的牛马小弟SubAgent">10-1_Agent的牛马小弟SubAgent</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-2_Agent_Skills%E5%B0%B1%E6%98%AF%E4%B8%AA%E4%B8%93%E5%B1%9E%E5%B7%A5%E4%BD%9C%E6%B5%81/" title="10-2_Agent_Skills就是个专属工作流">10-2_Agent_Skills就是个专属工作流</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-4_Skills%E7%9A%84%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" title="10-4_Skills的渐进式加载机制">10-4_Skills的渐进式加载机制</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-5_Skills%E7%9A%84%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%A0%87%E5%87%86/" title="Skills 的文件结构标准">Skills 的文件结构标准</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/" title="总结 Agent 从助手到自主协作的进化过程"><img src="/images/agent-learning/10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/f006_t0077.7s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="总结 Agent 从助手到自主协作的进化过程"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/" title="总结 Agent 从助手到自主协作的进化过程">总结 Agent 从助手到自主协作的进化过程</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
