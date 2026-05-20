@@ -1,0 +1,372 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>8-2_多Agent设计思路_冲突协商 | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="1. 一句话定位把上集那张”主管 + 单 Agent 五步循环”的骨架图，往右边再挂两块大模块：角色分配算法（决定主管派单给谁）+ 冲突调解 &#x2F; 共识形成模块（多 Agent 吵架了怎么收场）。 2. 主体2.1 先回顾你已经知道的（来自 8-1 &#x2F; 3-12）你脑子里已经有这张图（见 frame f001，0:00 那张）：  两个核心流程：主管 Agent 切任务派单 →">
+<meta property="og:type" content="article">
+<meta property="og:title" content="8-2_多Agent设计思路_冲突协商">
+<meta property="og:url" content="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-8-2_%E5%A4%9AAgent%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF_%E5%86%B2%E7%AA%81%E5%8D%8F%E5%95%86/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="1. 一句话定位把上集那张”主管 + 单 Agent 五步循环”的骨架图，往右边再挂两块大模块：角色分配算法（决定主管派单给谁）+ 冲突调解 &#x2F; 共识形成模块（多 Agent 吵架了怎么收场）。 2. 主体2.1 先回顾你已经知道的（来自 8-1 &#x2F; 3-12）你脑子里已经有这张图（见 frame f001，0:00 那张）：  两个核心流程：主管 Agent 切任务派单 →">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg">
+<meta property="article:published_time" content="2026-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-20T00:43:18.691Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "8-2_多Agent设计思路_冲突协商",
+  "url": "https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-8-2_%E5%A4%9AAgent%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF_%E5%86%B2%E7%AA%81%E5%8D%8F%E5%95%86/",
+  "image": "https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg",
+  "datePublished": "2026-05-19T16:00:00.000Z",
+  "dateModified": "2026-05-20T00:43:18.691Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-8-2_%E5%A4%9AAgent%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF_%E5%86%B2%E7%AA%81%E5%8D%8F%E5%95%86/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '8-2_多Agent设计思路_冲突协商',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d3585ec84f1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">8-2_多Agent设计思路_冲突协商</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">8-2_多Agent设计思路_冲突协商</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-20T00:43:18.691Z" title="更新于 2026-05-20 08:43:18">2026-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC8%E7%AB%A0-Jmanus-%E6%87%82%E6%80%9D%E8%80%83%E3%80%81%E4%BC%9A%E8%A7%84%E5%88%92%E3%80%81%E4%B8%80%E6%AD%A5%E6%AD%A5%E5%8A%A8%E6%89%8B%E5%AE%8C%E6%88%90%E4%BB%BB%E5%8A%A1%E3%80%82/">第8章 Jmanus 懂思考、会规划、一步步动手完成任务。</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>把上集那张”主管 + 单 Agent 五步循环”的骨架图，往<strong>右边</strong>再挂两块大模块：<strong>角色分配算法</strong>（决定主管派单给谁）+ <strong>冲突调解 &#x2F; 共识形成模块</strong>（多 Agent 吵架了怎么收场）。</p>
+<h2 id="2-主体"><a href="#2-主体" class="headerlink" title="2. 主体"></a>2. 主体</h2><h3 id="2-1-先回顾你已经知道的（来自-8-1-3-12）"><a href="#2-1-先回顾你已经知道的（来自-8-1-3-12）" class="headerlink" title="2.1 先回顾你已经知道的（来自 8-1 &#x2F; 3-12）"></a>2.1 先回顾你已经知道的（来自 8-1 &#x2F; 3-12）</h3><p>你脑子里已经有这张图（见 frame f001，0:00 那张）：</p>
+<ul>
+<li><strong>两个核心流程</strong>：主管 Agent 切任务派单 → 各专科 Agent 干活 → 主管整合（5 步骨架）；每个专科 Agent 内部走”规划 → 执行 → 监控 → 反馈 → 整合”的 5 步循环。</li>
+<li><strong>两个全局类</strong>：<code>Env</code>（全局记忆、参数）和 <code>Action</code>（调工具 &#x2F; 调 LLM），后者有两个子方法 <code>_think()</code>（规划）和 <code>_act()</code>（执行）。</li>
+<li><strong>角色类</strong>：<code>RoleSetting</code>（存角色配置）+ <code>RoleContext</code>（存执行过程中的状态、步骤、中间结果）。</li>
+</ul>
+<p>这集要在这张图上<strong>新加两个模块</strong>。先看完整后图（frame f008，8:53）：图右上挂”角色分配算法”，图右下挂”冲突调解模块（三抓手）+ 共识形成模块（WSLL）”，并把这两块进一步抽象成”冲突调解模型 &#x2F; 多议题协商冲突网络模型”。</p>
+<h3 id="2-2-新模块一：角色分工-→-角色分配算法"><a href="#2-2-新模块一：角色分工-→-角色分配算法" class="headerlink" title="2.2 新模块一：角色分工 → 角色分配算法"></a>2.2 新模块一：角色分工 → 角色分配算法</h3><p>问你一个问题：主管 Agent 凭什么把任务派给 Agent A 而不是 B？</p>
+<p>讲师的回答两步：</p>
+<ol>
+<li>主管必须<strong>先知道</strong>每个 Agent 的角色（研究分析师 &#x2F; 技术研究员 &#x2F; 产品经理）和擅长领域（Excel 工具 &#x2F; 编程工具 &#x2F; 原型图工具）；</li>
+<li>然后跑一个<strong>角色分配算法</strong>——按”任务需求 ↔ 角色能力”做匹配。</li>
+</ol>
+<p>这里讲师只给了名字，没给实现。<strong>取舍标注</strong>：这个名字听起来唬人，但本质就是”能力 - 需求”两侧打分匹配。它到底是 LLM Prompt 投票，还是经典的匈牙利算法 &#x2F; 拍卖算法之类，本集没说，应该会在后续集展开。先把它当”派单的核心抽象”记下。</p>
+<h3 id="2-3-新模块二：协调工作"><a href="#2-3-新模块二：协调工作" class="headerlink" title="2.3 新模块二：协调工作"></a>2.3 新模块二：协调工作</h3><p>协调工作拆成两半。</p>
+<p><strong>(a) Agent 间通信</strong> —— 这里有个<strong>容易踩坑的边界</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>通信方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>跨模型（A 跑 GPT，B 跑 Claude）</td>
+<td><strong>A2A 协议</strong>（参见 3-10）</td>
+</tr>
+<tr>
+<td>同模型多 Agent</td>
+<td><strong>结构化通信</strong>：RPC &#x2F; WebSocket</td>
+</tr>
+</tbody></table>
+<p>讲师原话：”A2A 通信协议<strong>并不适用于</strong>基于同一个语言大模型的智能体。” 这条边界 3-10 那集没明说，本集是给 A2A 划红线的关键补丁。</p>
+<p><strong>加工标注</strong>：我自己的疑问是——“同模型 Agent 用 RPC&#x2F;WebSocket”听起来像应用层 socket，但如果多 Agent 在<strong>同一个 Java 进程</strong>里，真的需要 RPC 吗？还是 in-process 的消息总线就够？讲师没区分”同进程”和”跨进程”两个边界，先打个问号留给后续。</p>
+<p><strong>(b) 冲突调解模块</strong> —— 这是本集真正的肉。</p>
+<h3 id="2-4-冲突调解模块的”三抓手”"><a href="#2-4-冲突调解模块的”三抓手”" class="headerlink" title="2.4 冲突调解模块的”三抓手”"></a>2.4 冲突调解模块的”三抓手”</h3><p>锚定 frame f005-f007（6:00 ~ 6:35），图右下的三个并列方框：<strong>多议题协商 &#x2F; 动态角色转换 &#x2F; 信用分配</strong>。三个抓手必须同时存在，少一个共识就形成不了。</p>
+<p><strong>抓手 1 · 多议题协商</strong>：冲突不会只发生一个。一次任务可能同时蹦出三五个分歧，调解模块要支持<strong>并行</strong>调解，不要串行排队等死锁。</p>
+<p><strong>抓手 2 · 动态角色转换</strong> —— 反直觉的点：</p>
+<ul>
+<li>Agent A（研究员）和 Agent B（经理）在某个决策点吵起来；</li>
+<li>主管 Agent <strong>临时拉群</strong>，把 A、B 拽进调解会场；</li>
+<li>在这个群里，A、B <strong>抛开</strong>原角色，<strong>临时变身</strong>为”辩论正方 &#x2F; 反方”；</li>
+<li>角色不是终身制，<strong>是场景制</strong>。</li>
+</ul>
+<p><strong>加工标注</strong>：这个设计很像现实公司的”会议室角色”——你平时是研发，但一进季度评审会就变成”汇报人 &#x2F; 质询人”。讲师用”拉群”这个词非常形象，记住这个比喻就抓住了。</p>
+<p><strong>抓手 3 · 信用分配</strong>：每个 Agent 有个<strong>历史信用分</strong>。冲突无法靠辩论收敛时，按信用分裁决——讲师用”老师傅经验丰富” 类比，信用高 &#x3D; 大概率方案靠谱。<strong>待查</strong>：信用分谁来打？怎么累计 &#x2F; 衰减？讲师没说，先留白。</p>
+<h3 id="2-5-共识形成模块-WSLL-算法"><a href="#2-5-共识形成模块-WSLL-算法" class="headerlink" title="2.5 共识形成模块 &#x3D; WSLL 算法"></a>2.5 共识形成模块 &#x3D; WSLL 算法</h3><p>三抓手后面<strong>必接</strong>一个共识形成模块，对应<strong>核心算法 WSLL</strong>。</p>
+<p>讲师只口播了”WSLL”四个字母，没展开含义。<strong>待查</strong>：这是哪几个词的缩写？大概率是某篇多智能体共识论文里的算法名，需要回头查。先把”WSLL ≈ 多 Agent 共识形成算法”这条对应关系挂上。</p>
+<h3 id="2-6-模块到模型的抽象升级"><a href="#2-6-模块到模型的抽象升级" class="headerlink" title="2.6 模块到模型的抽象升级"></a>2.6 模块到模型的抽象升级</h3><p>最后讲师做了一次<strong>抽象升级</strong>（frame f008，8:53）：</p>
+<ul>
+<li>冲突调解<strong>模块</strong> → 冲突调解<strong>模型</strong>；</li>
+<li>模型内部嵌一个子模型：”多议题协商冲突网络模型”；</li>
+<li>共识形成模块 → 内含 WSLL 算法。</li>
+</ul>
+<p>“模块 → 模型”这一跳是工程视角到学术视角的切换——模型意味着有形式化定义、可论文化。后面集大概率会给具体形式。</p>
+<h2 id="3-没-get-到的点"><a href="#3-没-get-到的点" class="headerlink" title="3. 没 get 到的点"></a>3. 没 get 到的点</h2><ul>
+<li><strong>WSLL 到底是哪几个词</strong>？只听到字母没听到展开。需查”多智能体共识形成 WSLL”。</li>
+<li><strong>角色分配算法的具体形式</strong>？是 LLM Prompt 匹配，还是匈牙利 &#x2F; 拍卖之类经典算法？</li>
+<li><strong>信用分如何累计 &#x2F; 衰减</strong>？打分主体是主管 Agent 还是用户反馈？</li>
+<li><strong>“多议题协商冲突网络模型”里的”网络”指什么</strong>——博弈论的协商网络？还是 Agent 之间消息传递的图结构？</li>
+<li><strong>同模型 Agent 同进程 vs 跨进程边界</strong>：讲师把 RPC&#x2F;WebSocket 当默认答案，但同进程内是不是有更轻的方案？</li>
+</ul>
+<h2 id="4-跟其他集的连接"><a href="#4-跟其他集的连接" class="headerlink" title="4. 跟其他集的连接"></a>4. 跟其他集的连接</h2><ul>
+<li><strong>上承</strong>：<a href="../3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/notes.md">3-12 多Agent的核心执行流程</a> 给了 5 步骨架 + Env&#x2F;Action&#x2F;Role 三个类；8-1 应该是把 Env&#x2F;Action（含 <code>_think</code>&#x2F;<code>_act</code>）和 Role 两子类（RoleSetting &#x2F; RoleContext）讲细。本集就是在那张架构图右侧<strong>新挂角色分配算法</strong>（上方）+ <strong>冲突调解 &#x2F; 共识形成模块</strong>（下方）。</li>
+<li><strong>下启</strong>：角色分配算法、WSLL 共识形成算法的<strong>具体实现</strong>应在 8-x 后续集；多议题协商冲突网络模型作为子模型待展开。</li>
+<li><strong>横向</strong>：<ul>
+<li>和 <a href="../3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/notes.md">3-10 多Agent跨部门协作A2A协议</a> <strong>划清边界</strong>——3-10 的 A2A 是跨模型场景，本集补上”同模型场景用 RPC&#x2F;WebSocket”这个互补面。</li>
+<li>和 <a href="../3-9_%E6%90%9E%E5%AE%9A%E5%A4%8D%E6%9D%82%E6%B4%BB%E5%84%BF%E5%BE%97%E9%9D%A0%E5%A4%9A%E4%B8%AAAgent%E5%8D%8F%E4%BD%9C/notes.md">3-9 搞定复杂活儿得靠多个Agent协作</a> 的”主管 + 专科”两件套对照——3-9 留白了”主管怎么决策派单”，本集用”角色分配算法”补上。</li>
+<li>和 <a href="../6-8_SpringAi_11_Agent%E5%9B%A2%E9%98%9F%E5%8D%8F%E5%90%8C%E5%90%88%E4%BD%9C/notes.md">6-8 SpringAi 1.1 Agent团队协同合作</a> 的 <code>LlmRoutingAgent</code> 是一虚一实：6-8 的 routing 是工程实现，本集的角色分配算法是底层抽象。</li>
+<li>和 <a href="../7-13_%E6%80%BB%E7%BB%93Agent%E5%92%8CGraph%E5%88%86%E5%88%AB%E6%9E%84%E5%BB%BA%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81/notes.md">7-13 总结Agent和Graph分别构建的工作流</a> 的 FlowAgent 三子类（Parallel &#x2F; Sequential &#x2F; LlmRouting）对照——FlowAgent 摆队形，本集讲的是队形里出现内讧时怎么调停。</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">多 Agent 框架（上承 8-1）</span><br><span class="line">├── 两个核心流程 + 两个全局类（Env/Action 含 _think/_act）+ 角色类（已在 8-1）</span><br><span class="line">│</span><br><span class="line">├── 【本集新增 1】角色分工</span><br><span class="line">│   └── 角色分配算法 ──（基于能力 ↔ 需求匹配）</span><br><span class="line">│</span><br><span class="line">└── 【本集新增 2】协调工作</span><br><span class="line">    ├── Agent 间通信</span><br><span class="line">    │   ├── 跨模型：A2A 协议（参见 3-10）</span><br><span class="line">    │   └── 同模型：结构化通信（RPC / WebSocket）</span><br><span class="line">    │</span><br><span class="line">    └── 冲突调解模块（三抓手并行存在）</span><br><span class="line">        ├── 多议题协商（并行调解多个冲突）</span><br><span class="line">        ├── 动态角色转换（主管拉群 → 临时变身辩论正/反方）</span><br><span class="line">        └── 信用分配（按历史信用分裁决，老师傅优先）</span><br><span class="line">              │</span><br><span class="line">              ▼</span><br><span class="line">        共识形成模块 ── WSLL 算法</span><br><span class="line"></span><br><span class="line">【抽象升级】</span><br><span class="line">冲突调解模块 → 冲突调解模型</span><br><span class="line">  └── 子模型：多议题协商冲突网络模型</span><br><span class="line">共识形成模块 → 共识形成算法（WSLL）</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-自测题（5-卡）"><a href="#6-自测题（5-卡）" class="headerlink" title="6. 自测题（5 卡）"></a>6. 自测题（5 卡）</h2><p><strong>Q1</strong>：主管 Agent 派单给 A 不给 B，依据是什么？这个决策依靠的算法叫什么？</p>
+<details><summary>答</summary>主管必须先知道每个 Agent 的角色和擅长领域；依靠**角色分配算法**做"任务需求 ↔ 角色能力"匹配。具体实现本集未展开。</details>
+
+<p><strong>Q2</strong>：A2A 协议什么时候用？什么时候不该用？</p>
+<details><summary>答</summary>A2A 用于**跨模型**的多 Agent（A 跑 GPT，B 跑 Claude）。**同一个语言大模型**底座的多 Agent 不该用 A2A，回退到 RPC / WebSocket 这类**结构化通信**。</details>
+
+<p><strong>Q3</strong>：冲突调解模块的”三抓手”是哪三个？少一个会怎样？</p>
+<details><summary>答</summary>多议题协商（并行调多个冲突）/ 动态角色转换（拉群变辩论方）/ 信用分配（按信用分裁决）。三个必须同时存在，否则共识形成不了。</details>
+
+<p><strong>Q4</strong>：动态角色转换具体怎么运作？</p>
+<details><summary>答</summary>Agent A、B 冲突时，主管 Agent **拉一个群**把两位拉进去；在群里 A、B **抛开**原角色（研究员 / 经理），**临时**担任"辩论正方 / 反方"等新角色。角色是场景制不是终身制。</details>
+
+<p><strong>Q5</strong>：冲突调解之后接什么？核心算法是什么？</p>
+<details><summary>答</summary>接**共识形成模块**，核心算法是 **WSLL**（具体含义本集未展开，待查）。冲突不可能一直冲下去，必须有个收敛模块。</details>
+
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>角色分配算法</td>
+<td>主管 Agent 派单依据，按”能力 ↔ 需求”匹配</td>
+</tr>
+<tr>
+<td>结构化通信</td>
+<td>同一 LLM 底座多 Agent 间通信方式（RPC &#x2F; WebSocket）</td>
+</tr>
+<tr>
+<td>A2A 适用边界</td>
+<td>A2A 只适用于<strong>跨模型</strong> Agent，同模型场景不用</td>
+</tr>
+<tr>
+<td>冲突调解模块</td>
+<td>三抓手并列：多议题协商 + 动态角色转换 + 信用分配</td>
+</tr>
+<tr>
+<td>多议题协商</td>
+<td>多个冲突并行调解，不串行排队</td>
+</tr>
+<tr>
+<td>动态角色转换</td>
+<td>冲突时主管拉群，Agent 临时抛开原角色担任辩论方</td>
+</tr>
+<tr>
+<td>信用分配</td>
+<td>按 Agent 历史信用分裁决方案采纳，老师傅优先</td>
+</tr>
+<tr>
+<td>共识形成模块 WSLL</td>
+<td>冲突调解之后必接的收敛模块，核心算法 WSLL</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-8-2_%E5%A4%9AAgent%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF_%E5%86%B2%E7%AA%81%E5%8D%8F%E5%95%86/">https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-8-2_%E5%A4%9AAgent%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF_%E5%86%B2%E7%AA%81%E5%8D%8F%E5%95%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-8-3_%E5%A4%9AAgent%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF_SOP%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6/" title="8-3 多Agent设计思路 SOP管理机制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">8-3 多Agent设计思路 SOP管理机制</div></div><div class="info-2"><div class="info-item-1">8-3 多Agent设计思路 SOP管理机制1. 一句话定位多 Agent 协同的最后一块拼图：SOP（标准流程），由主管 Agent 在”切分+派单”之外画的第三张图——一张写明”谁先谁后、谁等谁产物”的塑状流程图。 2. 主体2.1 钓鱼：单兵能打 ≠ 团队能赢你已经有了环境、有了角色、有了通信，每个 Agent 单拿出来都很能打。问题来了：  谁先做第一步？ A 做完，下一步是 B 接产物加工，还是 C 并行启动？ 这个 Agent 完成后还有空闲，要不要去帮另一个 Agent？  没人统筹，”很能打的一群人”会变成”船局一团乱”。讲师的原话是”哪怕每一个智能体很能打，但船局并没有效率高”——这就是 SOP 要解决的”船局问题”。  学习者增量：3-9 给主管 Agent 的印象只有两件事：切分任务 + 派单给专科。这集补上第三件——画甘特图。前两件回答”谁做什么”，SOP 回答”何时做、谁等谁”。三件事都归主管，但是三个独立模块。  2.2 SOP 长啥样：SOP 类 + State 节点锚图（frames/f014_t0636.7s_anchor.jpg 等右下角”SO...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-8-13_%E4%B8%8D%E5%90%8C%E7%9A%84%E6%89%A7%E8%A1%8C%E8%80%85%E8%B0%83%E7%94%A8%E4%B8%8D%E5%90%8C%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" title="8-13_不同的执行者调用不同的执行流程"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">8-13_不同的执行者调用不同的执行流程</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位上一集你已经知道”工厂按 plan 类型造出一个 executor”，这一集就是把那个 executor 拆开看：simple 计划 &#x3D; 步骤 for 循环，complex 计划 &#x3D; 节点 for 循环 + 步骤 for 循环，两条路最后都收口到同一段”选 agent → run() → setState()”——这就是 JManus 把”执行流程”做成接口的全部理由。 2. 主体2.1 入口：一个接口，三个实现PlanningCoordinator.executePlan() 里只有一句关键调用： 12PlanExecutorInterface executor = planExecutorFactory.createExecutor(plan);executor.executeAllSteps(context);  executeAllSteps 是 PlanExecutorInterface 的唯一接口方法。IDE 跳进去会看到三个实现类（这里讲师在视频里只点了两个，第三个是隐藏彩蛋）：    实现类 触发条件 干啥    PlanExe...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/" title="3-11 主流的多Agent开发框架"><img class="cover" src="/images/agent-learning/3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/f001_t0000.6s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-11 主流的多Agent开发框架</div></div><div class="info-2"><div class="info-item-1">主流的多Agent开发框架 摘要：这是一张”6 个多 Agent 框架的对比地图”，不是任何单个框架的实操课。读完你应该能在面试里五秒回答”AutoGen 和 CrewAI 差在哪、LangChain 为什么也算多 Agent 框架、Manus 凭什么是本课主角”。取舍出现在 §2.1（讲解顺序重排），加工增量在 §2.6 和 §3（横向对比表 + 反直觉判断）。    1. 一句话定位把 6 个主流多 Agent 框架按”自动化程度 &#x2F; 灵活度”摆成一张地图，钉住 JManus 的位置。  2. 主体讲解2.1 先看全景，再看细节（这里做了一次取舍）原视频是按 “演进背景 → AutoGen → CrewAI → LangChain → Manus → JoyAgent → muAgent” 顺序逐个介绍的。但你如果跟着这个顺序学，会发现每听到一个框架都没有锚点——因为根本没有对照对象。 所以这份笔记把顺序换成：先把对比表压进脑子 → Manus（本课主角）→ CrewAI（最强对照组）→ AutoGen（差一点的对照组）→ LangChain（造轮子底座）→ Joy...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/" title="3-10 多Agent跨部门协作：A2A协议"><img class="cover" src="/images/agent-learning/3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/f010_t0375.0s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-10 多Agent跨部门协作：A2A协议</div></div><div class="info-2"><div class="info-item-1">多Agent跨部门协作：A2A协议1. 一句话定位A2A 是远程 agent 之间通过中心协调者通信协作的协议。 2. 主体讲解2.1 先扔结论：A2A 到底是什么如果你只能记一句话，记这个：A2A &#x3D; Agent-to-Agent，Google 提的、用来让两个远程 agent 互相通信 + 协作的协议。它和你之前学过的 MCP 是兄弟关系，但解决的问题完全不同：MCP 让 agent 调用外部工具，A2A 让 agent 调用另一个 agent。 但这里有一个让你少走弯路的前置认知：A2A 并不是所有”多 agent 场景”都要用的协议。你下面要先搞清楚”远程 agent vs 同模型多 agent”这条分界线，否则会把它套到不该套的地方。 2.2 划线：什么时候才轮到 A2A 出场先记住一个定义性的约定：一个 agent 只挂一个大模型。就像人只有一个大脑——这不是技术限制，是给 agent 下的定义。所以：  一个 agent 用了 QWen，就不可能同时挂 OpenAI。 你想让 QWen 和 DeepSeek 一起干活？那就是两个 agent，而且天然分布在...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" title="3-12 多Agent的核心执行流程"><img class="cover" src="/images/agent-learning/3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/f002_t0185.9s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-12 多Agent的核心执行流程</div></div><div class="info-2"><div class="info-item-1"> 摘要：本集梳理多Agent团队的核心执行流程，主轴是”外层5步团队流水线 + 内层5步个体循环”的嵌套骨架。取舍出现在 §2.1（先讲多Agent大图、再下钻到单Agent，与原素材”从小到大”的顺序相反）。加工增量在 §2.4（把”通信 + 中间结果存储”重新定位为”协作落地的两个工程接口”，并补了一张三层视角图）。   1. 一句话定位多Agent骨架 &#x3D; 外层团队5步 + 内层个体5步的嵌套。 2. 主体讲解2.1 先抓总图：多Agent的五步骨架如果你只能记一张图，就记这张：一个用户请求进来，要走五步才能拿到结果。    步骤 做什么 谁来做    1. 意图识别 听懂用户到底要什么 LLM 的推理能力   2. 任务初始化 把”想要”翻译成”任务实体” 系统   3. 任务规划 &#x2F; 复杂任务划分 把大任务切成可执行子任务 主管 Agent   4. 任务执行 多个专业 Agent 协同跑各自的子任务 多个子 Agent   5. 结果整合 把碎片产出拼回一个完整答案 主管 Agent   注意你看到 1→5 是顺序的，但第 4 步本身是个”团队子过...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"><img class="cover" src="/images/agent-learning/3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;</div></div><div class="info-2"><div class="info-item-1">3-1 大模型困境：数据获取与整合上的”抓瞎”§1 一句话定位看完这一集，你应该能用一句话回答：”LLM 为什么需要外挂？”  §2 主体讲解先把 LLM 的”世界”立起来要看懂这一集后面所有的”反例”，你得先接受一个心智模型： LLM 没有”现实世界”，它只有一个向量空间。 它学过的每一个概念——林黛玉、星巴克、卢浮宫的某幅名画——在这个空间里都对应一个唯一的点（一个上千维的向量）。它做的所有”思考”，都是在这个空间里做几何运算：找邻居、量距离、走向量加法。 这件事一旦想透，三个看上去很神奇的能力就立刻不神奇了：  百科全书 —— 红楼梦整本书早被嵌入进去了，林黛玉的”性格特征””结局””出现章节”都是她那个点周围的邻居。问到她，模型不过是在做一次邻域查询。 猜意图 —— “咖啡馆里来杯星巴克”，”星巴克”这三个字在向量空间里有好几个候选位置（品牌、咖啡馆、饮料），模型借助上下文里的”咖啡馆””来一杯”两个锚点，做概率运算选最近的那个。 迁就口吻 —— “用广东人语气回答”也是空间里的一个方向向量，把答案沿着这个方向偏移即可。   所以”智能”的本质是：对静态、公开、历史语料的...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-4_%E6%9B%B4%E4%BC%98%E7%9A%84%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_MCP/" title="3-4 更优的困境解决方案：MCP"><img class="cover" src="/images/agent-learning/3-4_%E6%9B%B4%E4%BC%98%E7%9A%84%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_MCP/f005_t0307.2s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-4 更优的困境解决方案：MCP</div></div><div class="info-2"><div class="info-item-1">§1 一句话定位把”各家自研的跑腿”换成”行业共享的外包”，工具一次开发、多模型通吃。 §2 主体讲解2.1 先回到 Function Calling 留下的两个坑3-3 给 LLM 配了个跑腿小弟 Function Calling（下文简称 FC）。它解决了 LLM 不会调 API、不会读本地文件、不会 CRUD 数据库的能力问题。但你顺着用一段时间会发现两件事很别扭： 第一件：一个跑腿照顾不过来无穷的需求。 A 用户问天气、B 用户问股票分时图、C 用户问交通状况——跑腿小弟得自己把每个 API 的调用函数都写一遍。视频里把这点叫作”忙不过来”，但你冷静想一下：忙不忙其实不是问题，写得完就行。真正的问题在下一条。 第二件，也是真正的痛点：N 家模型 × M 个工具的笛卡尔积爆炸。 OpenAI 有自己的 FC，DeepSeek、豆包、千问各有自己的 FC，互相不通用。你写一个”调高德地图”的工具，想给五家模型用，就得照着五套规范各写一遍。开发者扛不动这种重复劳动。  取舍：视频里把第一个坑（忙不过来）讲得比第二个坑还重，但落到工程现实，”忙不过来”靠多写几个函数就行，生态层面...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/" title="3-5 对比 Function Calling 与 MCP 的不同"><img class="cover" src="/images/agent-learning/3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/f006_t0222.4s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-5 对比 Function Calling 与 MCP 的不同</div></div><div class="info-2"><div class="info-item-1">3-5 对比 Function Calling 与 MCP 的不同1. 一句话定位看完你能用一张对位表把 FC 和 MCP 说清楚，并解释为什么后者注定要替代前者。 2. 主体讲解先把对位表立起来你只要记住一句话：LLM 自己从来不亲自调外部 API，永远派一个”小弟”出门。FC 和 MCP 的所有差异，都是这个”小弟”长什么样、住在哪里、谁来管。     Function Calling MCP    小弟住哪 模型内部的一个调用模块 模型外部的两个节点（客户端 + 服务端）   工具描述怎么来 开发人员手动投喂给模型 客户端主动向服务端拉取工具列表   工具谁写 每家大模型公司自己写一套 任何第三方写一次，所有 LLM 都能用   这张表就是这一集的全部。下面三段把它拆开。 不同点一：小弟的位置（在内还是在外） 你看这张图里”小弟”这两个字贴在 Function Calling 上——它是大模型自带的一个内置模块。LLM 判断”用户问的是深圳今天天气，我没有实时数据”，于是它在内部把任务交给 Function Calling 这个模块：「你拿着深圳这个参数，去调墨迹天气 AP...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93"><span class="toc-number">2.</span> <span class="toc-text">2. 主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%85%88%E5%9B%9E%E9%A1%BE%E4%BD%A0%E5%B7%B2%E7%BB%8F%E7%9F%A5%E9%81%93%E7%9A%84%EF%BC%88%E6%9D%A5%E8%87%AA-8-1-3-12%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 先回顾你已经知道的（来自 8-1 &#x2F; 3-12）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E6%96%B0%E6%A8%A1%E5%9D%97%E4%B8%80%EF%BC%9A%E8%A7%92%E8%89%B2%E5%88%86%E5%B7%A5-%E2%86%92-%E8%A7%92%E8%89%B2%E5%88%86%E9%85%8D%E7%AE%97%E6%B3%95"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 新模块一：角色分工 → 角色分配算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%96%B0%E6%A8%A1%E5%9D%97%E4%BA%8C%EF%BC%9A%E5%8D%8F%E8%B0%83%E5%B7%A5%E4%BD%9C"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 新模块二：协调工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%86%B2%E7%AA%81%E8%B0%83%E8%A7%A3%E6%A8%A1%E5%9D%97%E7%9A%84%E2%80%9D%E4%B8%89%E6%8A%93%E6%89%8B%E2%80%9D"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 冲突调解模块的”三抓手”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%85%B1%E8%AF%86%E5%BD%A2%E6%88%90%E6%A8%A1%E5%9D%97-WSLL-%E7%AE%97%E6%B3%95"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 共识形成模块 &#x3D; WSLL 算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E6%A8%A1%E5%9D%97%E5%88%B0%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%8A%BD%E8%B1%A1%E5%8D%87%E7%BA%A7"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 模块到模型的抽象升级</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B2%A1-get-%E5%88%B0%E7%9A%84%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">3. 没 get 到的点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">4. 跟其他集的连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98%EF%BC%885-%E5%8D%A1%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">6. 自测题（5 卡）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现"><img src="/images/agent-learning/4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/f075_t0722.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-14_SpringAi_11_A2A的服务发现"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现">4-14_SpringAi_11_A2A的服务发现</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册"><img src="/images/agent-learning/4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringAi 1.1 A2A的服务注册"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册">SpringAi 1.1 A2A的服务注册</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard"><img src="/images/agent-learning/4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/f034_t0423.3s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-15_SpringAi_11_A2A的元数据AgentCard"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard">4-15_SpringAi_11_A2A的元数据AgentCard</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议"><img src="/images/agent-learning/4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/f100_t0692.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试 SpringAi 1.1 实现的 A2A 协议"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议">测试 SpringAi 1.1 实现的 A2A 协议</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-3_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%A1%8C%E7%A8%8B%E8%A7%84%E5%88%92%E7%BB%8F%E7%90%86Agent/" title="团队成员：行程规划经理Agent"><img src="/images/agent-learning/5-3_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%A1%8C%E7%A8%8B%E8%A7%84%E5%88%92%E7%BB%8F%E7%90%86Agent/f014_t0387.6s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="团队成员：行程规划经理Agent"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-3_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%A1%8C%E7%A8%8B%E8%A7%84%E5%88%92%E7%BB%8F%E7%90%86Agent/" title="团队成员：行程规划经理Agent">团队成员：行程规划经理Agent</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
