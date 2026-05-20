@@ -1,0 +1,368 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>11-4_测试主管Agent调动团队成员执行任务 | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="1. 一句话定位把 11-3 那条”主管能找到远端成员”的连通线，再往里推一层——主管把 prompt 透传过去，让远端 Agent 进自己的 ReAct 循环，命中自己进程里的 @Tool，并在远端控制台留下证据日志。 2. 主体2.1 三层调用链：两个 @Tool 分别长在哪先把 11-1 的整体架构图（frame f001、f002）拎出来当锚：主管 Agent 节点通过 A2A 协议触达”">
+<meta property="og:type" content="article">
+<meta property="og:title" content="11-4_测试主管Agent调动团队成员执行任务">
+<meta property="og:url" content="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-11-4_%E6%B5%8B%E8%AF%95%E4%B8%BB%E7%AE%A1Agent%E8%B0%83%E5%8A%A8%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="1. 一句话定位把 11-3 那条”主管能找到远端成员”的连通线，再往里推一层——主管把 prompt 透传过去，让远端 Agent 进自己的 ReAct 循环，命中自己进程里的 @Tool，并在远端控制台留下证据日志。 2. 主体2.1 三层调用链：两个 @Tool 分别长在哪先把 11-1 的整体架构图（frame f001、f002）拎出来当锚：主管 Agent 节点通过 A2A 协议触达”">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg">
+<meta property="article:published_time" content="2026-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-20T08:13:35.855Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "11-4_测试主管Agent调动团队成员执行任务",
+  "url": "https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-11-4_%E6%B5%8B%E8%AF%95%E4%B8%BB%E7%AE%A1Agent%E8%B0%83%E5%8A%A8%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1/",
+  "image": "https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg",
+  "datePublished": "2026-05-19T16:00:00.000Z",
+  "dateModified": "2026-05-20T08:13:35.855Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-11-4_%E6%B5%8B%E8%AF%95%E4%B8%BB%E7%AE%A1Agent%E8%B0%83%E5%8A%A8%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '11-4_测试主管Agent调动团队成员执行任务',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">106</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d3585ec84f1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">11-4_测试主管Agent调动团队成员执行任务</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">11-4_测试主管Agent调动团队成员执行任务</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-20T08:13:35.855Z" title="更新于 2026-05-20 16:13:35">2026-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC11%E7%AB%A0-MCP-A2A%EF%BC%8C%E5%8A%A9%E5%8A%9B%E6%97%85%E6%B8%B8%E8%A7%84%E5%88%92%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C/">第11章 MCP+A2A，助力旅游规划团队协作</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>把 11-3 那条”主管能找到远端成员”的连通线，再往里推一层——主管把 prompt 透传过去，让远端 Agent 进自己的 ReAct 循环，命中<strong>自己进程里</strong>的 <code>@Tool</code>，并在远端控制台留下证据日志。</p>
+<h2 id="2-主体"><a href="#2-主体" class="headerlink" title="2. 主体"></a>2. 主体</h2><h3 id="2-1-三层调用链：两个-Tool-分别长在哪"><a href="#2-1-三层调用链：两个-Tool-分别长在哪" class="headerlink" title="2.1 三层调用链：两个 @Tool 分别长在哪"></a>2.1 三层调用链：两个 <code>@Tool</code> 分别长在哪</h3><p>先把 11-1 的整体架构图（frame f001、f002）拎出来当锚：主管 Agent 节点通过 A2A 协议触达”路线制定 Agent 节点”，再由后者去调”百度地图 MCPServer”。本集把这张图里<strong>前两跳</strong>真正跑通，第三跳留个日志桩。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">主管进程                          路线制定 Agent 进程</span><br><span class="line">ManagerAgent.run(&quot;调用百度地图Mcp&quot;)</span><br><span class="line">   │</span><br><span class="line">   ▼  主管 LLM 看到的工具：</span><br><span class="line">       @Tool callRouteMakingAgent   ← 主管唯一可见的 @Tool</span><br><span class="line">   │</span><br><span class="line">   ▼  A2A over Nacos</span><br><span class="line">   ┌───────────────────────────────────────────────────┐</span><br><span class="line">   │  A2aAgent (远端代理对象，本地拿在手里)             │</span><br><span class="line">   └───────────────────────────────────────────────────┘</span><br><span class="line">   │</span><br><span class="line">   ▼  AgentUtils.streamResponse(agent, prompt)</span><br><span class="line">                                    远端 LLM 进入 ReAct 循环</span><br><span class="line">                                    看到的工具：</span><br><span class="line">                                      @Tool getBaiduMapMcp   ← 远端的 @Tool</span><br><span class="line">                                    命中后执行方法体（本集只是 log.info）</span><br></pre></td></tr></table></figure>
+
+<p><strong>反直觉点</strong>（这是本集最容易混的地方）：远端 <code>BaiduMapMCP.getBaiduMapMcp()</code> 上 <code>@Tool(description=&quot;百度地图Mcp Server&quot;)</code> 的那段描述，主管 LLM 是<strong>看不见</strong>的。<code>@Tool</code> 的可见域只在自己进程里。主管之所以”调动”得了，是因为它先命中了<strong>自己进程里</strong>的 <code>callRouteMakingAgent</code>，然后由这个工具方法发起 A2A 调用，把 prompt 原样喂给远端。</p>
+<h3 id="2-2-远端的工具：BaiduMapMCP-桩-注册"><a href="#2-2-远端的工具：BaiduMapMCP-桩-注册" class="headerlink" title="2.2 远端的工具：BaiduMapMCP 桩 + 注册"></a>2.2 远端的工具：BaiduMapMCP 桩 + 注册</h3><p>f005 抓到了 <code>BaiduMapMCP.java</code> 的完整面貌：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BaiduMapMCP</span> &#123;</span><br><span class="line">    <span class="meta">@Tool(description = &quot;百度地图Mcp Server&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getBaiduMapMcp</span><span class="params">()</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;=========&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;路线制定Agent调用了百度地图MCP Server&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;=========&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意三件事：</p>
+<ol>
+<li><strong>类上没有 <code>@Component</code></strong>——AgentScope 这一支风格里，工具实例<strong>不走 Spring 自动扫描</strong>，要在 builder 里手动 <code>new</code> 进去。这跟 4-5&#x2F;4-6 那一支 Spring AI Alibaba <code>@Tool + @Bean</code> 的范式不一样，思维要切换一下。</li>
+<li><strong>方法体只是三行 log</strong>——讲师故意不接真 MCP。先用桩验证调用链通不通，真接入留给 11-5 &#x2F; 11-6。这就是 11-2、11-3 用了一路的”桩日志驱动验证”思路在第三层的延续。</li>
+<li><strong><code>@Tool</code> 注解上的 description 是给远端 LLM 看的合同</strong>——本集 prompt 只有”调用百度地图Mcp”五个字，全靠这段描述匹配。</li>
+</ol>
+<p>f013、f014 是注册路径（<code>RouteMakingAgent.getRouteMakingAgent()</code>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ReActAgent <span class="title function_">getRouteMakingAgent</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// Toolkit</span></span><br><span class="line">    <span class="type">ToolUtils</span> <span class="variable">toolUtils</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToolUtils</span>();</span><br><span class="line">    <span class="comment">// 将百度地图MCP注册到工具包</span></span><br><span class="line">    <span class="type">Toolkit</span> <span class="variable">toolkit</span> <span class="operator">=</span> toolUtils.getToolkit(<span class="keyword">new</span> <span class="title class_">BaiduMapMCP</span>());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注入到Nacos</span></span><br><span class="line">    <span class="keyword">return</span> AgentUtils.getReActAgentBuilder()</span><br><span class="line">            .name(<span class="string">&quot;RouteMakingAgent&quot;</span>)</span><br><span class="line">            .description(<span class="string">&quot;路线制定Agent&quot;</span>)</span><br><span class="line">            <span class="comment">// 工具包</span></span><br><span class="line">            .toolkit(toolkit)</span><br><span class="line">            .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>new BaiduMapMCP()</code> 这一行——下集开始就会变成”把真实 MCP 客户端的工具 callbacks 灌进去”。本集留的这个 <code>new</code> 是 11-5&#x2F;11-6 的钓鱼线。</p>
+<h3 id="2-3-主管侧：把-agent-call-换成-streamResponse"><a href="#2-3-主管侧：把-agent-call-换成-streamResponse" class="headerlink" title="2.3 主管侧：把 agent.call() 换成 streamResponse"></a>2.3 主管侧：把 <code>agent.call()</code> 换成 <code>streamResponse</code></h3><p>f022 抓到主管侧的关键改动（在 <code>RemoteAgentTool.callRouteMakingAgent()</code> 这个工具方法里）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 主管 prompt（ManagerAgent.run 里）</span></span><br><span class="line"><span class="type">String</span> <span class="variable">prompt</span> <span class="operator">=</span> <span class="string">&quot;调用百度地图Mcp&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 老的 agent.call().block() 注释掉，换成流式</span></span><br><span class="line">Flux&lt;Event&gt; stream = AgentUtils.streamResponse(agent, prompt);</span><br><span class="line">stream</span><br><span class="line">    .doOnNext(msg -&gt; System.out.println(msg.getMessage()))</span><br><span class="line">    <span class="comment">// 阻塞直到结束</span></span><br><span class="line">    .blockLast();</span><br></pre></td></tr></table></figure>
+
+<p><strong>为什么必须换？</strong> 11-3 那种 <code>agent.call().block()</code> 只验证”我能跟你说上话”。要让远端<strong>真去跑 ReAct 循环、真去命中工具</strong>，得把 prompt 喂进去并实时拿响应流。<code>streamResponse</code> 返回 <code>Flux&lt;Event&gt;</code>，<code>.doOnNext</code> 边出边打、<code>.blockLast()</code> 阻塞到结束——典型的 Reactor 流式消费三段式。</p>
+<h3 id="2-4-卡点：参数类型签名写窄了"><a href="#2-4-卡点：参数类型签名写窄了" class="headerlink" title="2.4 卡点：参数类型签名写窄了"></a>2.4 卡点：参数类型签名写窄了</h3><p>f036 这一帧（也是讲师停下来 debug 的那一帧）抓到了红线：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">streamResponse(io.agentscope.core.ReActAgent, java.lang.String)</span><br><span class="line">  cannot be applied to</span><br><span class="line">  (io.agentscope.core.a2a.agent.A2aAgent, java.lang.String)</span><br></pre></td></tr></table></figure>
+
+<p>第一眼会误判成”A2A 通信坏了”。其实纯粹是工具类签名的事：</p>
+<ul>
+<li>前面课程封装 <code>AgentUtils.streamResponse</code> 时，第一个参数写的是 <code>@NotNull ReActAgent agent</code>——因为当时手里只有 <code>WeatAgent</code>（继承 <code>ReActAgent</code>）。</li>
+<li>从 Nacos 拿回来的远端代理是 <code>A2aAgent</code>，<strong>不是 <code>ReActAgent</code> 的子类</strong>——这俩各走各的分支。</li>
+<li>但两者<strong>共享同一个父类 <code>AgentBase</code></strong>（讲师当场点进去验证：<code>WeatAgent → ReActAgent → AgentBase</code>；<code>A2aAgent → AgentBase</code>）。</li>
+</ul>
+<p><strong>修复就一行</strong>：把 <code>streamResponse</code> 的第一个入参类型从 <code>ReActAgent</code> 上提到 <code>AgentBase</code>。本地 ReActAgent 子 Agent 和远程 A2aAgent 从此走同一条流式通道。</p>
+<blockquote>
+<p><strong>加工增量</strong>：消化稿没明说，但这一处其实是面向接口编程在 Agent 框架里的兑现——比起写两套 <code>streamResponse</code> 重载，把签名往父类抬一格就行。AgentBase 在这里扮演的是”本地&#x2F;远程都满足的最小公约数”角色。后续如果 AgentScope 再加第三类 Agent（比如 P2P 直连版），只要也继承 AgentBase，这条工具方法照样通用。</p>
+</blockquote>
+<h3 id="2-5-联调与”胜利日志”"><a href="#2-5-联调与”胜利日志”" class="headerlink" title="2.5 联调与”胜利日志”"></a>2.5 联调与”胜利日志”</h3><p>启动顺序：Nacos → <code>RouteMakingAgentApplication</code> → <code>ManagerAgentApplication</code>。两个 Agent 模块在 IDEA 多模块同时跑。</p>
+<p>证据要在<strong>两个控制台</strong>都看到：</p>
+<ul>
+<li><strong>主管端</strong>先打”工具方法：路线制定智能体…正在调用中”，再打”获取到的远程Agent描述：路线制定Agent”——这两条 11-3 就已经有了。</li>
+<li><strong>路线制定 Agent 端</strong>打出”路线制定Agent调用了百度地图MCP Server”——这才是本集<strong>独有</strong>的胜利信号。</li>
+</ul>
+<p>日志<strong>成对</strong>出现 &#x3D; 跨进程调用链完整。</p>
+<h2 id="3-没-get-的点"><a href="#3-没-get-的点" class="headerlink" title="3. 没 get 的点"></a>3. 没 get 的点</h2><ul>
+<li><code>AgentUtils.streamResponse(agent, prompt)</code> 把 prompt 透传给 <code>A2aAgent</code> 时，A2A 协议层具体怎么承运的？POST body 里包了一段任务对象？得回去翻 3-10 的 A2A 协议结构 + AgentScope 源码。</li>
+<li><code>AgentBase</code> 这个父类到底定义了什么契约？至少要有 <code>getDescription()</code> 和某种 <code>run</code>&#x2F;<code>stream</code> 入口，但本集没展开看接口。</li>
+<li>远端 LLM 拿到”调用百度地图Mcp”这五个字之后，进自己的 ReAct 循环——它的 system prompt 是怎么拼的？是 <code>description(&quot;路线制定Agent&quot;)</code> 这段加上 AgentScope 内置模板？本集没明说。</li>
+<li><code>ToolUtils.getToolkit(new BaiduMapMCP())</code> 这一行能否传多个工具实例？签名应该是 varargs，但本集只传一个，多实例场景留到 11-6 接真 MCP 时验证。</li>
+</ul>
+<h2 id="4-跟其他集的连接"><a href="#4-跟其他集的连接" class="headerlink" title="4. 跟其他集的连接"></a>4. 跟其他集的连接</h2><ul>
+<li><strong>上承</strong><ul>
+<li><strong>11-3</strong>：只跑到 <code>agent.call().block()</code>，验证主管能跟远端”打个招呼”。11-4 是把它再往里推一层——<code>streamResponse</code> + prompt 透传，让远端真干活。</li>
+<li><strong>3-12 多 Agent 的核心执行流程</strong>：那五步骨架”嵌套”在本集真正兑现成两层（主管骨架 → 路线 Agent 骨架）的最小可复现实例。</li>
+<li><strong>4-5 &#x2F; 4-6 创建 MCP 工具 + 注册</strong>：<code>@Tool + description</code> 是给 LLM 看的合同。本集是这套范式在 AgentScope 框架里的复刻，只是注册路径从 <code>ToolCallbackProvider</code> 换成 <code>ToolUtils.getToolkit(...)</code>。</li>
+<li><strong>4-13 SpringAi A2A 服务注册</strong>：同思想（声明即注册），AgentScope 这边的 builder 链式 API 把它换了一身皮。</li>
+</ul>
+</li>
+<li><strong>下启</strong><ul>
+<li><strong>11-5</strong>：把 <code>getBaiduMapMcp()</code> 方法体里的桩日志换成真实 MCP 服务端连接，拉取工具列表。</li>
+<li><strong>11-6</strong>：把 <code>new BaiduMapMCP()</code> 这一行换成”灌入真实 MCP 客户端的 callbacks”。</li>
+<li><strong>11-7</strong>：把”调用百度地图Mcp”这种死 prompt 换成”2026 元旦深圳到惠州 3 日游”那种长 prompt，让主管 LLM 在 routeMakingAgent &#x2F; tripPlannerAgent 两个工具间靠 description 自己选——本集只测了单工具命中边界，11-7 才测多工具路由。</li>
+<li><strong>11-8</strong>：HITL，再上一层。</li>
+</ul>
+</li>
+<li><strong>横向</strong><ul>
+<li>跟 <strong>10-1 SubAgent</strong> 是”跨进程版的 SubAgent”——主管负责拍板、小弟负责执行 + 持有自己的工具，思想完全一致。</li>
+<li>跟 <strong>6-12 大模型调用本地自定义的 MCP 服务</strong> 互为虚实：6-12 是同进程内 LLM 直接调 MCP；本集是 LLM → 远端 Agent → 远端 Agent 自己的 MCP，多了一跳 A2A。</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">               11-1 整体架构图（用户→主管→远端→MCP）</span><br><span class="line">                           │</span><br><span class="line">           ┌───────────────┴───────────────┐</span><br><span class="line">           ▼                               ▼</span><br><span class="line">  11-2 远端 Agent 注册到 Nacos     11-3 主管发现远端</span><br><span class="line">                           │</span><br><span class="line">                           ▼</span><br><span class="line">           ━━━━━━━━━━━ 11-4（本集）━━━━━━━━━━━</span><br><span class="line">               主管命令远端干活 + 远端命中自己的 @Tool</span><br><span class="line">           ────────────────────────────────────</span><br><span class="line">           │                  │                 │</span><br><span class="line">AgentUtils.streamResponse     AgentBase        BaiduMapMCP 桩 + Toolkit</span><br><span class="line">（替换 agent.call().block）   （胶水父类）     （远端 @Tool 注册）</span><br><span class="line">                           │</span><br><span class="line">                           ▼</span><br><span class="line">            主管端 + 远端 双控制台日志成对出现</span><br><span class="line">                           │</span><br><span class="line">           ┌───────────────┴───────────────┐</span><br><span class="line">           ▼                               ▼</span><br><span class="line">     11-5 真接 MCP 拉工具列表       11-7 多工具路由</span><br><span class="line">                           │</span><br><span class="line">                           ▼</span><br><span class="line">                    11-8 HITL 人工介入</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-自测题"><a href="#6-自测题" class="headerlink" title="6. 自测题"></a>6. 自测题</h2><p><strong>Q1.</strong> 主管 LLM 能直接看到 <code>BaiduMapMCP.getBaiduMapMcp()</code> 上 <code>@Tool(description=&quot;百度地图Mcp Server&quot;)</code> 这段描述吗？为什么？</p>
+<blockquote>
+<p>不能。<code>@Tool</code> 的可见域只在所在 Agent 的进程内。主管 LLM 只看见自己进程里的 <code>callRouteMakingAgent</code>，远端的 <code>@Tool</code> 是给<strong>远端 LLM</strong> 看的。主管之所以能”间接”触发远端工具，是先命中 <code>callRouteMakingAgent</code>，再由这个工具发起 A2A 调用、把 prompt 喂给远端，让远端 LLM 自己去匹配描述。</p>
+</blockquote>
+<p><strong>Q2.</strong> <code>AgentUtils.streamResponse(agent, prompt)</code> 报”cannot be applied to (A2aAgent, String)”。原因和最小修复是什么？</p>
+<blockquote>
+<p>原因：工具方法第一个参数的类型写成了 <code>ReActAgent</code>，但 A2A 拿回来的远端代理是 <code>A2aAgent</code>，二者没有父子关系（只共享更上一层的 <code>AgentBase</code>）。最小修复：把参数类型从 <code>ReActAgent</code> 上提到 <code>AgentBase</code>，本地 ReActAgent 子类和远端 A2aAgent 就都能传。</p>
+</blockquote>
+<p><strong>Q3.</strong> 本集的 <code>getBaiduMapMcp()</code> 方法体里只有三行 <code>log.info</code>，没接真 MCP。为什么要这样做？</p>
+<blockquote>
+<p>桩日志驱动验证。讲师要先验证”主管→远端→远端命中自己工具”这条调用链通不通，把真依赖（百度地图 MCP）隔离掉，<strong>分隔可疑域</strong>。等链路验证完，11-5 &#x2F; 11-6 再来接真 MCP。</p>
+</blockquote>
+<p><strong>Q4.</strong> 路线制定 Agent 把 <code>BaiduMapMCP</code> 注册到 Toolkit 的代码是什么样？为什么不用 <code>@Component</code> 自动扫描？</p>
+<blockquote>
+<p><code>ToolUtils toolUtils = new ToolUtils();</code> → <code>Toolkit toolkit = toolUtils.getToolkit(new BaiduMapMCP());</code> → <code>AgentUtils.getReActAgentBuilder().toolkit(toolkit).build()</code>。不用 <code>@Component</code> 是因为 AgentScope 这一支不走 Spring 自动扫描，工具实例要在 builder 链里手动 <code>new</code> 进去——属于框架风格选择，跟 SAA 1.1 的 <code>@Tool + @Bean</code> 是两套范式。</p>
+</blockquote>
+<p><strong>Q5.</strong> 跑通本集需要在两个控制台同时看到哪些日志？只看主管端日志够吗？</p>
+<blockquote>
+<p>主管端要看到”工具方法：路线制定智能体…正在调用中” + “获取到的远程Agent描述：路线制定Agent”；远端要看到”路线制定Agent调用了百度地图MCP Server”。<strong>只看主管端不够</strong>——那只能证明到 11-3 那一步（连通 + 描述拿到），证明不了远端 LLM 真的进了 ReAct 循环并命中自己的工具。本集独有的胜利信号就是远端控制台那行 log。</p>
+</blockquote>
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AgentUtils.streamResponse</td>
+<td>公共工具类里的流式调用方法，返回 <code>Flux&lt;Event&gt;</code>，外面接 <code>.doOnNext + .blockLast()</code> 边收边打。本集替代 <code>agent.call().block()</code> 的核心改动</td>
+</tr>
+<tr>
+<td>AgentBase 父类胶水</td>
+<td><code>ReActAgent</code>（本地）和 <code>A2aAgent</code>（远端）的共同父类。把工具方法签名提到 <code>AgentBase</code> 即可让一个工具同时兼容本地&#x2F;远程两种 Agent</td>
+</tr>
+<tr>
+<td>远端 Agent 持有自己的 @Tool</td>
+<td><code>BaiduMapMCP.getBaiduMapMcp()</code> 上的 <code>@Tool</code> 只在路线制定 Agent 进程内可见，主管 LLM 看不见——<code>@Tool</code> 的可见域天然以进程为边界</td>
+</tr>
+<tr>
+<td>Toolkit + ToolUtils.getToolkit</td>
+<td>AgentScope 风格的工具注册：<code>new</code> 工具实例 → <code>getToolkit(...)</code> 包成 Toolkit → builder <code>.toolkit(...)</code> 注入。不走 Spring 自动扫描</td>
+</tr>
+<tr>
+<td>桩日志驱动验证</td>
+<td>真依赖（百度 MCP）先用三行 <code>log.info</code> 顶包，先验证调用链，再接真服务。11-2 起就在用的工程姿势</td>
+</tr>
+<tr>
+<td>极简 prompt</td>
+<td>“调用百度地图Mcp” 五个字。低密度故意，让主管 LLM 只能靠 <code>callRouteMakingAgent</code> 的 description 匹配——单工具命中的最小测试 prompt</td>
+</tr>
+<tr>
+<td>双控制台证据</td>
+<td>主管端 + 远端日志成对出现才算完整验证，远端那行”路线制定Agent调用了百度地图MCP Server”是本集独有的胜利信号</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-11-4_%E6%B5%8B%E8%AF%95%E4%B8%BB%E7%AE%A1Agent%E8%B0%83%E5%8A%A8%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1/">https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-11-4_%E6%B5%8B%E8%AF%95%E4%B8%BB%E7%AE%A1Agent%E8%B0%83%E5%8A%A8%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E6%89%A7%E8%A1%8C%E4%BB%BB%E5%8A%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-11-7_%E4%B8%BB%E7%AE%A1Agent%E8%87%AA%E4%B8%BB%E5%88%86%E5%8F%91%E4%BB%BB%E5%8A%A1%E7%BB%99%E8%BF%9C%E7%A8%8B%E7%9B%B8%E5%BA%94%E7%9A%84%E6%88%90%E5%91%98/" title="11-7_主管Agent自主分发任务给远程相应的成员"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">11-7_主管Agent自主分发任务给远程相应的成员</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位把”主管 Agent 该把活派给谁”这件事，从你写在 Prompt 里的硬编码清单，挪到运行时让主管自己去 Nacos 拉卡片读 description 挑人——这一挪，才配叫”自主”。 2. 主体起点：前几集为什么不算自主到 11-6 为止，主管 Agent 是会分发任务的，但它”知道有谁可用”是你在 Prompt 里告诉它的——“现在有两个智能体，一个擅长自驾游路线，一个擅长景点行程规划”。这就是作弊条。本集刻意把这条作弊条撕掉，让主管走一遍：从 Nacos 拉所有可用 Agent → 自己读每张卡片的 description → 自己挑谁干哪一步。新增一个远程 Agent 不用动主管代码。 改三处描述（这是本集的全部动作）容易混的是反复出现的 “description” 三个字。其实是三个完全不同位置的描述，缺一不可： ① 远程 Agent 的卡片 description——SAAgent.description(&quot;擅长处理自驾游路线制定&quot;) &#x2F; SAAgent.description(&quot;擅长处理景点行程规划&quot...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-11-8_%E4%BA%BA%E5%B7%A5%E4%BB%8B%E5%85%A5%E4%BF%AE%E6%94%B9%E4%B8%BB%E7%AE%A1Agent%E5%88%B6%E5%AE%9A%E7%9A%84%E8%AE%A1%E5%88%92/" title="11-8_人工介入修改主管Agent制定的计划"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">11-8_人工介入修改主管Agent制定的计划</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位把”主管 Agent 自主拆任务”这条全自动流水线开一个口子——计划刚成型、还没开始执行的那一刻，让你用自然语言（不只是 yes&#x2F;no）插嘴改它。 2. 主体2.1 为什么 needUserConfirm 不够9-6 学过 PlanNotebook 上有个 .needUserConfirm(true)，跑起来效果就是计划列出后框架问你”continue? y&#x2F;n”。 问题很现实：你看到主管列出来的五个子任务里，第 2 步选错了酒店筛选维度、第 4 步多了一个你根本不在意的步骤——这时候你想说的是”把第 2 步改成按预算筛、把第 4 步删掉”，而不是 yes &#x2F; no。  加工增量：消化稿里把 needUserConfirm 定性为”二值确认”，这个词其实点出了它的设计哲学——框架只保证”有断点”，但”断点上能传什么数据”是它没解决的事，留给你用 Hook 自己填。  2.2 武器一：UserAgentAgentScope 自带的一个 Agent，注意：  不挂 LLM 不挂工具 不需要 prompt  它只是被包装成 Agent 接口...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/" title="10-1_Agent的牛马小弟SubAgent"><img class="cover" src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">10-1_Agent的牛马小弟SubAgent</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位SubAgent 是主 Agent 在干活时，把某个”单个专业场景”（写 SQL、CRUD、登录接口）外包给一个跑在独立上下文里的小弟，唯一目的就是不让这点专业脏活污染主上下文。 2. 主体2.1 先把上一集的三层架构在脑子里挂好这集前 4 分钟全在复述上一集，把那张图想清楚再往下读会舒服很多：  总协调 Agent（总监级）：只做规划和需求切分，自己不下场。 Agent 主管（领域主管，前端 &#x2F; 后端 &#x2F; 测试 &#x2F; 运维 &#x2F; 安全 &#x2F; 产品 等）：拿到本领域的任务后，继续切，再派给下面的执行者。 Agent 执行者（初级 &#x2F; 实习生程序员）：真正动手，具有领域知识，能自己组合工具、调 MCP 和 Function Calling，不用反复问大模型”我该用啥工具”。  每一层内部都跑同一个循环：ReAct——思考、执行、再思考”结果对不对、和目标有没有出入”、有偏差就动态调整。讲师反复强调这一条，不是凑数，是后面 SubAgent 出场时的语境：SubAgent 内部也是这个循环，只是壳子不一样。  2....</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-2_Agent_Skills%E5%B0%B1%E6%98%AF%E4%B8%AA%E4%B8%93%E5%B1%9E%E5%B7%A5%E4%BD%9C%E6%B5%81/" title="10-2_Agent_Skills就是个专属工作流"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">10-2_Agent_Skills就是个专属工作流</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Skills 不是”会用工具”，是”一整套写死的 SOP + 每步该用哪个工具”的领域知识包；它反过来指挥 MCP 只吐你需要的那一两个工具，跟 SubAgent 区别在于 Skills 可移植可复用、SubAgent 用完即弃。 2. 主体2.1 先把”为啥还要 Skills”这个疑问钉死听完前几集你大概率会冒出一个问题：有 MCP 就能调工具了，Skills 不就是多一层吗？ 这正是本集要回应的。 回顾纯 MCP 路径下你会踩的坑（见 f010）：  MCP 一股脑把所有工具描述塞进上下文 → 上下文先吃掉一大块。 Agent 自己不知道该用哪个 → 反复问 LLM”我该用哪个” → 烧 token、多轮往返。  第一层补丁（3-7 那集讲过）是：给 Agent 灌点领域知识，让它自己挑工具、让 MCP 按需返回。本集要在这层补丁上再加码——Skills 不止是”挑工具的脑子”，它装的是整套 SOP。 2.2 SOP 才是 Skills 的真身 加工增量：讲师在这里转折得很快，原话基本是”agent skills 它不只是调用工具，它是一个包含了一整套 SOP...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-4_Skills%E7%9A%84%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" title="10-4_Skills的渐进式加载机制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">10-4_Skills的渐进式加载机制</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Skills 文件夹塞了一堆东西（领域知识、流程模板、工具说明、脚本资源），但它不一次性灌进上下文——分三段按时序拉，先目录、再工具、最后资源。 2. 主体痛点先摆出来上一集说 Skills 是”技能系统”，比 MCP 多出了领域知识 + 工作流程模板。你立刻应该有一个疑问：  MCP 一股脑把所有工具推过来已经把上下文撑爆了。现在 Skills 文件夹里东西更多——知识、流程、说明书、脚本、资源——这不是更糟？  Skills 的设计就是回应这个疑问的。它把”加载”拆成三段，每段时机不同。 三段加载（时序很关键）   阶段 加载什么 触发时机 大小    ① 元数据 技能名称 + 描述 + 操作步骤索引 Skill 一被挂上就读 极小   ② 工具 这次任务真正要用的那几个工具 智能体读完元数据、确认要执行时 中等   ③ 附加资源 脚本、指令、参考资料 执行到具体那一步时 不定，按需   注意第 16 帧画布上写得很直白：元数据 → 技能名称 / 描述 / 操作步骤，旁边一行小字”完成之后被释放”。元数据本身就是被设计成可丢弃的临时路标。 元数据 &#x3D;...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-3_Skills%E8%A3%85%E8%BD%BD%E7%9A%84%E6%98%AF%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/" title="Skills装载的是专业知识和工作流程"><img class="cover" src="/images/agent-learning/10-3_Skills%E8%A3%85%E8%BD%BD%E7%9A%84%E6%98%AF%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/f008_t0312.3s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">Skills装载的是专业知识和工作流程</div></div><div class="info-2"><div class="info-item-1">Skills装载的是专业知识和工作流程1. 一句话定位10-2 你刚听到”Skills 是个专属工作流”这个词，这一集就是把那个词撑开——Skills 不是工具包，而是专业知识 + 工作流程 + 执行逻辑三件套，整套以文件夹形式塞给 Agent。 2. 主体2.1 先把 Skills 和 MCP 钉死（避免和 3-7&#x2F;3-8 混）10-2 后你可能还在心里把 Skills 当成”高级版工具调用”。这一集开篇就在这帧图上把两者并排放：   MCP &#x3D; 外部工具连接的标准（横向：让任何 LLM 用同一套协议调用墨刀、百度地图、携程网……） Skills &#x3D; 技能系统的标准（纵向：让 Agent 装下整个产品领域 &#x2F; 代码领域 &#x2F; 测试领域的 know-how）  两者不冲突、不替代。这一刀和 3-8 那集”Skills + MCP 最强组合”是同一道菜的两个视角——3-8 讲怎么搭，本集讲怎么分。  加工增量：讲师只说”两个不同概念”。我把它进一步抽象成横向 vs 纵向的两层标准——MCP 解决”工具怎么连”，Skills 解决”领域...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-7_SpringAi_112%E5%AE%9E%E7%8E%B0Agent%E8%A3%85%E8%BD%BDSkills/" title="10-7_SpringAi_112实现Agent装载Skills"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">10-7_SpringAi_112实现Agent装载Skills</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位你要把 3-7 学的”领域工作流 Skills”在 SAA 1.1.2 里真正落地——办法是走 .hooks() 而不是 .tools()，再按 resources/skills/&lt;技能名&gt;/SKILL.md 这条硬路径把 Markdown 喂进去。 2. 主体2.1 三个版本号别看晕打开 pom.xml 第一眼会撞见仨版本号，长得像但分属三条线：    角色 坐标 版本    主 BOM spring-ai-alibaba-bom 1.1.2.0   扩展 BOM spring-ai-alibaba-extensions-bom 1.1.2.1   SpringBoot spring-boot-dependencies 3.5.x    加工增量：视频按”主 BOM → 扩展 BOM → SpringBoot”顺讲，但没强调为什么扩展 BOM 尾号要错一位。我的解读是阿里把仓库拆成”主仓 + 扩展仓”两条独立发布线——dashscope starter 这种”非核心连接器”归扩展仓，所以版本号独立递增，第一眼看起来像抄错的 .0 vs .1，其实是两...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/" title="总结 Agent 从助手到自主协作的进化过程"><img class="cover" src="/images/agent-learning/10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/f006_t0077.7s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-20</div><div class="info-item-2">总结 Agent 从助手到自主协作的进化过程</div></div><div class="info-2"><div class="info-item-1">总结 Agent 从助手到自主协作的进化过程1. 一句话定位这一集把前面 10 章学到的全部零件（LLM、Agent、MCP、ReAct、工作流、多 Agent、SubAgent、Skills）按”出现顺序 + 各自补的洞”穿成一条五阶段时间线，是整套课程的收口图。 2. 主体：五个阶段，其实是”补五个洞”视频按阶段讲，但你听完会发现：每跳一阶段都在补上一阶段留下的洞。把”阶段”换成”洞”来记会更顺手。 阶段 1：LLM 只会问答你给 prompt，它返回内容（哪怕是图、视频，多模态也只是返回形式更花）。 留下的洞：不会自主决策。你问 A，它就答 A，不会自己把 A 拆成 A+B 再去解 B。  阶段 2：Agent 学会用工具为了让 LLM 能查数据库、生成 PPT、调第三方 API，加上”使用工具”的能力 —— 这就是 Agent。MCP 是这个阶段的工程标准化产物：在它之前各家自己写 function call，之后所有大模型基于同一套接口调同一个工具，省掉重复造轮子。  留下的三个洞（重点，整集的转折点）：  还是不会自主决策——MCP 没解决这个，它只解决”接口统一” ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">106</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93"><span class="toc-number">2.</span> <span class="toc-text">2. 主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E4%B8%89%E5%B1%82%E8%B0%83%E7%94%A8%E9%93%BE%EF%BC%9A%E4%B8%A4%E4%B8%AA-Tool-%E5%88%86%E5%88%AB%E9%95%BF%E5%9C%A8%E5%93%AA"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 三层调用链：两个 @Tool 分别长在哪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E8%BF%9C%E7%AB%AF%E7%9A%84%E5%B7%A5%E5%85%B7%EF%BC%9ABaiduMapMCP-%E6%A1%A9-%E6%B3%A8%E5%86%8C"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 远端的工具：BaiduMapMCP 桩 + 注册</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E4%B8%BB%E7%AE%A1%E4%BE%A7%EF%BC%9A%E6%8A%8A-agent-call-%E6%8D%A2%E6%88%90-streamResponse"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 主管侧：把 agent.call() 换成 streamResponse</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%8D%A1%E7%82%B9%EF%BC%9A%E5%8F%82%E6%95%B0%E7%B1%BB%E5%9E%8B%E7%AD%BE%E5%90%8D%E5%86%99%E7%AA%84%E4%BA%86"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 卡点：参数类型签名写窄了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E8%81%94%E8%B0%83%E4%B8%8E%E2%80%9D%E8%83%9C%E5%88%A9%E6%97%A5%E5%BF%97%E2%80%9D"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 联调与”胜利日志”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B2%A1-get-%E7%9A%84%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">3. 没 get 的点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">4. 跟其他集的连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98"><span class="toc-number">6.</span> <span class="toc-text">6. 自测题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/" title="10-1_Agent的牛马小弟SubAgent"><img src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="10-1_Agent的牛马小弟SubAgent"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/" title="10-1_Agent的牛马小弟SubAgent">10-1_Agent的牛马小弟SubAgent</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-2_Agent_Skills%E5%B0%B1%E6%98%AF%E4%B8%AA%E4%B8%93%E5%B1%9E%E5%B7%A5%E4%BD%9C%E6%B5%81/" title="10-2_Agent_Skills就是个专属工作流">10-2_Agent_Skills就是个专属工作流</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-4_Skills%E7%9A%84%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" title="10-4_Skills的渐进式加载机制">10-4_Skills的渐进式加载机制</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-3_Skills%E8%A3%85%E8%BD%BD%E7%9A%84%E6%98%AF%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/" title="Skills装载的是专业知识和工作流程"><img src="/images/agent-learning/10-3_Skills%E8%A3%85%E8%BD%BD%E7%9A%84%E6%98%AF%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/f008_t0312.3s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Skills装载的是专业知识和工作流程"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-3_Skills%E8%A3%85%E8%BD%BD%E7%9A%84%E6%98%AF%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/" title="Skills装载的是专业知识和工作流程">Skills装载的是专业知识和工作流程</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-10-7_SpringAi_112%E5%AE%9E%E7%8E%B0Agent%E8%A3%85%E8%BD%BDSkills/" title="10-7_SpringAi_112实现Agent装载Skills">10-7_SpringAi_112实现Agent装载Skills</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
