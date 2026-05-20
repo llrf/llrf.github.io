@@ -1,0 +1,329 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>9-8_主管Agent分发任务给相应Agent | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="1. 一句话定位你要让主管 Agent 在「拆完任务」之后多干一件事：给每一步写上到底该谁来做——但本集只到「写上」为止，真正跨节点的调用还在下一集。 2. 主体2.1 起点：9-7 已经把任务能拆开到上一集为止，主管 Agent 已经能接 帮我规划深圳到惠州 3 日自驾游 这种 prompt，调 create_plan 工具拆成「查天气 &#x2F; 制路线 &#x2F; 选景点 &#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="9-8_主管Agent分发任务给相应Agent">
+<meta property="og:url" content="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-9-8_%E4%B8%BB%E7%AE%A1Agent%E5%88%86%E5%8F%91%E4%BB%BB%E5%8A%A1%E7%BB%99%E7%9B%B8%E5%BA%94Agent/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="1. 一句话定位你要让主管 Agent 在「拆完任务」之后多干一件事：给每一步写上到底该谁来做——但本集只到「写上」为止，真正跨节点的调用还在下一集。 2. 主体2.1 起点：9-7 已经把任务能拆开到上一集为止，主管 Agent 已经能接 帮我规划深圳到惠州 3 日自驾游 这种 prompt，调 create_plan 工具拆成「查天气 &#x2F; 制路线 &#x2F; 选景点 &#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg">
+<meta property="article:published_time" content="2026-05-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-20T02:08:10.919Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "9-8_主管Agent分发任务给相应Agent",
+  "url": "https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-9-8_%E4%B8%BB%E7%AE%A1Agent%E5%88%86%E5%8F%91%E4%BB%BB%E5%8A%A1%E7%BB%99%E7%9B%B8%E5%BA%94Agent/",
+  "image": "https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg",
+  "datePublished": "2026-05-19T16:00:00.000Z",
+  "dateModified": "2026-05-20T02:08:10.919Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-9-8_%E4%B8%BB%E7%AE%A1Agent%E5%88%86%E5%8F%91%E4%BB%BB%E5%8A%A1%E7%BB%99%E7%9B%B8%E5%BA%94Agent/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '9-8_主管Agent分发任务给相应Agent',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d3585ec84f1.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">9-8_主管Agent分发任务给相应Agent</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">9-8_主管Agent分发任务给相应Agent</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-20T02:08:10.919Z" title="更新于 2026-05-20 10:08:10">2026-05-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC9%E7%AB%A0-Docker-%E9%83%A8%E7%BD%B2%E5%88%86%E5%B8%83%E5%BC%8F-Agent-%E6%90%9E%E5%AE%9A%E6%97%85%E6%B8%B8%E8%A7%84%E5%88%92/">第9章 Docker 部署分布式 Agent 搞定旅游规划</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>你要让主管 Agent 在「拆完任务」之后多干一件事：给每一步<strong>写上</strong>到底该谁来做——但本集只到「写上」为止，真正跨节点的调用还在下一集。</p>
+<h2 id="2-主体"><a href="#2-主体" class="headerlink" title="2. 主体"></a>2. 主体</h2><h3 id="2-1-起点：9-7-已经把任务能拆开"><a href="#2-1-起点：9-7-已经把任务能拆开" class="headerlink" title="2.1 起点：9-7 已经把任务能拆开"></a>2.1 起点：9-7 已经把任务能拆开</h3><p>到上一集为止，主管 Agent 已经能接 <code>帮我规划深圳到惠州 3 日自驾游</code> 这种 prompt，调 <code>create_plan</code> 工具拆成「查天气 &#x2F; 制路线 &#x2F; 选景点 &#x2F; …」一串子任务。</p>
+<p>但拆完之后呢？每一步该派给哪个员工——这一步还没做。</p>
+<h3 id="2-2-实验台：还是那个-ManagerAgentApplication"><a href="#2-2-实验台：还是那个-ManagerAgentApplication" class="headerlink" title="2.2 实验台：还是那个 ManagerAgentApplication"></a>2.2 实验台：还是那个 ManagerAgentApplication</h3><p>打开 <code>ManagerAgent.java</code>，第 35 行附近构造器还是熟悉的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">agent = Agentutils.getReActAgentBuilder(</span><br><span class="line">    name: <span class="string">&quot;ManagerAgent&quot;</span>,</span><br><span class="line">    description: <span class="string">&quot;主管Agent&quot;</span></span><br><span class="line">)</span><br><span class="line">.planNotebook(plan.getPlan())</span><br><span class="line">.hook(<span class="keyword">new</span> <span class="title class_">planHook</span>())</span><br><span class="line">.build();</span><br></pre></td></tr></table></figure>
+
+<p>注意一个<strong>取舍</strong>：这里没有调用 <code>.tools(routeMakingAgent, tripPlannerAgent)</code> 把下属当工具注册进来。本集到这一步为止，两个下属节点（routeMaking_agent &#x2F; tripPlanner_agent 两个 Maven 子模块）<strong>根本没启动</strong>，主管也没有任何代码层面的句柄能调用它们。</p>
+<h3 id="2-3-关键招数：把「下属是谁、擅长什么」喂进-prompt"><a href="#2-3-关键招数：把「下属是谁、擅长什么」喂进-prompt" class="headerlink" title="2.3 关键招数：把「下属是谁、擅长什么」喂进 prompt"></a>2.3 关键招数：把「下属是谁、擅长什么」喂进 prompt</h3><p><code>runO()</code> 里的 prompt 在 9-7 的基础上多塞了两段（图见 <code>frames/f008_t0103.2s_anchor.jpg</code>、<code>frames/f010_t0116.1s_anchor.jpg</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">帮我制定2026年元旦，</span><br><span class="line">深圳到惠州3日游自驾游计划，</span><br><span class="line">请包含吃住行，天气，酒店，餐饮美食。</span><br><span class="line"></span><br><span class="line">你可以调用以下Agent处理子任务：</span><br><span class="line">routeMakingAgent：擅长处理自驾游路线制定</span><br><span class="line">tripPlannerAgent：擅长处理景点行程规划</span><br><span class="line"></span><br><span class="line">每个子任务要注明调用的Agent</span><br></pre></td></tr></table></figure>
+
+<p>三段拼起来：① 原始需求；② 下属花名册（名字+擅长）；③ 硬约束「每一步必须注明 Agent」。整个「派单能力」就是这三行平铺的字符串，没有注册中心、没有反射、没有反向查询。</p>
+<h3 id="2-4-跑一遍看输出"><a href="#2-4-跑一遍看输出" class="headerlink" title="2.4 跑一遍看输出"></a>2.4 跑一遍看输出</h3><p>控制台日志（<code>frames/f018_t0208.9s_anchor.jpg</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">##### 调用工具：create_plan</span><br><span class="line">我已为您制定了2026年元旦深圳到惠州3日自驾游计划，包含以下5个子任务：</span><br><span class="line">1. **制定自驾路线** - 调用 routeMakingAgent 规划最佳自驾路线</span><br><span class="line">2. **规划景点行程** - 调用 tripPlannerAgent 安排3日景点游览</span><br><span class="line">3. **预订住宿安排** - 推荐适合的酒店</span><br><span class="line">4. **安排餐饮美食** - 推荐当地特色美食和餐厅</span><br><span class="line">5. **查询天气预报** - 提供元旦期间天气信息和出行建议</span><br><span class="line"></span><br><span class="line">Should I proceed with this plan?</span><br></pre></td></tr></table></figure>
+
+<p><strong>加工增量</strong>：盯紧第 3、4、5 步——它们后面<strong>没有</strong>「调用 xxxAgent」。LLM 没瞎编一个不存在的 Agent，也没报错，就<strong>空着</strong>。这说明本集的派单是「软匹配」：下属清单匹配得上的才挂名，匹配不上的就先留着，等后续课加新下属或主管自己兜底。视频里讲师没明说这点，但日志摆在那里。</p>
+<p>末尾的 <code>Should I proceed with this plan?</code> 来自 ReAct 框架的人在环节确认——告诉你计划阶段到此为止。</p>
+<h3 id="2-5-架构图里画了，但本集还没用的东西"><a href="#2-5-架构图里画了，但本集还没用的东西" class="headerlink" title="2.5 架构图里画了，但本集还没用的东西"></a>2.5 架构图里画了，但本集还没用的东西</h3><p><code>frames/f001_t0000.0s_scene.jpg</code> 那张「分布式 Agent 自主旅游规划」架构图上，主管节点和两个下属节点之间画了 <strong>A2A 协议</strong>箭头，中间还挂着 <strong>Nacos 注册中心（发现其它节点的 Agent）</strong>，下属节点底下还写了「按思考-执行-反馈、自主执行单一任务」。</p>
+<p>这些<strong>都是下一集的事</strong>。本集这张图的作用是「未来全景」，不是「当下现状」。当下的现状是：主管在自己的 LLM 调用里演了一遍「如果让我派单，我会派给谁」，仅此而已。</p>
+<h3 id="2-6-为什么要紧接着引出-A2A"><a href="#2-6-为什么要紧接着引出-A2A" class="headerlink" title="2.6 为什么要紧接着引出 A2A"></a>2.6 为什么要紧接着引出 A2A</h3><p>讲师抛了一个收尾问题：下属是谁、擅长什么——不能永远靠用户在 prompt 里手喂。</p>
+<p>手喂版的痛点很具体：① 主管不知道生产环境里实际还活着哪些 Agent；② 用户要预先知道所有 Agent 的能力描述；③ 新增 &#x2F; 下线 Agent 都得改 prompt。</p>
+<p>解法是 <strong>A2A 协议 + Nacos 注册中心 + Agent 卡片（Agent Card）</strong>：远程 Agent 自己向注册中心登记一张「卡片」自述能力，主管启动时去拉名单，prompt 里的「下属清单」就自动生成了。这是 9-9 要做的事。</p>
+<h2 id="3-没-get-的点"><a href="#3-没-get-的点" class="headerlink" title="3. 没 get 的点"></a>3. 没 get 的点</h2><ul>
+<li>「每个子任务要注明调用的 Agent」的输出格式现在是纯 Markdown，后面要不要被解析成结构化字段（JSON &#x2F; 工具调用参数）再分发？光看本集还看不到。</li>
+<li><code>Agentutils.getReActAgentBuilder(...)</code> 链式里没有 <code>.tools(...)</code> 把下属注入，那 9-9 之后 A2A 拿到的远程 Agent 是以什么形态注入？是当作一种特殊的 <code>tool</code> 还是另起一条 <code>RemoteAgent</code> 路径？</li>
+<li>架构图右下「子 Agent 异步执行单一任务」的「异步」到底是 Reactor <code>Flux</code> 那种进程内异步，还是跨节点的真异步——本集看不出，等下属节点跑起来才知道。</li>
+<li>主管目前对「没匹配上的子任务」是闷着不分配。后续是新增 Agent，还是主管自己兜底执行？</li>
+</ul>
+<h2 id="4-跟其他集的连接"><a href="#4-跟其他集的连接" class="headerlink" title="4. 跟其他集的连接"></a>4. 跟其他集的连接</h2><ul>
+<li><strong>上承 9-7</strong>：9-7 把「主管能拆任务」做出来；本集补「拆完知道派给谁」。两集合起来才凑够「主管 &#x3D; 拆 + 派」这两件套。</li>
+<li><strong>上承 3-9（搞定复杂活儿得靠多个 Agent 协作）</strong>：3-9 给了「主管 + 专科」的人力组织雏形，本集是把派单这一步在代码里落地——但用的还是「prompt 喂能力」的临时方案。</li>
+<li><strong>上承 3-12（多 Agent 核心执行流程）</strong>：3-12 的「多 Agent 五步骨架」里第二步「任务派单」就是本集做的事；本集把骨架的这一步单独抠出来反复打磨。</li>
+<li><strong>下启 9-9</strong>：用 AgentScope 实现 A2A 协议，让主管通过 Nacos 注册中心拿 Agent 卡片，把本集 prompt 里手喂的下属清单<strong>自动化</strong>。</li>
+<li><strong>横向 3-10（多 Agent 跨部门协作 A2A 协议）</strong>：3-10 在协议层讲「卡片 &#x2F; 能力发现」，本集是没用 A2A 时的<strong>对照组</strong>——故意演一遍「手喂下属」的痛点版，让你下一集看 A2A 时知道它在解什么。</li>
+<li><strong>横向 4-14（SpringAi 1.1 A2A 的服务发现）</strong>：4-14 是 Spring 框架封装层的服务发现，本集是引出「为什么需要服务发现」的动机篇。</li>
+<li><strong>横向 5-5（Agent 团队和大模型无缝协作）</strong>：5-5 已经做过同进程内的「派单 + 汇总」完整骨架，本集是把派单这一步拎出来、并准备<strong>跨节点化</strong>的过渡集。</li>
+</ul>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">9-7 主管拆任务（create_plan）</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">9-8（本集）派单 = prompt 里手喂下属清单</span><br><span class="line">       │   └─ 输出：5 个子任务，匹配上的 2 个挂 Agent 名字，其余空着</span><br><span class="line">       │   └─ 只「注明」，没真调用，没启动下属节点</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">9-9 A2A + Nacos + Agent 卡片：自动发现下属，把手喂版替换掉</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">后续  跨节点真调用（下属节点接 prompt → 思考-执行-反馈 → 回结果）</span><br></pre></td></tr></table></figure>
+
+<p>主管节点能力演化轴：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">拆任务  ─▶  拆 + 派（手喂版）  ─▶  拆 + 派（自动发现版）  ─▶  拆 + 派 + 跨节点调用 + 汇总</span><br><span class="line">9-7         9-8（本集）           9-9                       9-10 及之后</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-自测题（5-卡）"><a href="#6-自测题（5-卡）" class="headerlink" title="6. 自测题（5 卡）"></a>6. 自测题（5 卡）</h2><ol>
+<li>本集主管 Agent 在 prompt 里被新增了哪三段内容？它们各自起什么作用？</li>
+<li>跑出来 5 个子任务，为什么只有 2 个挂了下属 Agent 名字，其它 3 个空着？这暴露了「手喂下属清单」方案的什么问题？</li>
+<li>「注明」和「调用」在本集里是两码事——具体差在哪？看代码哪里能确认「调用」这一步还没发生？</li>
+<li>架构图里的 A2A 协议 + Nacos 注册中心在本集起作用了吗？如果没有，它们为什么还出现在图里？</li>
+<li>如果让你不重启主管进程就上线一个新的下属 Agent（比如「美食推荐 Agent」），用本集的方案能做到吗？为什么 9-9 要换 A2A？</li>
+</ol>
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>一句话解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>主管Agent</td>
+<td>接 prompt → 调 create_plan 拆任务 → 在每个子任务后注明派给谁；本集焦点在「注明」这一步</td>
+</tr>
+<tr>
+<td>自主分发</td>
+<td>主管按「子任务性质 × 下属擅长」自己做匹配，不靠用户硬编码 if-else</td>
+</tr>
+<tr>
+<td>路线制定Agent</td>
+<td>routeMakingAgent，prompt 里声明「擅长处理自驾游路线制定」，本集没启动其节点</td>
+</tr>
+<tr>
+<td>行程规划Agent</td>
+<td>tripPlannerAgent，prompt 里声明「擅长处理景点行程规划」，本集没启动其节点</td>
+</tr>
+<tr>
+<td>create_plan</td>
+<td>ReAct 框架下主管真正调用的工具；任务拆解 + 派单一次性塞进它的返回里</td>
+</tr>
+<tr>
+<td>下属能力清单</td>
+<td>本集 prompt 里手喂的「Agent 名: 擅长 xxx」两行；临时方案，9-9 用 Agent 卡片替换</td>
+</tr>
+<tr>
+<td>Agent卡片</td>
+<td>远程 Agent 自描述能力的元数据，由注册中心分发；本集只点到名，下一集主角</td>
+</tr>
+<tr>
+<td>A2A协议</td>
+<td>Agent 之间发现彼此 &#x2F; 传卡片 &#x2F; 派任务的协议层；本集架构图已画但未用</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-9-8_%E4%B8%BB%E7%AE%A1Agent%E5%88%86%E5%8F%91%E4%BB%BB%E5%8A%A1%E7%BB%99%E7%9B%B8%E5%BA%94Agent/">https://llrf.github.io/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-9-8_%E4%B8%BB%E7%AE%A1Agent%E5%88%86%E5%8F%91%E4%BB%BB%E5%8A%A1%E7%BB%99%E7%9B%B8%E5%BA%94Agent/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-9-9_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%A1%E7%89%87%E6%B3%A8%E5%86%8C%E5%88%B0Nacos/" title="9-9_团队成员的智能体卡片注册到Nacos"><img class="cover" src="/images/agent-learning/9-9_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%A1%E7%89%87%E6%B3%A8%E5%86%8C%E5%88%B0Nacos/f002_t0026.6s_scene.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">9-9_团队成员的智能体卡片注册到Nacos</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位把上一集主管 prompt 里写死的”下属能干啥”，换成让远程 Agent 自己把卡片注册到 Nacos，让主管去注册中心捞——这一集只做”注册”这一半。 2. 主体上集的”反例”先记牢上一集（9-8）是这样玩的：你在主管 Agent 的 prompt 里硬塞一段文本，告诉它”routeMakingAgent：擅长处理自驾游路线制定 &#x2F; tripPlannerAgent：擅长处理景点行程规划”，它就照着分发。  这能跑，但味儿不对——智能体的能力不应该由你手抄进 prompt，应该由主管自己去发现。所以这一集开始改造。 角色定位先扳过来这是反直觉的第一关。直觉上”主管说了算”，但在 A2A 协议里：  远程 Agent（TripPlannerAgent &#x2F; RouteMakingAgent）&#x3D; 服务端，因为它们是能力的提供者，要把卡片亮出来； 主管 Agent &#x3D; 客户端，它是消费者&#x2F;发现者，从 Nacos 里捞别人的卡片。   这集只做服务端这半边——把 TripPlannerAgent 的卡片注册上去。客户端（...</div></div></div></a><a class="pagination-related" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-9-6_%E8%87%AA%E4%B8%BB%E5%88%86%E8%A7%A3%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%85%B3%E9%94%AEPlanNotebook/" title="9-6_自主分解任务的关键PlanNotebook"><img class="cover" src="/images/agent-learning/9-6_%E8%87%AA%E4%B8%BB%E5%88%86%E8%A7%A3%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%85%B3%E9%94%AEPlanNotebook/f004_t0065.9s_anchor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">9-6_自主分解任务的关键PlanNotebook</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位PlanNotebook 就是 AgentScope 里”让 Agent 自己拆任务、自己排步骤、自己跑循环”的那个对象——把 PlanAct（规划）和 ReAct（决策）两套循环塞进了同一个类。 2. 主体2.1 上一集留下的悬念：那两个方法到底什么关系ManagerAgent.builder() 在 9-5 里能写出两种入口： 123.enablePlan().planNotebook(plan.getPlan()).build();  第一眼会以为这是”二选一的两种功能”，听完这集你会发现是包含关系：    入口 内部干嘛 能不能定制    enablePlan() 调 PlanNotebook.builder() 拿一个默认实例 不能（属性都是默认值）   planNotebook(实例) 接你自己 new 出来的 PlanNotebook 能（needUserConfirm 等都可配）    加工增量：消化稿里我把这个并列改成了”语法糖关系”——enablePlan() == planNotebook(默认 builder)。框架文档把它俩平铺写成两个 ...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/" title="3-10 多Agent跨部门协作：A2A协议"><img class="cover" src="/images/agent-learning/3-10_%E5%A4%9AAgent%E8%B7%A8%E9%83%A8%E9%97%A8%E5%8D%8F%E4%BD%9CA2A%E5%8D%8F%E8%AE%AE/f010_t0375.0s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-10 多Agent跨部门协作：A2A协议</div></div><div class="info-2"><div class="info-item-1">多Agent跨部门协作：A2A协议1. 一句话定位A2A 是远程 agent 之间通过中心协调者通信协作的协议。 2. 主体讲解2.1 先扔结论：A2A 到底是什么如果你只能记一句话，记这个：A2A &#x3D; Agent-to-Agent，Google 提的、用来让两个远程 agent 互相通信 + 协作的协议。它和你之前学过的 MCP 是兄弟关系，但解决的问题完全不同：MCP 让 agent 调用外部工具，A2A 让 agent 调用另一个 agent。 但这里有一个让你少走弯路的前置认知：A2A 并不是所有”多 agent 场景”都要用的协议。你下面要先搞清楚”远程 agent vs 同模型多 agent”这条分界线，否则会把它套到不该套的地方。 2.2 划线：什么时候才轮到 A2A 出场先记住一个定义性的约定：一个 agent 只挂一个大模型。就像人只有一个大脑——这不是技术限制，是给 agent 下的定义。所以：  一个 agent 用了 QWen，就不可能同时挂 OpenAI。 你想让 QWen 和 DeepSeek 一起干活？那就是两个 agent，而且天然分布在...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/" title="3-11 主流的多Agent开发框架"><img class="cover" src="/images/agent-learning/3-11_%E4%B8%BB%E6%B5%81%E7%9A%84%E5%A4%9AAgent%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6/f001_t0000.6s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-11 主流的多Agent开发框架</div></div><div class="info-2"><div class="info-item-1">主流的多Agent开发框架 摘要：这是一张”6 个多 Agent 框架的对比地图”，不是任何单个框架的实操课。读完你应该能在面试里五秒回答”AutoGen 和 CrewAI 差在哪、LangChain 为什么也算多 Agent 框架、Manus 凭什么是本课主角”。取舍出现在 §2.1（讲解顺序重排），加工增量在 §2.6 和 §3（横向对比表 + 反直觉判断）。    1. 一句话定位把 6 个主流多 Agent 框架按”自动化程度 &#x2F; 灵活度”摆成一张地图，钉住 JManus 的位置。  2. 主体讲解2.1 先看全景，再看细节（这里做了一次取舍）原视频是按 “演进背景 → AutoGen → CrewAI → LangChain → Manus → JoyAgent → muAgent” 顺序逐个介绍的。但你如果跟着这个顺序学，会发现每听到一个框架都没有锚点——因为根本没有对照对象。 所以这份笔记把顺序换成：先把对比表压进脑子 → Manus（本课主角）→ CrewAI（最强对照组）→ AutoGen（差一点的对照组）→ LangChain（造轮子底座）→ Joy...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/" title="3-12 多Agent的核心执行流程"><img class="cover" src="/images/agent-learning/3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/f002_t0185.9s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-12 多Agent的核心执行流程</div></div><div class="info-2"><div class="info-item-1"> 摘要：本集梳理多Agent团队的核心执行流程，主轴是”外层5步团队流水线 + 内层5步个体循环”的嵌套骨架。取舍出现在 §2.1（先讲多Agent大图、再下钻到单Agent，与原素材”从小到大”的顺序相反）。加工增量在 §2.4（把”通信 + 中间结果存储”重新定位为”协作落地的两个工程接口”，并补了一张三层视角图）。   1. 一句话定位多Agent骨架 &#x3D; 外层团队5步 + 内层个体5步的嵌套。 2. 主体讲解2.1 先抓总图：多Agent的五步骨架如果你只能记一张图，就记这张：一个用户请求进来，要走五步才能拿到结果。    步骤 做什么 谁来做    1. 意图识别 听懂用户到底要什么 LLM 的推理能力   2. 任务初始化 把”想要”翻译成”任务实体” 系统   3. 任务规划 &#x2F; 复杂任务划分 把大任务切成可执行子任务 主管 Agent   4. 任务执行 多个专业 Agent 协同跑各自的子任务 多个子 Agent   5. 结果整合 把碎片产出拼回一个完整答案 主管 Agent   注意你看到 1→5 是顺序的，但第 4 步本身是个”团队子过...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/" title="3-3 Function Calling 就是大模型的&quot;跑腿小弟&quot;"><img class="cover" src="/images/agent-learning/3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/f002_t0009.8s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-3 Function Calling 就是大模型的&quot;跑腿小弟&quot;</div></div><div class="info-2"><div class="info-item-1">3-3 Function Calling 就是大模型的”跑腿小弟” 来源：慕课网 imooc.com，视频 3-3 Function Calling就是大模型的跑腿小弟.mp4（约 13 分钟）本笔记基于自动化 pipeline：whisper 转录 + scenedetect 关键帧 + PaddleOCR + Claude 多模态读图。原始产物：transcript.txt &#x2F; frame_index.json &#x2F; frames/。   一、本集主旨承接 3-2 的”调用外部 API 解决实时性问题”思路，本集要拆穿一个最容易被忽略的隐藏角色：当我们说”大模型会调用天气 API”时，真正干这件事的并不是大模型本身，而是它体内的一个小弟——Function Calling（函数调用），并且 Function Calling 也只是”传话的”，真正执行 HTTP 请求的还在大模型外部。 讲师围绕两个核心问题铺开：    # 核心问题 一句话答案    Q1 第三方应用的 API 到底是谁调用的？ 大模型内部的 Function Calling（调用者），但执行...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"><img class="cover" src="/images/agent-learning/3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-1 大模型困境：数据获取与整合上的&quot;抓瞎&quot;</div></div><div class="info-2"><div class="info-item-1">3-1 大模型困境：数据获取与整合上的”抓瞎”§1 一句话定位看完这一集，你应该能用一句话回答：”LLM 为什么需要外挂？”  §2 主体讲解先把 LLM 的”世界”立起来要看懂这一集后面所有的”反例”，你得先接受一个心智模型： LLM 没有”现实世界”，它只有一个向量空间。 它学过的每一个概念——林黛玉、星巴克、卢浮宫的某幅名画——在这个空间里都对应一个唯一的点（一个上千维的向量）。它做的所有”思考”，都是在这个空间里做几何运算：找邻居、量距离、走向量加法。 这件事一旦想透，三个看上去很神奇的能力就立刻不神奇了：  百科全书 —— 红楼梦整本书早被嵌入进去了，林黛玉的”性格特征””结局””出现章节”都是她那个点周围的邻居。问到她，模型不过是在做一次邻域查询。 猜意图 —— “咖啡馆里来杯星巴克”，”星巴克”这三个字在向量空间里有好几个候选位置（品牌、咖啡馆、饮料），模型借助上下文里的”咖啡馆””来一杯”两个锚点，做概率运算选最近的那个。 迁就口吻 —— “用广东人语气回答”也是空间里的一个方向向量，把答案沿着这个方向偏移即可。   所以”智能”的本质是：对静态、公开、历史语料的...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/" title="3-5 对比 Function Calling 与 MCP 的不同"><img class="cover" src="/images/agent-learning/3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/f006_t0222.4s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">3-5 对比 Function Calling 与 MCP 的不同</div></div><div class="info-2"><div class="info-item-1">3-5 对比 Function Calling 与 MCP 的不同1. 一句话定位看完你能用一张对位表把 FC 和 MCP 说清楚，并解释为什么后者注定要替代前者。 2. 主体讲解先把对位表立起来你只要记住一句话：LLM 自己从来不亲自调外部 API，永远派一个”小弟”出门。FC 和 MCP 的所有差异，都是这个”小弟”长什么样、住在哪里、谁来管。     Function Calling MCP    小弟住哪 模型内部的一个调用模块 模型外部的两个节点（客户端 + 服务端）   工具描述怎么来 开发人员手动投喂给模型 客户端主动向服务端拉取工具列表   工具谁写 每家大模型公司自己写一套 任何第三方写一次，所有 LLM 都能用   这张表就是这一集的全部。下面三段把它拆开。 不同点一：小弟的位置（在内还是在外） 你看这张图里”小弟”这两个字贴在 Function Calling 上——它是大模型自带的一个内置模块。LLM 判断”用户问的是深圳今天天气，我没有实时数据”，于是它在内部把任务交给 Function Calling 这个模块：「你拿着深圳这个参数，去调墨迹天气 AP...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">91</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93"><span class="toc-number">2.</span> <span class="toc-text">2. 主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E8%B5%B7%E7%82%B9%EF%BC%9A9-7-%E5%B7%B2%E7%BB%8F%E6%8A%8A%E4%BB%BB%E5%8A%A1%E8%83%BD%E6%8B%86%E5%BC%80"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 起点：9-7 已经把任务能拆开</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%AE%9E%E9%AA%8C%E5%8F%B0%EF%BC%9A%E8%BF%98%E6%98%AF%E9%82%A3%E4%B8%AA-ManagerAgentApplication"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 实验台：还是那个 ManagerAgentApplication</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%85%B3%E9%94%AE%E6%8B%9B%E6%95%B0%EF%BC%9A%E6%8A%8A%E3%80%8C%E4%B8%8B%E5%B1%9E%E6%98%AF%E8%B0%81%E3%80%81%E6%93%85%E9%95%BF%E4%BB%80%E4%B9%88%E3%80%8D%E5%96%82%E8%BF%9B-prompt"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 关键招数：把「下属是谁、擅长什么」喂进 prompt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E8%B7%91%E4%B8%80%E9%81%8D%E7%9C%8B%E8%BE%93%E5%87%BA"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 跑一遍看输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E6%9E%B6%E6%9E%84%E5%9B%BE%E9%87%8C%E7%94%BB%E4%BA%86%EF%BC%8C%E4%BD%86%E6%9C%AC%E9%9B%86%E8%BF%98%E6%B2%A1%E7%94%A8%E7%9A%84%E4%B8%9C%E8%A5%BF"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 架构图里画了，但本集还没用的东西</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%B4%A7%E6%8E%A5%E7%9D%80%E5%BC%95%E5%87%BA-A2A"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 为什么要紧接着引出 A2A</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B2%A1-get-%E7%9A%84%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">3. 没 get 的点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">4. 跟其他集的连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98%EF%BC%885-%E5%8D%A1%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">6. 自测题（5 卡）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册"><img src="/images/agent-learning/4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpringAi 1.1 A2A的服务注册"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/" title="SpringAi 1.1 A2A的服务注册">SpringAi 1.1 A2A的服务注册</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard"><img src="/images/agent-learning/4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/f034_t0423.3s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-15_SpringAi_11_A2A的元数据AgentCard"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/" title="4-15_SpringAi_11_A2A的元数据AgentCard">4-15_SpringAi_11_A2A的元数据AgentCard</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议"><img src="/images/agent-learning/4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/f100_t0692.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="测试 SpringAi 1.1 实现的 A2A 协议"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-16_%E6%B5%8B%E8%AF%95_SpringAi_11_%E5%AE%9E%E7%8E%B0%E7%9A%84_A2A_%E5%8D%8F%E8%AE%AE/" title="测试 SpringAi 1.1 实现的 A2A 协议">测试 SpringAi 1.1 实现的 A2A 协议</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现"><img src="/images/agent-learning/4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/f075_t0722.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="4-14_SpringAi_11_A2A的服务发现"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-4-14_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/" title="4-14_SpringAi_11_A2A的服务发现">4-14_SpringAi_11_A2A的服务发现</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/" title="5-1_旅行规划的复合任务拆解"><img src="/images/agent-learning/5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/f008_t0151.2s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="5-1_旅行规划的复合任务拆解"/></a><div class="content"><a class="title" href="/2026/05/20/Agent%E5%AD%A6%E4%B9%A0-5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/" title="5-1_旅行规划的复合任务拆解">5-1_旅行规划的复合任务拆解</a><time datetime="2026-05-19T16:00:00.000Z" title="发表于 2026-05-20 00:00:00">2026-05-20</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
