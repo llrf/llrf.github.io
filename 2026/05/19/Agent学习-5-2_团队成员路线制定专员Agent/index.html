@@ -1,0 +1,394 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>5-02 团队成员：路线制定专员Agent | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="1. 一句话定位把 5-1 那张”旅行规划复合任务大拆解图”里的第一个专科节点实例化成一张 Agent 卡片——上半张写”角色定义”（一句话职责契约），下半张列”能力清单”（3 条工具级能力），再用一根虚线把它同时挂到「景点路线规划」和「住宿路线规划」两个云朵上。  2. 主体2.1 起点：用户给你的永远是半成品把用户原话拆开看，你拿到的只有四样东西：    用户给你的 用户没说但你必须补的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="5-02 团队成员：路线制定专员Agent">
+<meta property="og:url" content="https://llrf.github.io/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="1. 一句话定位把 5-1 那张”旅行规划复合任务大拆解图”里的第一个专科节点实例化成一张 Agent 卡片——上半张写”角色定义”（一句话职责契约），下半张列”能力清单”（3 条工具级能力），再用一根虚线把它同时挂到「景点路线规划」和「住宿路线规划」两个云朵上。  2. 主体2.1 起点：用户给你的永远是半成品把用户原话拆开看，你拿到的只有四样东西：    用户给你的 用户没说但你必须补的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://llrf.github.io/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f008_t0320.0s_anchor.jpg">
+<meta property="article:published_time" content="2026-05-19T00:58:00.000Z">
+<meta property="article:modified_time" content="2026-05-21T07:47:03.691Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://llrf.github.io/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f008_t0320.0s_anchor.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "5-02 团队成员：路线制定专员Agent",
+  "url": "https://llrf.github.io/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/",
+  "image": "https://llrf.github.io/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f008_t0320.0s_anchor.jpg",
+  "datePublished": "2026-05-19T00:58:00.000Z",
+  "dateModified": "2026-05-21T07:47:03.691Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '5-02 团队成员：路线制定专员Agent',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">119</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f008_t0320.0s_anchor.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">5-02 团队成员：路线制定专员Agent</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/categories/Agent%E5%AD%A6%E4%B9%A0/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">5-02 团队成员：路线制定专员Agent</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-19T00:58:00.000Z" title="发表于 2026-05-19 08:58:00">2026-05-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-21T07:47:03.691Z" title="更新于 2026-05-21 15:47:03">2026-05-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC05%E7%AB%A0-Agent-%E5%9B%A2%E9%98%9F%E6%89%93%E9%80%A0%E4%B8%93%E5%B1%9E%E4%BD%A0%E7%9A%84%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92/">第05章 Agent 团队打造专属你的旅行规划</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>把 5-1 那张”旅行规划复合任务大拆解图”里的<strong>第一个专科节点</strong>实例化成一张 Agent 卡片——上半张写”角色定义”（一句话职责契约），下半张列”能力清单”（3 条工具级能力），再用一根虚线把它<strong>同时挂到</strong>「景点路线规划」和「住宿路线规划」两个云朵上。</p>
+<p><img src="/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f008_t0320.0s_anchor.jpg" alt="Agent 卡片模板（角色定义 + 能力清单）的可视化"></p>
+<h2 id="2-主体"><a href="#2-主体" class="headerlink" title="2. 主体"></a>2. 主体</h2><h3 id="2-1-起点：用户给你的永远是半成品"><a href="#2-1-起点：用户给你的永远是半成品" class="headerlink" title="2.1 起点：用户给你的永远是半成品"></a>2.1 起点：用户给你的永远是半成品</h3><p>把用户原话拆开看，你拿到的只有四样东西：</p>
+<table>
+<thead>
+<tr>
+<th>用户给你的</th>
+<th>用户没说但你必须补的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>时间：十一国庆</td>
+<td>玩什么景点</td>
+</tr>
+<tr>
+<td>地点：深圳 → 清远</td>
+<td>住哪、住多远</td>
+</tr>
+<tr>
+<td>期限：自驾三天</td>
+<td>景点之间怎么连</td>
+</tr>
+<tr>
+<td>偏好：不想旅程太满</td>
+<td>餐饮 &#x2F; 折扣怎么省</td>
+</tr>
+</tbody></table>
+<p>记住这个不对称——<strong>它是整个多 Agent 设计的前提</strong>，不是抱怨。正因为用户「不知道自己想要什么」，你才需要拆出”根据天气推荐””根据偏好推荐””折扣监控”这种<strong>主动型</strong>子任务。Agent 不是来执行命令的，是来补全意图的。</p>
+<p><img src="/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f003_t0049.9s_anchor.jpg" alt="用户需求 raw（四项给定 + 缺口）的可视化"></p>
+<h3 id="2-2-终态先看：Agent-卡片长什么样"><a href="#2-2-终态先看：Agent-卡片长什么样" class="headerlink" title="2.2 终态先看：Agent 卡片长什么样"></a>2.2 终态先看：Agent 卡片长什么样</h3><p>跳过过程，直接看产出物——这一集真正要你记住的就是这张卡的<strong>模板</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">路线规划 Agent</span><br><span class="line">─────────────</span><br><span class="line">角色定义：能够根据地点，规划最优路线</span><br><span class="line"></span><br><span class="line">具有的能力：</span><br><span class="line">  1. 能够地点搜索以及经纬度坐标转换</span><br><span class="line">  2. 路线规划</span><br><span class="line">  3. 将规划好的路线，进行可视化展示</span><br></pre></td></tr></table></figure>
+
+<p>两块东西，分工很清楚：</p>
+<ul>
+<li><strong>角色定义</strong>是写给<strong>主管 Agent</strong>看的”招牌”——一句话锁定职责边界，主管 Agent 拿它来路由派单（”哎，这单是关于路线的，丢给你”）。</li>
+<li><strong>能力清单</strong>是写给<strong>系统</strong>看的——它是支撑这个职责的工具列表，未来落到代码（4-13 ReactAgent + <code>.tools(...)</code>）就变成一组 <code>@Tool</code> 注入。</li>
+</ul>
+<p>这两块<strong>不是一回事</strong>，它们在卡片上是分两段写的，别揉在一起。</p>
+<blockquote>
+<p><strong>加工增量在 §2.2</strong>：原讲解按时间线先讲用户需求再画 Agent 卡，我把顺序倒过来——先把终态卡片摆出来当模板，后面所有 Agent（景点推荐 &#x2F; 住宿规划 &#x2F; 费用计算 &#x2F; 折扣监控）都会按这个模板填，先抓模板比顺着时间线走更容易迁移。</p>
+</blockquote>
+<h3 id="2-3-为什么是-3-条能力？"><a href="#2-3-为什么是-3-条能力？" class="headerlink" title="2.3 为什么是 3 条能力？"></a>2.3 为什么是 3 条能力？</h3><p>第一遍看你会觉得”路线规划不就是调高德地图吗，一条搞定”。但拆开看必须是 3 条，少一环用户就看不见结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&quot;清远漂流&quot;  ──①地点搜索+坐标转换──▶  (经度, 纬度)</span><br><span class="line">                                          │</span><br><span class="line">                                          ▼</span><br><span class="line">                                    ②路线规划算法</span><br><span class="line">                                          │</span><br><span class="line">                                          ▼</span><br><span class="line">                                    JSON 路径数据</span><br><span class="line">                                          │</span><br><span class="line">                                          ▼</span><br><span class="line">                                    ③可视化展示  ──▶ 用户能看的地图</span><br></pre></td></tr></table></figure>
+
+<p>注意三个设计决策：</p>
+<ol>
+<li><strong>地点搜索 + 经纬度转换被绑成一条</strong>，不是两条。因为它们必须串联用——拿到自然语言地名才能转坐标，转出坐标才能进下一步，中间断了没意义。</li>
+<li><strong>可视化是独立一条</strong>而不是”顺便干”。Agent 输出不能只是结构化数据，必须最终变成用户能看的地图，所以单列出来强调它是<strong>必须的输出形态</strong>。</li>
+<li>3 条都是<strong>工具级能力</strong>（地图 API &#x2F; 几何算法 &#x2F; 渲染），<strong>不是 LLM 自带的</strong>——这呼应了 3-7 Agent Skills 里那句”领域专业知识靠工具补”。</li>
+</ol>
+<blockquote>
+<p><strong>取舍出现在 §2.3</strong>：把”地点搜索”和”坐标转换”绑成 1 条而不是拆 2 条，是一次刻意的颗粒度选择。拆 2 条更细，但中间产物（自然语言地名）对外面没意义；绑成 1 条意味着这条能力对外的契约是”喂地名 → 吐坐标”，内部怎么实现是黑盒。颗粒度的标准是<strong>契约能不能独立成立</strong>，不是”步骤够不够小”。</p>
+</blockquote>
+<h3 id="2-4-横跨挂载：一个-Agent-服务两个云朵"><a href="#2-4-横跨挂载：一个-Agent-服务两个云朵" class="headerlink" title="2.4 横跨挂载：一个 Agent 服务两个云朵"></a>2.4 横跨挂载：一个 Agent 服务两个云朵</h3><p>把这张卡画完之后，讲师用<strong>虚线</strong>把它指向大拆解图上的两个节点：</p>
+<ul>
+<li>「景点路线规划」（景点 → 景点之间怎么连）</li>
+<li>「住宿路线规划」（住宿 → 景点之间怎么连）</li>
+</ul>
+<p>虚线的语义是”<strong>同一个 Agent 实例服务多个挂载点</strong>“，不是画两份。这是这一集为什么单独把”路线规划 Agent”拎出来定义的根本原因——它<strong>可复用</strong>，所以值得有自己的卡。如果一个 Agent 只服务一个挂载点，那它的卡和挂载点的描述其实可以合并，不必单独列。</p>
+<p><img src="/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f010_t0326.0s_anchor.jpg" alt="横跨挂载（虚线把路线规划 Agent 挂到景点路线和住宿路线两个云朵）的可视化"></p>
+<h3 id="2-5-这张卡未来怎么落代码"><a href="#2-5-这张卡未来怎么落代码" class="headerlink" title="2.5 这张卡未来怎么落代码"></a>2.5 这张卡未来怎么落代码</h3><p>提前对一下后面的章节，今天写的这张卡其实就是 AgentCard 的草稿：</p>
+<table>
+<thead>
+<tr>
+<th>卡片这一行</th>
+<th>对应代码里的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“路线规划 Agent”</td>
+<td>AgentCard 的 <code>name</code>（要符合 4-15 那条”name 一致性铁律”）</td>
+</tr>
+<tr>
+<td>“角色定义：能够根据地点，规划最优路线”</td>
+<td>AgentCard 的 <code>description</code></td>
+</tr>
+<tr>
+<td>能力清单 3 条</td>
+<td>ReactAgent 的 <code>.tools(routeSearchTool, geoTool, visualizationTool)</code></td>
+</tr>
+<tr>
+<td>横跨挂载（虚线复用）</td>
+<td>一个 ReactAgent Bean 被多个上游调用</td>
+</tr>
+</tbody></table>
+<h2 id="3-没-get-的点"><a href="#3-没-get-的点" class="headerlink" title="3. 没 get 的点"></a>3. 没 get 的点</h2><ul>
+<li><strong>可视化展示</strong>到底是这个 Agent 自己输出 HTML &#x2F; 图片，还是只输出结构化路径数据交给前端渲染？落到 4-13 的 ReactAgent 时，这一步会变成一个 <code>@Tool</code> 还是一个 <code>ResponseFormat</code>？这一集没回答。</li>
+<li><strong>地点搜索 + 经纬度转换</strong>背后是接 MCP（比如高德 &#x2F; 百度地图 MCP，5-6 会讲）还是用 <code>@Tool</code> 自己写？讲师没说，等 5-x 实现集。</li>
+<li><strong>“最优路线”的最优 metric</strong> 是什么？时间最短 &#x2F; 距离最短 &#x2F; 还是带住宿和景点的多约束优化？这一集没给出，估计要等 Tool 的具体实现才能锁。</li>
+</ul>
+<h2 id="4-跟其他集的连接"><a href="#4-跟其他集的连接" class="headerlink" title="4. 跟其他集的连接"></a>4. 跟其他集的连接</h2><h3 id="上承"><a href="#上承" class="headerlink" title="上承"></a>上承</h3><ul>
+<li><a href="../5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/notes.md">5-1 旅行规划的复合任务拆解</a>：上一集画完了那张”推荐 &#x2F; 路线 &#x2F; 费用 &#x2F; 折扣”四大支的总拆解图，本集是<strong>从图里摘出第一个节点做实例化</strong>。</li>
+<li><a href="../3-9_%E6%90%9E%E5%AE%9A%E5%A4%8D%E6%9D%82%E6%B4%BB%E5%84%BF%E5%BE%97%E9%9D%A0%E5%A4%9A%E4%B8%AAAgent%E5%8D%8F%E4%BD%9C/notes.md">3-9 搞定复杂活儿得靠多个 Agent 协作</a>：那集讲了主管 + 专科的分工原则，本集就是在画其中一个”专科”。</li>
+</ul>
+<h3 id="下启"><a href="#下启" class="headerlink" title="下启"></a>下启</h3><ul>
+<li><strong>5-3 &#x2F; 5-4</strong> 会继续按这张卡的模板把「行程规划经理 Agent」「费用统筹管家 Agent」一个个填出来——本集相当于给后面所有 Agent 卡的<strong>模板示范</strong>（角色定义一行 + 能力清单 N 条）。</li>
+<li><a href="../4-13_SpringAi_11_A2A%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/notes.md">4-13 SpringAi 1.1 A2A 的服务注册</a>：今天卡片上的”能力清单”未来落到代码就是 <code>.tools(...)</code> 的工具注入；”角色定义”对应 AgentCard 的 description。</li>
+<li><a href="../4-15_SpringAi_11_A2A%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AEAgentCard/notes.md">4-15 SpringAi 1.1 A2A 的元数据 AgentCard</a>：那集的 name 一致性铁律意味着今天这张卡未来要落代码时得起一个稳定 name（比如 <code>RouteAgent</code>）。</li>
+</ul>
+<h3 id="横向"><a href="#横向" class="headerlink" title="横向"></a>横向</h3><ul>
+<li><a href="../3-12_%E5%A4%9AAgent%E7%9A%84%E6%A0%B8%E5%BF%83%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B/notes.md">3-12 多 Agent 的核心执行流程</a>：那集给的是”主管 Agent 五步骨架”，本集填的是骨架里<strong>一个 worker</strong> 的内部细节。</li>
+<li><a href="../3-7_%E5%85%B7%E6%9C%89%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E7%9A%84Agent_Skills/notes.md">3-7 具有专业知识的 Agent Skills</a>：那集讲的是”领域专业知识 &#x3D; 工具集”，本集这 3 条能力（地点搜索 &#x2F; 路线规划 &#x2F; 可视化）就是”路线规划”这个领域的 skill 集。</li>
+<li><a href="../5-6_%E7%99%BE%E5%BA%A6%E5%9C%B0%E5%9B%BEMCP%E6%8F%90%E4%BE%9B%E7%9A%84%E5%B7%A5%E5%85%B7%E4%BD%93%E7%B3%BB%E5%85%A8%E6%99%AF/notes.md">5-6 百度地图 MCP 提供的工具体系全景</a>：本集第 1、第 2 条能力的实现源头大概率就在那里——值得交叉对照”卡片上的抽象能力”和”MCP 实际提供的工具”是怎么对齐的。</li>
+</ul>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">            用户需求 raw（5-1 复盘）</span><br><span class="line">                      │</span><br><span class="line">                      ▼</span><br><span class="line">          旅行规划大拆解图（5-1 输出）</span><br><span class="line">                      │</span><br><span class="line">        ┌─────────────┼─────────────┐</span><br><span class="line">        ▼             ▼             ▼</span><br><span class="line">景点推荐 Agent    路线规划 Agent    住宿规划 Agent ...</span><br><span class="line">(5-3 之后)        (本集) ⭐         (5-3 之后)</span><br><span class="line">                      │</span><br><span class="line">        ┌─────────────┴─────────────┐</span><br><span class="line">        ▼                           ▼</span><br><span class="line"> 角色定义                       能力清单</span><br><span class="line">(一句话契约)              ┌───────┴────────┐</span><br><span class="line">                          ▼       ▼        ▼</span><br><span class="line">                      地点搜索  路线规划  可视化</span><br><span class="line">                      +坐标转换  算法     展示</span><br><span class="line">                      (绑 1 条)            (单列)</span><br><span class="line"></span><br><span class="line"> 虚线复用 ──▶ 同时挂在 [景点路线规划] + [住宿路线规划]</span><br><span class="line"></span><br><span class="line"> 未来落代码 ──▶ AgentCard (4-15) + ReactAgent.tools (4-13)</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-自测题"><a href="#6-自测题" class="headerlink" title="6. 自测题"></a>6. 自测题</h2><ol>
+<li>用户在 5-1 给的需求里<strong>只</strong>说了四件事，是哪四件？剩下”什么景点 &#x2F; 住哪 &#x2F; 怎么连”为什么由 Agent 来补，而不是再问用户一遍？</li>
+<li>路线规划 Agent 的”角色定义”和”能力清单”分别是写给谁看的？为什么必须分开写？</li>
+<li>为什么能力清单第 1 条是”地点搜索 + 经纬度坐标转换”绑在一起，而不是拆成两条独立能力？如果拆成两条，会出什么问题？</li>
+<li>大拆解图上为什么用<strong>虚线</strong>把路线规划 Agent 同时连到「景点路线规划」和「住宿路线规划」？这跟用实线分别画两个独立 Agent 有什么本质区别？</li>
+<li>如果让你按本集的卡片模板写「折扣监控 Agent」的卡，角色定义那一句会怎么写？至少列出 2 条能力。</li>
+</ol>
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>路线规划 Agent</td>
+<td>旅行规划复合任务里第一个被实例化的专科 Agent，职责是”根据地点规划最优路线”</td>
+</tr>
+<tr>
+<td>角色定义</td>
+<td>一句话的职责契约，给主管 Agent 路由派单时看的”招牌”</td>
+</tr>
+<tr>
+<td>能力清单</td>
+<td>支撑角色职责的工具能力列表，本集是 3 条（地点搜索+坐标 &#x2F; 路线规划 &#x2F; 可视化）</td>
+</tr>
+<tr>
+<td>地点搜索+经纬度转换</td>
+<td>第 1 条能力，把自然语言地名变成坐标，是路线计算的输入前置</td>
+</tr>
+<tr>
+<td>路线可视化</td>
+<td>第 3 条能力，把 JSON 路径数据渲染成用户能看的地图，是 Agent 输出的必须形态</td>
+</tr>
+<tr>
+<td>横跨挂载（虚线复用）</td>
+<td>同一个 Agent 实例同时服务多个子任务节点，在大拆解图上用虚线表达</td>
+</tr>
+<tr>
+<td>用户需求 raw</td>
+<td>用户只给时间&#x2F;交通&#x2F;期限&#x2F;一句模糊偏好，剩下都靠 Agent 团队补全，是多 Agent 拆解的根本动因</td>
+</tr>
+<tr>
+<td>Agent 卡片模板</td>
+<td>角色定义（一行）+ 能力清单（编号列表）的固定结构，后续每个 Agent 都按这个格式填</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/">https://llrf.github.io/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="/images/agent-learning/5-2_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%B7%AF%E7%BA%BF%E5%88%B6%E5%AE%9A%E4%B8%93%E5%91%98Agent/f008_t0320.0s_anchor.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/" title="5-01 旅行规划的复合任务拆解"><img class="cover" src="/images/agent-learning/5-1_%E6%97%85%E8%A1%8C%E8%A7%84%E5%88%92%E7%9A%84%E5%A4%8D%E5%90%88%E4%BB%BB%E5%8A%A1%E6%8B%86%E8%A7%A3/f008_t0151.2s_anchor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">5-01 旅行规划的复合任务拆解</div></div><div class="info-2"><div class="info-item-1">§1 一句话定位把一个旅行需求拆成”领域 × 动作”，给后面每个 Agent 划好边界。 §2 主体2.1 别把”费用”当成第四个并列分支你看到旅行规划被分成交通、住宿、景点、费用四块的时候，第一反应大概率跟我一样：四个平级模块，分头处理。 但只要继续往下画，你就会发现费用这条线再往下展开，会重新出现”交通 &#x2F; 景点 &#x2F; 住宿”——也就是说，下半张图其实是上半张图在”钱”这个维度上的投影。 alt: 复合任务的可视化 这就是为什么图会变成上下两半。费用不是第四个领域，它是横切关注点（cross-cutting concern）：穿过其他三个领域，每个领域都要做一次”费用计算”。  取舍出现在 §2.1：要不要把费用画成跟交通&#x2F;住宿&#x2F;景点平级？讲师选了”平级 + 重新展开”的画法（图里费用下面又挂了一份交通&#x2F;景点&#x2F;住宿）；如果改成 AOP 式的注解层叠在原节点上，图会更紧凑但失去任务流的层级感。我倾向于讲师的画法在白板教学里是更易读的折中。  2.2 交通有两层意思，别混“交通”这个词在旅行规划里其实指两件不同的事：  跨...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-5-3_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%A1%8C%E7%A8%8B%E8%A7%84%E5%88%92%E7%BB%8F%E7%90%86Agent/" title="5-03 团队成员：行程规划经理Agent"><img class="cover" src="/images/agent-learning/5-3_%E5%9B%A2%E9%98%9F%E6%88%90%E5%91%98%E8%A1%8C%E7%A8%8B%E8%A7%84%E5%88%92%E7%BB%8F%E7%90%86Agent/f014_t0387.6s_anchor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">5-03 团队成员：行程规划经理Agent</div></div><div class="info-2"><div class="info-item-1">团队成员：行程规划经理Agent1 · 一句话定位延续 5-2 的”角色定义 + 能力清单”两段式模板，给团队的第二位员工——行程规划 Agent 写岗位说明书；同时用一根虚线把这一位 Agent 同时挂到”景点推荐”和”餐饮推荐”两个需求节点上，落地了 3-9 提的”专科 Agent 颗粒度”问题。 2 · 主体2.1 先看复用关系：一份说明书覆盖两个需求（加工增量在 §2.1）你打开 5-1 那张需求树会看到：旅行规划下面挂着”景点推荐”和”餐饮推荐”两个并列子节点。直觉是给每个子节点配一个 Agent——餐饮 Agent、景点 Agent 各一个。 这集给的答案是反直觉的：两个节点共用一个行程规划 Agent，画布上用两根虚线指过去。  判据不是”需求节点数 &#x3D; Agent 数”，而是”已有 Agent 的能力清单能不能覆盖这两个节点”。景点推荐要的是”按偏好+天气挑地方+给理由+配图+排日程”；餐饮推荐要的也是”按偏好挑餐厅+给理由+排到日程里”——能力同构，就合并。这也解释了为什么后面 5-4、5-5 始终没出现”餐饮 Agent”。 记住这条判据，你以后画自...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-10-3_Skills%E8%A3%85%E8%BD%BD%E7%9A%84%E6%98%AF%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/" title="10-03 Skills装载的是专业知识和工作流程"><img class="cover" src="/images/agent-learning/10-3_Skills%E8%A3%85%E8%BD%BD%E7%9A%84%E6%98%AF%E4%B8%93%E4%B8%9A%E7%9F%A5%E8%AF%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/f008_t0312.3s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">10-03 Skills装载的是专业知识和工作流程</div></div><div class="info-2"><div class="info-item-1">Skills装载的是专业知识和工作流程1. 一句话定位10-2 你刚听到”Skills 是个专属工作流”这个词，这一集就是把那个词撑开——Skills 不是工具包，而是专业知识 + 工作流程 + 执行逻辑三件套，整套以文件夹形式塞给 Agent。 2. 主体2.1 先把 Skills 和 MCP 钉死（避免和 3-7&#x2F;3-8 混）10-2 后你可能还在心里把 Skills 当成”高级版工具调用”。这一集开篇就在这帧图上把两者并排放：   MCP &#x3D; 外部工具连接的标准（横向：让任何 LLM 用同一套协议调用墨刀、百度地图、携程网……） Skills &#x3D; 技能系统的标准（纵向：让 Agent 装下整个产品领域 &#x2F; 代码领域 &#x2F; 测试领域的 know-how）  两者不冲突、不替代。这一刀和 3-8 那集”Skills + MCP 最强组合”是同一道菜的两个视角——3-8 讲怎么搭，本集讲怎么分。  加工增量：讲师只说”两个不同概念”。我把它进一步抽象成横向 vs 纵向的两层标准——MCP 解决”工具怎么连”，Skills 解决”领域...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/" title="10-01 Agent的牛马小弟：SubAgent"><img class="cover" src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">10-01 Agent的牛马小弟：SubAgent</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位SubAgent 是主 Agent 在干活时，把某个”单个专业场景”（写 SQL、CRUD、登录接口）外包给一个跑在独立上下文里的小弟，唯一目的就是不让这点专业脏活污染主上下文。 2. 主体2.1 先把上一集的三层架构在脑子里挂好这集前 4 分钟全在复述上一集，把那张图想清楚再往下读会舒服很多：  总协调 Agent（总监级）：只做规划和需求切分，自己不下场。 Agent 主管（领域主管，前端 &#x2F; 后端 &#x2F; 测试 &#x2F; 运维 &#x2F; 安全 &#x2F; 产品 等）：拿到本领域的任务后，继续切，再派给下面的执行者。 Agent 执行者（初级 &#x2F; 实习生程序员）：真正动手，具有领域知识，能自己组合工具、调 MCP 和 Function Calling，不用反复问大模型”我该用啥工具”。  每一层内部都跑同一个循环：ReAct——思考、执行、再思考”结果对不对、和目标有没有出入”、有偏差就动态调整。讲师反复强调这一条，不是凑数，是后面 SubAgent 出场时的语境：SubAgent 内部也是这个循环，只是壳子不一样。  2....</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-10-5_Skills%E7%9A%84%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E6%A0%87%E5%87%86/" title="10-05 Skills的文件结构标准"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">10-05 Skills的文件结构标准</div></div><div class="info-2"><div class="info-item-1">Skills 的文件结构标准1. 一句话定位Skills 是一个文件夹，文件夹里以 SKILL.md 为入口索引，Agent 先把这个 md 加载进上下文，再按需拉脚本&#x2F;资源&#x2F;指令——上一集讲的”渐进式加载”，落到磁盘上就长这样。 2. 主体2.1 为什么一定是”文件夹”，而不是一个大 prompt你装一个完整的专业 SOP（领域知识 + 工作流 + 工具调用逻辑），那玩意往往几千上万字，外加示例数据、API 文档、脚本代码——一次性塞进上下文窗口会爆，复制粘贴又难以版本化。 文件夹解决两个问题：  分级懒加载：Agent 先吃索引（SKILL.md），到正文写”要用 examples.md &#x2F; execute_api.py”时才按需拉细节。 可移植性：把整个文件夹拷给 B Agent，B 立刻具备和 A 一样的技能——不是 fine-tune，不是 prompt 复制，文件夹本身 &#x3D; 技能包。   加工增量：讲师按”先讲是什么 → 再讲怎么用”的顺序展开，我把它倒过来重写为”先讲为什么必须是文件夹”，因为如果不先想清楚”上下文为什么会爆”...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-10-2_Agent_Skills%E5%B0%B1%E6%98%AF%E4%B8%AA%E4%B8%93%E5%B1%9E%E5%B7%A5%E4%BD%9C%E6%B5%81/" title="10-02 Agent Skills就是个专属工作流"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">10-02 Agent Skills就是个专属工作流</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Skills 不是”会用工具”，是”一整套写死的 SOP + 每步该用哪个工具”的领域知识包；它反过来指挥 MCP 只吐你需要的那一两个工具，跟 SubAgent 区别在于 Skills 可移植可复用、SubAgent 用完即弃。 2. 主体2.1 先把”为啥还要 Skills”这个疑问钉死听完前几集你大概率会冒出一个问题：有 MCP 就能调工具了，Skills 不就是多一层吗？ 这正是本集要回应的。 回顾纯 MCP 路径下你会踩的坑（见 f010）：  MCP 一股脑把所有工具描述塞进上下文 → 上下文先吃掉一大块。 Agent 自己不知道该用哪个 → 反复问 LLM”我该用哪个” → 烧 token、多轮往返。  第一层补丁（3-7 那集讲过）是：给 Agent 灌点领域知识，让它自己挑工具、让 MCP 按需返回。本集要在这层补丁上再加码——Skills 不止是”挑工具的脑子”，它装的是整套 SOP。 2.2 SOP 才是 Skills 的真身 加工增量：讲师在这里转折得很快，原话基本是”agent skills 它不只是调用工具，它是一个包含了一整套 SOP...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-10-4_Skills%E7%9A%84%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" title="10-04 Skills的渐进式加载机制"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">10-04 Skills的渐进式加载机制</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Skills 文件夹塞了一堆东西（领域知识、流程模板、工具说明、脚本资源），但它不一次性灌进上下文——分三段按时序拉，先目录、再工具、最后资源。 2. 主体痛点先摆出来上一集说 Skills 是”技能系统”，比 MCP 多出了领域知识 + 工作流程模板。你立刻应该有一个疑问：  MCP 一股脑把所有工具推过来已经把上下文撑爆了。现在 Skills 文件夹里东西更多——知识、流程、说明书、脚本、资源——这不是更糟？  Skills 的设计就是回应这个疑问的。它把”加载”拆成三段，每段时机不同。 三段加载（时序很关键）   阶段 加载什么 触发时机 大小    ① 元数据 技能名称 + 描述 + 操作步骤索引 Skill 一被挂上就读 极小   ② 工具 这次任务真正要用的那几个工具 智能体读完元数据、确认要执行时 中等   ③ 附加资源 脚本、指令、参考资料 执行到具体那一步时 不定，按需   注意第 16 帧画布上写得很直白：元数据 → 技能名称 / 描述 / 操作步骤，旁边一行小字”完成之后被释放”。元数据本身就是被设计成可丢弃的临时路标。 元数据 &#x3D;...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/" title="10-06 总结Agent从助手到自主协作的进化过程"><img class="cover" src="/images/agent-learning/10-6_%E6%80%BB%E7%BB%93Agent%E4%BB%8E%E5%8A%A9%E6%89%8B%E5%88%B0%E8%87%AA%E4%B8%BB%E5%8D%8F%E4%BD%9C%E7%9A%84%E8%BF%9B%E5%8C%96%E8%BF%87%E7%A8%8B/f006_t0077.7s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">10-06 总结Agent从助手到自主协作的进化过程</div></div><div class="info-2"><div class="info-item-1">总结 Agent 从助手到自主协作的进化过程1. 一句话定位这一集把前面 10 章学到的全部零件（LLM、Agent、MCP、ReAct、工作流、多 Agent、SubAgent、Skills）按”出现顺序 + 各自补的洞”穿成一条五阶段时间线，是整套课程的收口图。 2. 主体：五个阶段，其实是”补五个洞”视频按阶段讲，但你听完会发现：每跳一阶段都在补上一阶段留下的洞。把”阶段”换成”洞”来记会更顺手。 阶段 1：LLM 只会问答你给 prompt，它返回内容（哪怕是图、视频，多模态也只是返回形式更花）。 留下的洞：不会自主决策。你问 A，它就答 A，不会自己把 A 拆成 A+B 再去解 B。  阶段 2：Agent 学会用工具为了让 LLM 能查数据库、生成 PPT、调第三方 API，加上”使用工具”的能力 —— 这就是 Agent。MCP 是这个阶段的工程标准化产物：在它之前各家自己写 function call，之后所有大模型基于同一套接口调同一个工具，省掉重复造轮子。  留下的三个洞（重点，整集的转折点）：  还是不会自主决策——MCP 没解决这个，它只解决”接口统一” ...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">119</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93"><span class="toc-number">2.</span> <span class="toc-text">2. 主体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E8%B5%B7%E7%82%B9%EF%BC%9A%E7%94%A8%E6%88%B7%E7%BB%99%E4%BD%A0%E7%9A%84%E6%B0%B8%E8%BF%9C%E6%98%AF%E5%8D%8A%E6%88%90%E5%93%81"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 起点：用户给你的永远是半成品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%BB%88%E6%80%81%E5%85%88%E7%9C%8B%EF%BC%9AAgent-%E5%8D%A1%E7%89%87%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 终态先看：Agent 卡片长什么样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF-3-%E6%9D%A1%E8%83%BD%E5%8A%9B%EF%BC%9F"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 为什么是 3 条能力？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E6%A8%AA%E8%B7%A8%E6%8C%82%E8%BD%BD%EF%BC%9A%E4%B8%80%E4%B8%AA-Agent-%E6%9C%8D%E5%8A%A1%E4%B8%A4%E4%B8%AA%E4%BA%91%E6%9C%B5"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 横跨挂载：一个 Agent 服务两个云朵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E8%BF%99%E5%BC%A0%E5%8D%A1%E6%9C%AA%E6%9D%A5%E6%80%8E%E4%B9%88%E8%90%BD%E4%BB%A3%E7%A0%81"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 这张卡未来怎么落代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B2%A1-get-%E7%9A%84%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">3. 没 get 的点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">4. 跟其他集的连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%89%BF"><span class="toc-number">4.1.</span> <span class="toc-text">上承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E5%90%AF"><span class="toc-number">4.2.</span> <span class="toc-text">下启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%AA%E5%90%91"><span class="toc-number">4.3.</span> <span class="toc-text">横向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98"><span class="toc-number">6.</span> <span class="toc-text">6. 自测题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-01 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"><img src="/images/agent-learning/3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3-01 大模型困境：数据获取与整合上的&quot;抓瞎&quot;"/></a><div class="content"><a class="title" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9B%B0%E5%A2%83%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96%E4%B8%8E%E6%95%B4%E5%90%88%E4%B8%8A_%E7%9A%84%E6%8A%93%E7%9E%8E/" title="3-01 大模型困境：数据获取与整合上的&quot;抓瞎&quot;">3-01 大模型困境：数据获取与整合上的&quot;抓瞎&quot;</a><time datetime="2026-05-19T02:12:00.000Z" title="发表于 2026-05-19 10:12:00">2026-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-2_%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8_Function_Calling_/" title="3-02 困境解决方案：函数调用（Function Calling）"><img src="/images/agent-learning/3-2_%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8_Function_Calling_/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3-02 困境解决方案：函数调用（Function Calling）"/></a><div class="content"><a class="title" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-2_%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8_Function_Calling_/" title="3-02 困境解决方案：函数调用（Function Calling）">3-02 困境解决方案：函数调用（Function Calling）</a><time datetime="2026-05-19T02:11:00.000Z" title="发表于 2026-05-19 10:11:00">2026-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/" title="3-03 Function Calling 就是大模型的&quot;跑腿小弟&quot;"><img src="/images/agent-learning/3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/f002_t0009.8s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3-03 Function Calling 就是大模型的&quot;跑腿小弟&quot;"/></a><div class="content"><a class="title" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-3_Function_Calling%E5%B0%B1%E6%98%AF%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B7%91%E8%85%BF%E5%B0%8F%E5%BC%9F/" title="3-03 Function Calling 就是大模型的&quot;跑腿小弟&quot;">3-03 Function Calling 就是大模型的&quot;跑腿小弟&quot;</a><time datetime="2026-05-19T02:10:00.000Z" title="发表于 2026-05-19 10:10:00">2026-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-4_%E6%9B%B4%E4%BC%98%E7%9A%84%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_MCP/" title="3-04 更优的困境解决方案：MCP"><img src="/images/agent-learning/3-4_%E6%9B%B4%E4%BC%98%E7%9A%84%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_MCP/f005_t0307.2s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3-04 更优的困境解决方案：MCP"/></a><div class="content"><a class="title" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-4_%E6%9B%B4%E4%BC%98%E7%9A%84%E5%9B%B0%E5%A2%83%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_MCP/" title="3-04 更优的困境解决方案：MCP">3-04 更优的困境解决方案：MCP</a><time datetime="2026-05-19T02:09:00.000Z" title="发表于 2026-05-19 10:09:00">2026-05-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/" title="3-05 对比Function Calling，MCP的不同"><img src="/images/agent-learning/3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/f006_t0222.4s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3-05 对比Function Calling，MCP的不同"/></a><div class="content"><a class="title" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-3-5_%E5%AF%B9%E6%AF%94Function_CallingMCP%E7%9A%84%E4%B8%8D%E5%90%8C/" title="3-05 对比Function Calling，MCP的不同">3-05 对比Function Calling，MCP的不同</a><time datetime="2026-05-19T02:08:00.000Z" title="发表于 2026-05-19 10:08:00">2026-05-19</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
