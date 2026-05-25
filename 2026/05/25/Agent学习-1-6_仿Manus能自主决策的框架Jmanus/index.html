@@ -1,0 +1,364 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>1-6_仿Manus能自主决策的框架Jmanus | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="摘要JManus &#x3D; 阿里把”多 Agent 自主决策”塞进 Spring Boot 给你跑的 Java 版 OpenManus。本集只做一件事：跑通它，然后从日志里抓到”两个 agent 是 LLM 临时决定要派的”这条证据。取舍出现在 §2（原始顺序是百炼回顾 → Manus 故事 → 谱系 → 跑通；我打散重排成：谱系 → 跑通 → 回头补 API Key 来源，把”自主决策的物证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="1-6_仿Manus能自主决策的框架Jmanus">
+<meta property="og:url" content="https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="摘要JManus &#x3D; 阿里把”多 Agent 自主决策”塞进 Spring Boot 给你跑的 Java 版 OpenManus。本集只做一件事：跑通它，然后从日志里抓到”两个 agent 是 LLM 临时决定要派的”这条证据。取舍出现在 §2（原始顺序是百炼回顾 → Manus 故事 → 谱系 → 跑通；我打散重排成：谱系 → 跑通 → 回头补 API Key 来源，把”自主决策的物证">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://llrf.github.io/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg">
+<meta property="article:published_time" content="2026-05-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-25T11:05:41.535Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://llrf.github.io/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "1-6_仿Manus能自主决策的框架Jmanus",
+  "url": "https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/",
+  "image": "https://llrf.github.io/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg",
+  "datePublished": "2026-05-24T16:00:00.000Z",
+  "dateModified": "2026-05-25T11:05:41.535Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '1-6_仿Manus能自主决策的框架Jmanus',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">129</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/agent/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">1-6_仿Manus能自主决策的框架Jmanus</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/agent/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">1-6_仿Manus能自主决策的框架Jmanus</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-25T11:05:41.535Z" title="更新于 2026-05-25 19:05:41">2026-05-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC01%E7%AB%A0-AI-%E6%AD%A3%E5%BC%8F%E8%BF%9B%E5%85%A5%E5%A4%9A-Agent-%E5%8D%8F%E4%BD%9C%E5%92%8C%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%97%B6%E4%BB%A3/">第01章 AI 正式进入多 Agent 协作和自主决策的时代</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>JManus &#x3D; 阿里把”多 Agent 自主决策”塞进 Spring Boot 给你跑的 Java 版 OpenManus。本集只做一件事：跑通它，然后从日志里抓到”两个 agent 是 LLM 临时决定要派的”这条证据。<strong>取舍出现在 §2</strong>（原始顺序是百炼回顾 → Manus 故事 → 谱系 → 跑通；我打散重排成：谱系 → 跑通 → 回头补 API Key 来源，把”自主决策的物证”留在最重的位置）；<strong>加工增量在 §3</strong>（”用户目录 vs inner_storage” 这条 prompt 与落盘的语义错位，是 understanding.md 没强调但一年后必定迷糊的点）。</p>
+<hr>
+<h2 id="§1-一句话定位"><a href="#§1-一句话定位" class="headerlink" title="§1 一句话定位"></a>§1 一句话定位</h2><p>JManus 是阿里基于 OpenManus 思路、用 Java 重写的”多 Agent 自主决策”开发框架。</p>
+<hr>
+<h2 id="§2-主体讲解：从谱系到闭环，再到那条关键日志"><a href="#§2-主体讲解：从谱系到闭环，再到那条关键日志" class="headerlink" title="§2 主体讲解：从谱系到闭环，再到那条关键日志"></a>§2 主体讲解：从谱系到闭环，再到那条关键日志</h2><h3 id="2-1-先把谱系搞清，不然你会以为是阿里原创"><a href="#2-1-先把谱系搞清，不然你会以为是阿里原创" class="headerlink" title="2.1 先把谱系搞清，不然你会以为是阿里原创"></a>2.1 先把谱系搞清，不然你会以为是阿里原创</h3><p>你看到”JManus”第一反应大概率是”Java + Manus”。这没错，但中间漏了一环。<strong>真实链路是三段式：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Manus（闭源商品，年初爆红的&quot;帮我买东西&quot;那个）</span><br><span class="line">    ↓ 社区开源复刻</span><br><span class="line">OpenManus（Python，&quot;Open&quot;指开源，不是&quot;Manus 出的开放版&quot;）</span><br><span class="line">    ↓ 阿里 Java 重写</span><br><span class="line">JManus（住在 spring-ai-alibaba 仓库里的一个子模块）</span><br></pre></td></tr></table></figure>
+
+<p>为什么要从 Manus 讲起？因为 Manus 之所以炸圈，不是因为”多 Agent”这个词新鲜——而是因为它能<strong>自己决定要派几个 agent、派哪几个</strong>去干活。你说”帮我买东西”，它会自动拉起”挖偏好的 + 比价的 + 下单付款的”三个 agent。这就是”自主决策”四个字的意思。本集你跑的 demo 就是这个能力的最小可见版。</p>
+<h3 id="2-2-仓库结构：spring-ai-alibaba-是-monorepo，不是单一项目"><a href="#2-2-仓库结构：spring-ai-alibaba-是-monorepo，不是单一项目" class="headerlink" title="2.2 仓库结构：spring-ai-alibaba 是 monorepo，不是单一项目"></a>2.2 仓库结构：spring-ai-alibaba 是 monorepo，不是单一项目</h3><p><img src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg" alt="SAA monorepo 子模块列表的可视化"></p>
+<p>打开 alibaba&#x2F;spring-ai-alibaba 的 GitHub 页，你会看到一长串 <code>spring-ai-alibaba-*</code> 子目录：<code>-bom / -core / -deepresearch / -graph-core / -jmanus / -mcp / -nl2sql / -prompt / -spring-boot-starters / -studio</code>……一个仓库塞了十几个独立工程。这是 monorepo 风格——SAA（spring-ai-alibaba 的简称）是阿里把所有”Spring AI 周边”都丢一块的伞。</p>
+<p>你只关心 jmanus，所以下载整个 zip 解压之后，<strong>把其它子目录全删掉，只留 <code>spring-ai-alibaba-jmanus</code> 一个文件夹</strong>。这一步占了本集 80% 的”操作”内容，代码层面零改动。</p>
+<h3 id="2-3-跑通最小闭环（这才是本集的”灵魂操作”）"><a href="#2-3-跑通最小闭环（这才是本集的”灵魂操作”）" class="headerlink" title="2.3 跑通最小闭环（这才是本集的”灵魂操作”）"></a>2.3 跑通最小闭环（这才是本集的”灵魂操作”）</h3><p>把 <code>spring-ai-alibaba-jmanus</code> 用 IDEA 当成项目导入：</p>
+<ul>
+<li>File → New → Project From Existing Sources，<strong>JDK 显式选 17</strong>（这是硬要求，不是建议）</li>
+<li>等 Maven 把依赖拉完</li>
+<li>找到 <code>src/main/java/com/alibaba/cloud/ai/example/manus/OpenManusSpringBootApplication</code>，run</li>
+</ul>
+<p><img src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f050_t0510.5s_anchor.jpg" alt="IDEA 里展开 jmanus 项目树看到入口类的可视化"></p>
+<p><strong>反直觉的命名：启动类不叫 <code>JManusApplication</code>，叫 <code>OpenManusSpringBootApplication</code>。</strong> 名字本身就暴露了”我是 OpenManus 的 Java 复刻”这件事——阿里没改名字。</p>
+<p>启动日志里会看到这两条关键信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Application started, attempting to open browser to access: http://localhost:18080/ui/index.html</span><br><span class="line">No DashScope API key found. Please configure it through the web interface at /ui/index.html</span><br></pre></td></tr></table></figure>
+
+<p>第一条告诉你它自带 web 界面（端口 18080，不是常见的 8080）。第二条告诉你 API Key 不放在 yaml 里，<strong>走 web 初始化页配</strong>——浏览器打开后是两步向导：</p>
+<ol>
+<li>选语言（简体中文）</li>
+<li>选模型（阿里云百炼）+ 填 API Key</li>
+</ol>
+<p>API Key 哪来？1-5 集申请的那把，直接复用。本集第一步反复念叨”百炼平台 &#x2F; API Key 申请”其实是 1-5 的回顾，跳过即可。</p>
+<h3 id="2-4-工作台-一个-prompt"><a href="#2-4-工作台-一个-prompt" class="headerlink" title="2.4 工作台 + 一个 prompt"></a>2.4 工作台 + 一个 prompt</h3><p>配完 Key 进工作台，你会看到 5 个示例卡片：</p>
+<p><img src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f064_t0630.9s_scene.jpg" alt="JManus 工作台 5 个示例卡片的可视化"></p>
+<p>注意每个卡片右下角有两种标签：<code>message</code> 和 <code>plan-act</code>。视频里没展开这两个的区别，但<strong>这就是 JManus 的两种执行模式</strong>——直接对话 vs 先规划再执行（PLAN-ACT 计划模式）。本集要跑的属于 plan-act 流派（页面底下默认选项也是它），对应的就是 8-6 &#x2F; 8-7 要讲的 Plan-and-Execute 架构。</p>
+<p>跑这条 prompt：</p>
+<blockquote>
+<p>通过百度查询阿里巴巴最新股价，将结果保存到用户目录本地文件</p>
+</blockquote>
+<p>回车，等几十秒，UI 上会冒出两段 “completed” 块。这两段就是本集要看的全部成果。</p>
+<h3 id="2-5-关键证据：日志里-Create-new-BaseAgent"><a href="#2-5-关键证据：日志里-Create-new-BaseAgent" class="headerlink" title="2.5 关键证据：日志里 Create new BaseAgent"></a>2.5 关键证据：日志里 <code>Create new BaseAgent</code></h3><p>UI 的步骤面板告诉你结果，但**”自主决策”的证据藏在日志里**。把 IDEA Run 控制台的 infoLog 复制出来，搜关键词 <code>Create new</code>：</p>
+<p><img src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f077_t0691.5s_scene.jpg" alt="日志里 Create new BaseAgent: BROWSER_AGENT 的可视化"></p>
+<p>你会刚好搜到两条：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Create new BaseAgent: BROWSER_AGENT, planId: plan-1755415977389</span><br><span class="line">Create new BaseAgent: DEFAULT_AGENT,  planId: plan-1755415977389</span><br></pre></td></tr></table></figure>
+
+<p>这两行就是”自主决策”的全部物证。<strong>你没在任何配置里写”用 2 个 agent”，也没指定要用 BROWSER 和 DEFAULT——是 LLM 看完你的 prompt 后，决定拉这两个出来干活</strong>。换一个 prompt，可能就是 1 个、3 个、或者别的组合。</p>
+<p>每个 agent 启动时还会打一串 <code>Registering tool: xxx</code>，告诉你这个 agent 拿了哪些工具：</p>
+<ul>
+<li>BROWSER_AGENT：<code>browser_use</code>（开浏览器抓页面）</li>
+<li>DEFAULT_AGENT：<code>text_file_operator / bash / terminate / inner_storage_content_tool / file_merge_tool / form_input ...</code> 一打子，是个万金油</li>
+</ul>
+<p>UI 里看结果就一目了然了：</p>
+<p><img src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f099_t0824.5s_scene.jpg" alt="两个 agent 协作结果的可视化"></p>
+<p>第 0 步 BROWSER_AGENT 去百度搜出股价，第 1 步 DEFAULT_AGENT 把结果挑出来写进文件。两个 agent 一前一后，中间靠 planId 串起来——这就是”多 Agent 协作”的最小可观察形态。</p>
+<hr>
+<h2 id="§3-我一开始没-get-的点-容易踩的坑"><a href="#§3-我一开始没-get-的点-容易踩的坑" class="headerlink" title="§3 我一开始没 get 的点 &#x2F; 容易踩的坑"></a>§3 我一开始没 get 的点 &#x2F; 容易踩的坑</h2><p><strong>1. “用户目录”不是你的 <code>C:\Users\xxx</code>，是 <code>extensions/inner_storage/</code>。</strong><br>prompt 写”保存到用户目录本地文件”，你以为会落到桌面或者家目录，结果它去了 <code>spring-ai-alibaba-jmanus/extensions/inner_storage/</code> 下，文件名 <code>alibaba_stock_price.txt</code>。这是 DEFAULT_AGENT 的 <code>text_file_operator</code> 工具有沙箱根——prompt 说”用户目录”它也只能写在沙箱里，JManus 不会真把你的 LLM 放出来乱写盘。<strong>这条 understanding.md 里没强调，但是个一年后看回来必定迷糊的点。</strong></p>
+<p><strong>2. “Open” 是开源的 Open，不是”Manus 的开放版”。</strong><br>OpenManus 是社区项目，跟 Manus 公司没关系。阿里基于 OpenManus 的思路用 Java 重写出 JManus，所以 JManus 的爹是 OpenManus 不是 Manus 本尊。这层关系一旦倒着想就会觉得”阿里凭啥用人家名字”——其实没用，OpenManus 本身就是开源 Python 项目。</p>
+<p><strong>3. JDK 必须 17，不是 11，不是 21。</strong><br>IDEA 导入时容易顺手用默认 JDK，跑不起来。导入向导那一步显式选 JDK 17。</p>
+<p><strong>4. 端口是 18080 不是 8080，且会自动开浏览器。</strong><br>启动完别去敲 <code>localhost:8080</code>，看日志拉到最下面找 <code>http://localhost:18080/ui/index.html</code>。理论上启动结束会自动弹浏览器；如果没弹，自己复制粘贴。</p>
+<hr>
+<h2 id="§4-跟其他集的连接"><a href="#§4-跟其他集的连接" class="headerlink" title="§4 跟其他集的连接"></a>§4 跟其他集的连接</h2><h3 id="上承"><a href="#上承" class="headerlink" title="上承"></a>上承</h3><ul>
+<li><strong>1-5 阿里百炼平台 &#x2F; API Key 申请</strong>——本集第一步就把那把 Key 填进 JManus 的 web 初始化页（选”阿里云百炼”模型）。1-5 集那把 Key 不是用了一次就过期的”考试用品”，整个第 1 章、第 3 章、第 4 章都靠它。</li>
+<li><strong>3-11 &#x2F; 3-12（在 INDEX 里已经记过）</strong>——3-11 给了”主流多 Agent 框架”全景图，把 Manus &#x2F; OpenManus &#x2F; JManus 三个名字摆在一起；3-12 给了”多 Agent 五步骨架”。本集是把那两集的抽象用一个能跑的 demo 实体化。</li>
+</ul>
+<h3 id="下启"><a href="#下启" class="headerlink" title="下启"></a>下启</h3><ul>
+<li>本集最后留了一句”在後面的課程中，我們將對 JManus 這個開發框架進行深度的學習”。这条线索对应 INDEX 里的：<ul>
+<li><strong>8-9 JManus 文件架构 + Prompt 提交入口</strong>——告诉你 web 里那个发送按钮背后调的是 <code>ManusController.executeQuery</code>。</li>
+<li><strong>8-10 计划协调器</strong>——把本集 UI 上看到的”步骤执行详情”拆开来看是哪个 Java 类在调度。</li>
+<li><strong>8-11 PlanCreator</strong>——回答本集留下的”为什么这次派 2 个 agent 而不是 1 个或 3 个”——是 LLM 直接出 JSON 计划。</li>
+</ul>
+</li>
+<li><strong>3-6 &#x2F; 4-8</strong>——给本集这个裸跑的 JManus 挂 MCP 服务，把工具池从默认的几个扩到几十个。</li>
+</ul>
+<h3 id="横向"><a href="#横向" class="headerlink" title="横向"></a>横向</h3><ul>
+<li><strong>8-5 Manus 是自主决策的 AI Agent</strong>——8-5 讲的”两个自循环”（外层 plan 自循环 + 内层 agent 自循环），本集 demo 里 BROWSER_AGENT + DEFAULT_AGENT 协作就是它的最小可见表现。</li>
+<li><strong>3-12 多 Agent 五步骨架</strong>——本集示例是那张骨架图的一个实例：plan 创建（PlanCreator）→ 派 agent（BROWSER_AGENT）→ 收结果 → 再派 agent（DEFAULT_AGENT）→ 汇总 → 完成。</li>
+</ul>
+<hr>
+<h2 id="§5-知识地图"><a href="#§5-知识地图" class="headerlink" title="§5 知识地图"></a>§5 知识地图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">                    ┌─ Manus（闭源商品·2025年初爆红）</span><br><span class="line">                    │</span><br><span class="line">                    ▼  「多 Agent + 自主决策」思路</span><br><span class="line">               OpenManus（Python 社区复刻）</span><br><span class="line">                    │</span><br><span class="line">                    ▼  Java 重写</span><br><span class="line">           spring-ai-alibaba-jmanus</span><br><span class="line">           （住在 SAA monorepo 一个子目录）</span><br><span class="line">                    │</span><br><span class="line">                    ▼  本集要跑的就是它</span><br><span class="line">     OpenManusSpringBootApplication</span><br><span class="line">     ├─ web UI @ localhost:18080</span><br><span class="line">     │   ├─ 初始化页：选语言 + 配百炼 API Key（来自 1-5）</span><br><span class="line">     │   └─ 工作台：5 个示例卡片 / PLAN-ACT 模式</span><br><span class="line">     │</span><br><span class="line">     ├─ 收到 prompt</span><br><span class="line">     │   &quot;通过百度查阿里巴巴股价 → 存本地&quot;</span><br><span class="line">     │</span><br><span class="line">     ▼   LLM 决定派几个 / 哪几个 agent</span><br><span class="line">                    │</span><br><span class="line">     ┌──────────────┼──────────────┐</span><br><span class="line">     ▼                              ▼</span><br><span class="line">BROWSER_AGENT                  DEFAULT_AGENT</span><br><span class="line">工具: browser_use              工具: text_file_operator</span><br><span class="line">去百度抓页面                       + bash + terminate + ...</span><br><span class="line">                    │</span><br><span class="line">                    ▼</span><br><span class="line">产物落到 extensions/inner_storage/alibaba_stock_price.txt</span><br><span class="line">                    │</span><br><span class="line">                    ▼</span><br><span class="line">日志关键词: `Create new BaseAgent: XXX, planId: plan-xxx`</span><br><span class="line">↑ 这就是&quot;自主决策&quot;的物证</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="§6-自测题（5-张-Q-A-卡）"><a href="#§6-自测题（5-张-Q-A-卡）" class="headerlink" title="§6 自测题（5 张 Q-A 卡）"></a>§6 自测题（5 张 Q-A 卡）</h2><p><strong>Q1.</strong> JManus、OpenManus、Manus 三者的关系是？<br><strong>A1.</strong> Manus 是闭源商品（”帮我买东西”那个），OpenManus 是社区用 Python 开源复刻它的多 Agent 思路，JManus 是阿里基于 OpenManus 用 Java 重写、住在 spring-ai-alibaba 仓库 <code>spring-ai-alibaba-jmanus</code> 子目录里的版本。”Open” 指开源，不是 Manus 出的开放版。</p>
+<p><strong>Q2.</strong> 怎么证明 JManus 是”自主决策”而不是”配置好的固定流程”？<br><strong>A2.</strong> 把 IDEA 控制台日志拷出来搜关键词 <code>Create new BaseAgent</code>。本集示例搜到两条 BROWSER_AGENT + DEFAULT_AGENT，且都属于同一个 planId。这两个 agent 不是配置里写死的，是 LLM 看完 prompt 后临时拉起来的——换 prompt 数量和类型都会变。</p>
+<p><strong>Q3.</strong> 跑 JManus 之前要踩哪三个坑？<br><strong>A3.</strong> ① JDK 必须显式选 17；② 端口 18080 不是 8080；③ API Key 走 web 初始化页配，不是 yaml。</p>
+<p><strong>Q4.</strong> prompt 写”保存到用户目录本地文件”，文件实际落到哪里？为什么？<br><strong>A4.</strong> 落到 <code>spring-ai-alibaba-jmanus/extensions/inner_storage/</code> 下（如 <code>alibaba_stock_price.txt</code>），不是用户家目录。因为 DEFAULT_AGENT 的 <code>text_file_operator</code> 工具有沙箱根——LLM 不会真被放出来乱写盘。</p>
+<p><strong>Q5.</strong> spring-ai-alibaba 仓库为什么要”下载整包再删剩 jmanus 一个目录”？<br><strong>A5.</strong> SAA 是 monorepo，一个 GitHub 仓库里塞了十几个独立子工程（<code>-bom / -core / -mcp / -nl2sql / -graph-core / -studio / -jmanus / ...</code>）。GitHub 不支持只下载某个子目录，所以你只能下整包，留下你要的那个。</p>
+<hr>
+<h2 id="§7-关键词表"><a href="#§7-关键词表" class="headerlink" title="§7 关键词表"></a>§7 关键词表</h2><table>
+<thead>
+<tr>
+<th>关键概念</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Manus → OpenManus → JManus 谱系</td>
+<td>闭源商品 → Python 开源复刻 → Java 阿里版三段式</td>
+</tr>
+<tr>
+<td>spring-ai-alibaba monorepo</td>
+<td>一个 GitHub 仓库塞 10+ 个独立 Spring AI 周边子工程</td>
+</tr>
+<tr>
+<td>spring-ai-alibaba-jmanus 子模块</td>
+<td>SAA 仓库里你唯一要留的目录，本集 demo 来源</td>
+</tr>
+<tr>
+<td>OpenManusSpringBootApplication</td>
+<td>JManus 的 Spring Boot 入口类，命名暴露其 OpenManus 出身</td>
+</tr>
+<tr>
+<td>PLAN-ACT 计划模式</td>
+<td>JManus 默认执行模式，对应 Plan-and-Execute 架构</td>
+</tr>
+<tr>
+<td>BROWSER_AGENT &#x2F; DEFAULT_AGENT</td>
+<td>本集 LLM 临时拉起的两个 agent，前者抓页面后者写文件</td>
+</tr>
+<tr>
+<td>Create new BaseAgent 日志关键词</td>
+<td>grep 这行能看到 LLM 这次决定派哪些 agent</td>
+</tr>
+<tr>
+<td>extensions&#x2F;inner_storage&#x2F; 输出根</td>
+<td>DEFAULT_AGENT 的文件沙箱根，”用户目录”实际去这里</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/">https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/" title="1-7_具备ReAct核心能力的框架AgentScope"><img class="cover" src="/images/agent-learning/1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/f001_t0000.0s_scene.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">1-7_具备ReAct核心能力的框架AgentScope</div></div><div class="info-2"><div class="info-item-1"> 摘要：本集是第 1 章地图收尾——给 Agentic 那条分支配上一个真正能用的 Java 框架。取舍出现在 §2（把官方四亮点重排成”为什么选它”的两段论），加工增量在 §2.2（JManus vs AgentScope 的差异表是 understanding.md 里没有的列式对照）和 §4.3。  1. 一句话定位Agentic 分支的 Java 落地框架，把 ReAct + 人可介入打包好了。 2. 主体讲解2.1 先把 ReAct 想清楚，再看框架绕开框架名先问自己：智能体要”自主”完成一个任务，最少要循环哪几步？ 思考 → 行动 → 验证 → 不对就重新思考。这四步循环一直跑到结果跟你预设目标对齐为止，就是 ReAct（Reason and Action）。 注意 transcript 里反复出现的 “weat” 是 ASR 把 “ReAct” 听岔的，看到当 ReAct 读就行。这个范式不是 AgentScope 发明的，1-6 讲的 JManus 也是 ReAct——所以 ReAct 不是 AgentScope 的差异点，而是它的入场券。  这张脑图是整个第 1...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/" title="1-1_多Agent融合自主决策AI发展的必然趋势"><img class="cover" src="/images/agent-learning/1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/f014_t0392.4s_anchor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">1-1_多Agent融合自主决策AI发展的必然趋势</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位看完这集，你能用一张四档脉络图回答”AI 现在学什么不会被淘汰”。 2. 主体先回答最功利的问题：这门课让你学什么学的不是任何具体工具，而是一条骨架：多 Agent 协同 + Agent 自主决策。 为什么这条骨架不会被淘汰？因为它不是”某个 2025 年的热门软件”，而是 AI 替代人做生产这件事的最终形态——只要 Agent 仍然是生产的操作者，”怎么让多个 Agent 分工”和”怎么让单个 Agent 自己想清楚下一步”就一直是真问题。 围绕这条骨架，课程用一个旅游规划项目当容器，把它拆成两条腿：  多 Agent 怎么协同 → 两种设计思想：Graph 工作流编排 &#x2F; Agent 自主代理（重点是后者） 单个 Agent 怎么自主 → 两块：自主思考（ReAct）&#x2F; 自主执行（MCP、Function Calling、Agent Skills）  底座是 SpringAI Alibaba 1.1。这里有个取舍：RAG、提示词工程、本地部署、微调这一整波这门课都不会讲——不是因为它们没用，而是它们在这条骨架里已经被归到上一个时代，性价比不...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/" title="1-2_准备工作安装ApiFox"><img class="cover" src="/images/agent-learning/1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-2_准备工作安装ApiFox</div></div><div class="info-2"><div class="info-item-1">摘要整集只做一件事：把”后端接口的脚手架”搭起来，给后面所有要跟 Java 后端对话的章节留一个稳定入口。读完你应该掌握的是 ApiFox 的心智模型——团队&#x2F;项目&#x2F;接口的三层组织，再叠一个正交的”环境”维度，而不是某几个按钮在哪里。  取舍出现在 §2：放弃按视频的”先建项目再讲环境”顺序，改成”先把环境心智立住，再创建接口”，因为前者会让第一次选环境时是空下拉，留下卡点。 加工增量在 §3 与 §5：把”环境”和”接口路径”的关系画成拼接示意图（understanding 里只有文字描述），并把 GET&#x2F;POST 的参数落点从一句话扩成”为什么 UI 强迫分两个 tab”的解释。   §1 一句话定位ApiFox 是把 Postman + Swagger + Mock + JMeter 揉成一个面板的接口协作平台，本集是为后续后端章节准备的”调用入口”。  §2 主体讲解2.1 为什么不是 Postman如果你已经在用 Postman，那你应该把 ApiFox 看成”Postman 的功能 + Swagger 那一份接口文档 + Mock 数据生...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/" title="1-3_准备工作配置阿里大模型广场的ApiKey"><img class="cover" src="/images/agent-learning/1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/f002_t0135.2s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-3_准备工作配置阿里大模型广场的ApiKey</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位选阿里云百炼不是因为它最好，是因为后续要用 Spring AI Alibaba。  摘要：取舍出现在 §2.4（”三家广场对比”被压成一张表，没有逐家演示）；加工增量在 §2.5（DashScope &#x2F; SAA 与 .env 的去向链路是 understanding.md 与原视频都未明说的推断）。  2. 主体讲解2.1 你为什么需要”广场”假设你想同时用 DeepSeek、Kimi、通义千问三个模型，按”直觉路径”你要：  去 deepseek.com 注册 → 申请一个 key 去 moonshot.cn 注册 → 再申请一个 key 去 dashscope.aliyun.com 注册 → 再申请一个 key  三家平台、三套账号、三个 key、三套余额管理、三份发票。这就是大模型广场要解决的问题——它把”逐家申请”折叠成”一处申请、多处调用”，本质是一个模型路由代理层：你拿一个 key，背后它替你转发到不同的供应商。 国内做这件事的就三家（也只能是三家，因为下面会看到的原因）：阿里云”百炼”、百度”千帆 ModelBuilder”、字节”火山方舟...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/" title="1-1_多Agent融合自主决策AI发展的必然趋势"><img class="cover" src="/images/agent-learning/1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/f014_t0392.4s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-1_多Agent融合自主决策AI发展的必然趋势</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位看完这集，你能用一张四档脉络图回答”AI 现在学什么不会被淘汰”。 2. 主体先回答最功利的问题：这门课让你学什么学的不是任何具体工具，而是一条骨架：多 Agent 协同 + Agent 自主决策。 为什么这条骨架不会被淘汰？因为它不是”某个 2025 年的热门软件”，而是 AI 替代人做生产这件事的最终形态——只要 Agent 仍然是生产的操作者，”怎么让多个 Agent 分工”和”怎么让单个 Agent 自己想清楚下一步”就一直是真问题。 围绕这条骨架，课程用一个旅游规划项目当容器，把它拆成两条腿：  多 Agent 怎么协同 → 两种设计思想：Graph 工作流编排 &#x2F; Agent 自主代理（重点是后者） 单个 Agent 怎么自主 → 两块：自主思考（ReAct）&#x2F; 自主执行（MCP、Function Calling、Agent Skills）  底座是 SpringAI Alibaba 1.1。这里有个取舍：RAG、提示词工程、本地部署、微调这一整波这门课都不会讲——不是因为它们没用，而是它们在这条骨架里已经被归到上一个时代，性价比不...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/" title="1-7_具备ReAct核心能力的框架AgentScope"><img class="cover" src="/images/agent-learning/1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-7_具备ReAct核心能力的框架AgentScope</div></div><div class="info-2"><div class="info-item-1"> 摘要：本集是第 1 章地图收尾——给 Agentic 那条分支配上一个真正能用的 Java 框架。取舍出现在 §2（把官方四亮点重排成”为什么选它”的两段论），加工增量在 §2.2（JManus vs AgentScope 的差异表是 understanding.md 里没有的列式对照）和 §4.3。  1. 一句话定位Agentic 分支的 Java 落地框架，把 ReAct + 人可介入打包好了。 2. 主体讲解2.1 先把 ReAct 想清楚，再看框架绕开框架名先问自己：智能体要”自主”完成一个任务，最少要循环哪几步？ 思考 → 行动 → 验证 → 不对就重新思考。这四步循环一直跑到结果跟你预设目标对齐为止，就是 ReAct（Reason and Action）。 注意 transcript 里反复出现的 “weat” 是 ASR 把 “ReAct” 听岔的，看到当 ReAct 读就行。这个范式不是 AgentScope 发明的，1-6 讲的 JManus 也是 ReAct——所以 ReAct 不是 AgentScope 的差异点，而是它的入场券。  这张脑图是整个第 1...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-5_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85Nacos_3/" title="1-5_准备工作安装Nacos_3"><img class="cover" src="/images/agent-learning/1-5_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85Nacos_3/f024_t0146.1s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-5_准备工作安装Nacos_3</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Nacos 3 装好，A2A 的”智能体黄页”就有了落脚点。  摘要：本集是 A2A 主线的基础设施铺垫。取舍出现在 §2（把”为什么选 v3”提到最前面，颠倒原顺序）；加工增量在 §3（--rm 数据丢失、TOKEN 的真实作用、8848 vs 8080 的真正含义）—— 这三条 understanding.md 之外，都不在原视频里。   2. 主体讲解2.1 为什么必须是 v3（而不是随手抓个老 Nacos）你装注册中心，目的不是”再多一个微服务组件”，而是给后面 A2A 协议准备一个能存”智能体卡片(AgentCard)”的地方。 老版 Nacos 的服务注册模型只能存 IP &#x2F; 端口 &#x2F; 健康状态这种”机器视角”的元数据。A2A 要存的是”这个远程 Agent 叫什么名字、会做什么、技能列表、调用契约”——这是”能力视角”的卡片。 3.x 版本在控制台里直接给了两个新菜单：Agent 管理 和 MCP 管理。看到这两个菜单，你就知道为什么必选 3.x： ⏱ 02:26  概念”Nacos 3 内置 AgentCard 存储能力”的可视...</div></div></div></a><a class="pagination-related" href="/2026/05/19/Agent%E5%AD%A6%E4%B9%A0-10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/" title="10-01 Agent的牛马小弟：SubAgent"><img class="cover" src="/images/agent-learning/10-1_Agent%E7%9A%84%E7%89%9B%E9%A9%AC%E5%B0%8F%E5%BC%9FSubAgent/f005_t0048.8s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-19</div><div class="info-item-2">10-01 Agent的牛马小弟：SubAgent</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位SubAgent 是主 Agent 在干活时，把某个”单个专业场景”（写 SQL、CRUD、登录接口）外包给一个跑在独立上下文里的小弟，唯一目的就是不让这点专业脏活污染主上下文。 2. 主体2.1 先把上一集的三层架构在脑子里挂好⏱ 00:00–04:10 · 复述上集三层架构 + ReAct 循环铺垫 这集前 4 分钟全在复述上一集，把那张图想清楚再往下读会舒服很多：  总协调 Agent（总监级）：只做规划和需求切分，自己不下场。 Agent 主管（领域主管，前端 &#x2F; 后端 &#x2F; 测试 &#x2F; 运维 &#x2F; 安全 &#x2F; 产品 等）：拿到本领域的任务后，继续切，再派给下面的执行者。 Agent 执行者（初级 &#x2F; 实习生程序员）：真正动手，具有领域知识，能自己组合工具、调 MCP 和 Function Calling，不用反复问大模型”我该用啥工具”。  每一层内部都跑同一个循环：ReAct——思考、执行、再思考”结果对不对、和目标有没有出入”、有偏差就动态调整。讲师反复强调这一条，不是凑数，是后面 SubAgent...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">129</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%91%98%E8%A6%81"><span class="toc-number">1.</span> <span class="toc-text">摘要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%C2%A71-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">2.</span> <span class="toc-text">§1 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%C2%A72-%E4%B8%BB%E4%BD%93%E8%AE%B2%E8%A7%A3%EF%BC%9A%E4%BB%8E%E8%B0%B1%E7%B3%BB%E5%88%B0%E9%97%AD%E7%8E%AF%EF%BC%8C%E5%86%8D%E5%88%B0%E9%82%A3%E6%9D%A1%E5%85%B3%E9%94%AE%E6%97%A5%E5%BF%97"><span class="toc-number">3.</span> <span class="toc-text">§2 主体讲解：从谱系到闭环，再到那条关键日志</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%85%88%E6%8A%8A%E8%B0%B1%E7%B3%BB%E6%90%9E%E6%B8%85%EF%BC%8C%E4%B8%8D%E7%84%B6%E4%BD%A0%E4%BC%9A%E4%BB%A5%E4%B8%BA%E6%98%AF%E9%98%BF%E9%87%8C%E5%8E%9F%E5%88%9B"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 先把谱系搞清，不然你会以为是阿里原创</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%BB%93%E5%BA%93%E7%BB%93%E6%9E%84%EF%BC%9Aspring-ai-alibaba-%E6%98%AF-monorepo%EF%BC%8C%E4%B8%8D%E6%98%AF%E5%8D%95%E4%B8%80%E9%A1%B9%E7%9B%AE"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 仓库结构：spring-ai-alibaba 是 monorepo，不是单一项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E8%B7%91%E9%80%9A%E6%9C%80%E5%B0%8F%E9%97%AD%E7%8E%AF%EF%BC%88%E8%BF%99%E6%89%8D%E6%98%AF%E6%9C%AC%E9%9B%86%E7%9A%84%E2%80%9D%E7%81%B5%E9%AD%82%E6%93%8D%E4%BD%9C%E2%80%9D%EF%BC%89"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 跑通最小闭环（这才是本集的”灵魂操作”）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%B7%A5%E4%BD%9C%E5%8F%B0-%E4%B8%80%E4%B8%AA-prompt"><span class="toc-number">3.4.</span> <span class="toc-text">2.4 工作台 + 一个 prompt</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%85%B3%E9%94%AE%E8%AF%81%E6%8D%AE%EF%BC%9A%E6%97%A5%E5%BF%97%E9%87%8C-Create-new-BaseAgent"><span class="toc-number">3.5.</span> <span class="toc-text">2.5 关键证据：日志里 Create new BaseAgent</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%C2%A73-%E6%88%91%E4%B8%80%E5%BC%80%E5%A7%8B%E6%B2%A1-get-%E7%9A%84%E7%82%B9-%E5%AE%B9%E6%98%93%E8%B8%A9%E7%9A%84%E5%9D%91"><span class="toc-number">4.</span> <span class="toc-text">§3 我一开始没 get 的点 &#x2F; 容易踩的坑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%C2%A74-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">5.</span> <span class="toc-text">§4 跟其他集的连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%89%BF"><span class="toc-number">5.1.</span> <span class="toc-text">上承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E5%90%AF"><span class="toc-number">5.2.</span> <span class="toc-text">下启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%AA%E5%90%91"><span class="toc-number">5.3.</span> <span class="toc-text">横向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%C2%A75-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">6.</span> <span class="toc-text">§5 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%C2%A76-%E8%87%AA%E6%B5%8B%E9%A2%98%EF%BC%885-%E5%BC%A0-Q-A-%E5%8D%A1%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">§6 自测题（5 张 Q-A 卡）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%C2%A77-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">8.</span> <span class="toc-text">§7 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/" title="1-2_准备工作安装ApiFox"><img src="/images/agent-learning/1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-2_准备工作安装ApiFox"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/" title="1-2_准备工作安装ApiFox">1-2_准备工作安装ApiFox</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/" title="1-3_准备工作配置阿里大模型广场的ApiKey"><img src="/images/agent-learning/1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/f002_t0135.2s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-3_准备工作配置阿里大模型广场的ApiKey"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/" title="1-3_准备工作配置阿里大模型广场的ApiKey">1-3_准备工作配置阿里大模型广场的ApiKey</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/" title="1-1_多Agent融合自主决策AI发展的必然趋势"><img src="/images/agent-learning/1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/f014_t0392.4s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-1_多Agent融合自主决策AI发展的必然趋势"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/" title="1-1_多Agent融合自主决策AI发展的必然趋势">1-1_多Agent融合自主决策AI发展的必然趋势</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/" title="1-6_仿Manus能自主决策的框架Jmanus"><img src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-6_仿Manus能自主决策的框架Jmanus"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/" title="1-6_仿Manus能自主决策的框架Jmanus">1-6_仿Manus能自主决策的框架Jmanus</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/" title="1-7_具备ReAct核心能力的框架AgentScope"><img src="/images/agent-learning/1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-7_具备ReAct核心能力的框架AgentScope"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/" title="1-7_具备ReAct核心能力的框架AgentScope">1-7_具备ReAct核心能力的框架AgentScope</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

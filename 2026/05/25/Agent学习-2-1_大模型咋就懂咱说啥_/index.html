@@ -1,0 +1,374 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>2-1_大模型咋就懂咱说啥_ | Lrf's Blog</title><meta name="author" content="Lrf"><meta name="copyright" content="Lrf"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="1. 一句话定位大模型把你的文字先拆成 Token、再变成向量，所有”懂语义”都发生在向量空间里。  摘要：取舍出现在 §2.4（把”星巴克”demo 从开场素材改成验证案例）；加工增量在 §3 与 §5（嵌入层来源 &#x2F; 中文分词坑 &#x2F; 知识地图均不在 understanding.md 出现）。   2. 主体讲解2.1 先把骨架钉死：大模型只做三件事你可以把任何一次和 Dee">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2-1_大模型咋就懂咱说啥_">
+<meta property="og:url" content="https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/index.html">
+<meta property="og:site_name" content="Lrf&#39;s Blog">
+<meta property="og:description" content="1. 一句话定位大模型把你的文字先拆成 Token、再变成向量，所有”懂语义”都发生在向量空间里。  摘要：取舍出现在 §2.4（把”星巴克”demo 从开场素材改成验证案例）；加工增量在 §3 与 §5（嵌入层来源 &#x2F; 中文分词坑 &#x2F; 知识地图均不在 understanding.md 出现）。   2. 主体讲解2.1 先把骨架钉死：大模型只做三件事你可以把任何一次和 Dee">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://llrf.github.io/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f017_t0131.6s_scene.jpg">
+<meta property="article:published_time" content="2026-05-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-25T11:08:22.944Z">
+<meta property="article:author" content="Lrf">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://llrf.github.io/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f017_t0131.6s_scene.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "2-1_大模型咋就懂咱说啥_",
+  "url": "https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/",
+  "image": "https://llrf.github.io/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f017_t0131.6s_scene.jpg",
+  "datePublished": "2026-05-24T16:00:00.000Z",
+  "dateModified": "2026-05-25T11:08:22.944Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Lrf",
+      "url": "https://llrf.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#333333')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          const hour = new Date().getHours()
+          const isNight = hour <= 18 || hour >= 6
+          if (theme === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else theme === 'light' ? activateLightMode() : activateDarkMode()
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.json","preload":true,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '2-1_大模型咋就懂咱说啥_',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.0.0"></head><body><div id="web_bg" style="background-image: url(https://free.picui.cn/free/2025/09/24/68d39a1497dfa.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">129</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/agent/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f017_t0131.6s_scene.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Lrf's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">2-1_大模型咋就懂咱说啥_</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/agent/"><i class="fa-fw fas fa-graduation-cap"></i><span> Agent学习</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">2-1_大模型咋就懂咱说啥_</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-25T11:08:22.944Z" title="更新于 2026-05-25 19:08:22">2026-05-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/">Agent学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Agent%E5%AD%A6%E4%B9%A0/%E7%AC%AC02%E7%AB%A0-%E5%A4%A7%E7%99%BD%E8%AF%9D%E5%BF%AB%E9%80%9F%E7%AE%80%E5%8D%95%E8%BF%87%E4%B8%80%E9%81%8D-Ai-%E5%A4%A7%E6%A8%A1%E5%9E%8B/">第02章 大白话快速简单过一遍 Ai 大模型</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="1-一句话定位"><a href="#1-一句话定位" class="headerlink" title="1. 一句话定位"></a>1. 一句话定位</h2><p>大模型把你的文字先拆成 Token、再变成向量，所有”懂语义”都发生在向量空间里。</p>
+<blockquote>
+<p>摘要：取舍出现在 §2.4（把”星巴克”demo 从开场素材改成验证案例）；加工增量在 §3 与 §5（嵌入层来源 &#x2F; 中文分词坑 &#x2F; 知识地图均不在 understanding.md 出现）。</p>
+</blockquote>
+<hr>
+<h2 id="2-主体讲解"><a href="#2-主体讲解" class="headerlink" title="2. 主体讲解"></a>2. 主体讲解</h2><h3 id="2-1-先把骨架钉死：大模型只做三件事"><a href="#2-1-先把骨架钉死：大模型只做三件事" class="headerlink" title="2.1 先把骨架钉死：大模型只做三件事"></a>2.1 先把骨架钉死：大模型只做三件事</h3><p>你可以把任何一次和 DeepSeek 的对话想成一条流水线：</p>
+<ol>
+<li><strong>用户输入（Prompt）</strong> —— 你打的那句话</li>
+<li><strong>大模型计算</strong> —— 在向量空间里做几何运算</li>
+<li><strong>大模型输出</strong> —— 把结果再翻译回人话</li>
+</ol>
+<p>这集只把第 1 步拆透，第 2、3 步留给后面几集。所以如果你看完本集还不知道 Transformer 是啥，是正常的——这集压根没讲。</p>
+<p><img src="/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f017_t0131.6s_scene.jpg" alt="大模型三段式的可视化"></p>
+<h3 id="2-2-输入这一段又分两步：分词-→-向量化"><a href="#2-2-输入这一段又分两步：分词-→-向量化" class="headerlink" title="2.2 输入这一段又分两步：分词 → 向量化"></a>2.2 输入这一段又分两步：分词 → 向量化</h3><p>输入侧再放大，会发现里面藏着两小步：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Prompt ──分词──&gt; Token 序列 ──Embedding──&gt; 向量序列</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>分词（Tokenization）</strong>：把你那句话切成最小处理单位，标点也算一个 Token。</li>
+<li><strong>向量化（Embedding）</strong>：把每个 Token 通过”嵌入层”映射成一串数字（向量）。</li>
+</ul>
+<p>记住一个区分：Token 有个唯一 ID（像学号），但 ID <strong>不是</strong>向量；向量是 ID 再经过嵌入层之后那一长串能”刻画特征”的浮点数。这两者新手很容易混。</p>
+<p><img src="/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f025_t0186.2s_anchor.jpg" alt="Token 与向量化两步法的可视化"></p>
+<h3 id="2-3-为啥非得是”向量”，不是”编号”"><a href="#2-3-为啥非得是”向量”，不是”编号”" class="headerlink" title="2.3 为啥非得是”向量”，不是”编号”"></a>2.3 为啥非得是”向量”，不是”编号”</h3><p>这是这集最该带走的直觉。两个理由：</p>
+<ol>
+<li><strong>计算机只认数字</strong>。文字、图片、声音都得先变成数字才能算。这是底层硬约束。</li>
+<li><strong>关键是”哪种数字”</strong>。如果只给 Token 一个流水号，那”猫”和”狗”对模型来说就跟”3 号”和”7 号”一样——除了不相等，啥关系也没有。但如果把”猫”变成 <code>(灵活, 吃老鼠, 吃鱼, …)</code>、把”狗”变成 <code>(忠心, 吃骨头, 看门, …)</code>，那模型就能用<strong>几何距离</strong>判断它们是不是同类。</li>
+</ol>
+<p>换句话说：<strong>向量化的真正魔法是把”语义相似”变成”距离相近”</strong>。维度越多，刻画得越细。</p>
+<p><img src="/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f028_t0265.0s_anchor.jpg" alt="用维度刻画猫和狗特征的可视化"></p>
+<h3 id="2-4-向量空间：一切推理的舞台"><a href="#2-4-向量空间：一切推理的舞台" class="headerlink" title="2.4 向量空间：一切推理的舞台"></a>2.4 向量空间：一切推理的舞台</h3><p>把世间万物都塞进同一个高维空间，每个东西在里面占一个唯一的点，这就是<strong>向量空间</strong>。这集留下一句很重的话：</p>
+<blockquote>
+<p>大模型所有的推理计算，都是在向量空间里进行的。</p>
+</blockquote>
+<p>记牢这句，它会在后续 3-1（大模型困境）那集被反复用来论证”为什么模型回答不了实时问题”。</p>
+<p><img src="/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f029_t0266.5s_anchor.jpg" alt="向量空间的可视化"></p>
+<h3 id="2-5-回头看”星巴克”demo，为啥能”懂”"><a href="#2-5-回头看”星巴克”demo，为啥能”懂”" class="headerlink" title="2.5 回头看”星巴克”demo，为啥能”懂”"></a>2.5 回头看”星巴克”demo，为啥能”懂”</h3><blockquote>
+<p>取舍点：原视频用两个”星巴克”问题作为开场抓眼球；这里我故意挪到最后做<strong>验证案例</strong>，避免你误以为这集讲的是”指代消解算法”。</p>
+</blockquote>
+<p>两个问题：</p>
+<ul>
+<li><strong>A</strong>：”我在咖啡馆里想要杯星巴克” → DeepSeek 答：你想要的是咖啡饮品</li>
+<li><strong>B</strong>：”看到别人拿着星巴克，我也想要个” → DeepSeek 答：你想要的是星巴克的杯子</li>
+</ul>
+<p>同样的三个字”星巴克”，为啥能区分出”咖啡”和”杯子”？</p>
+<p>因为分词后那个”星巴克”Token 进入嵌入层后，会<strong>和上下文 Token 一起</strong>被映射到向量空间里的不同位置——A 句里它落在”咖啡饮品”区域附近，B 句里它落在”实物 &#x2F; 周边商品”区域附近。</p>
+<blockquote>
+<p>注意：本集<strong>只让你接受这个结论</strong>，没解释”上下文怎么影响向量位置”——那是注意力机制 &#x2F; Transformer 的活儿，留给 2-2、2-3。</p>
+</blockquote>
+<p><img src="/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f005_t0039.7s_anchor.jpg" alt="同一 Token 在不同上下文落到向量空间不同区域的可视化"></p>
+<p><img src="/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f015_t0090.8s_anchor.jpg" alt="另一种语境下星巴克被解析为杯子的可视化"></p>
+<hr>
+<h2 id="3-我一开始没-get-的点-容易踩的坑"><a href="#3-我一开始没-get-的点-容易踩的坑" class="headerlink" title="3. 我一开始没 get 的点 &#x2F; 容易踩的坑"></a>3. 我一开始没 get 的点 &#x2F; 容易踩的坑</h2><ol>
+<li><strong>Token ID ≠ 向量</strong>。Token ID 只是个流水号（”星巴克” &#x3D; 12345），向量是这个 ID 再过一层”嵌入层”之后那串”带特征”的数字。混了这两个，后面 attention 的 Q&#x2F;K&#x2F;V 全看不懂。</li>
+<li><strong>“向量化”不是模型的核心魔法，它只是个入口</strong>。本集把它放在”输入阶段第 2 步”，真正的推理在向量空间里展开。别一听”Embedding”就以为是高级法术——它只是把字塞进可计算的格子。</li>
+<li><strong>嵌入层的参数从哪来？</strong>（understanding.md 也留了这个坑）—— 嵌入层本身是<strong>训练</strong>出来的：模型在大量语料上反复调参，让”语义相近的词在空间里也相近”。视频没讲这点，但你心里得知道这一层不是手写规则，是学出来的。</li>
+<li><strong>中文分词不是”按汉字切”</strong>。视频用”在咖啡馆里想要杯星巴克”做例子，含糊带过了切分细节。实际大模型常用 BPE &#x2F; WordPiece 这类子词算法，”星巴克”在不同 tokenizer 里可能是 1 个 Token、也可能被切成 3 个字。本集没讲，等遇到 token 计费再回头补。</li>
+</ol>
+<hr>
+<h2 id="4-跟其他集的连接"><a href="#4-跟其他集的连接" class="headerlink" title="4. 跟其他集的连接"></a>4. 跟其他集的连接</h2><h3 id="上承"><a href="#上承" class="headerlink" title="上承"></a>上承</h3><ul>
+<li><strong>1-7</strong> 之前都在讲 Agent 框架（Jmanus &#x2F; AgentScope &#x2F; ReAct）的外壳，本集是第一次掀开盖子看里面的大模型本身——给所有 Agent 行为提供”为什么能听懂人话”的底层解释。</li>
+</ul>
+<h3 id="下启"><a href="#下启" class="headerlink" title="下启"></a>下启</h3><ul>
+<li><strong>2-2 Transformer 层 &#x2F; 2-3 自注意力机制</strong>：本集只丢了一句”所有推理都在向量空间里”，没说怎么算。”上下文如何影响一个 Token 的向量位置”就是注意力机制要回答的事。</li>
+<li><strong>2-4 大模型的回应</strong>：对应三段式里的第 3 步”输出”。</li>
+<li><strong>2-5 大模型 vs 智能体</strong>：把本集的”大模型”放回 Agent 体系里定位。</li>
+</ul>
+<h3 id="横向"><a href="#横向" class="headerlink" title="横向"></a>横向</h3><ul>
+<li><strong>3-1 大模型困境</strong>：直接借用本集的”向量空间”概念，论证”训练截止 + 静态向量空间”导致模型答不了实时和私人数据问题——本集是它的<strong>前置词汇表</strong>。</li>
+<li><strong>3-2 Function Calling &#x2F; 3-4 MCP</strong>：3-1 提出的困境的解法，根上都建立在”模型只能在自己的向量空间里推理”这一前提上。</li>
+</ul>
+<hr>
+<h2 id="5-知识地图"><a href="#5-知识地图" class="headerlink" title="5. 知识地图"></a>5. 知识地图</h2><blockquote>
+<p>加工增量：这张图在 understanding.md 里不存在，是把”输入两步法 + 三段式 + 向量空间”拼成一张可以贴墙上的脑图。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">                    ┌───────────────────────────────────┐</span><br><span class="line">                    │           大模型三段式             │</span><br><span class="line">                    └───────────────────────────────────┘</span><br><span class="line">                              │</span><br><span class="line">        ┌─────────────────────┼─────────────────────┐</span><br><span class="line">        ▼                     ▼                     ▼</span><br><span class="line">  1. 用户输入            2. 大模型计算           3. 大模型输出</span><br><span class="line">   (Prompt)              (向量空间运算)         (本集未展开)</span><br><span class="line">        │                     │</span><br><span class="line">        │                     └──&gt; 2-2 Transformer</span><br><span class="line">        │                           2-3 自注意力</span><br><span class="line">        │                          (上下文如何改变向量位置)</span><br><span class="line">        │</span><br><span class="line">   ┌────┴─────┐</span><br><span class="line">   ▼          ▼</span><br><span class="line"> 分词         向量化</span><br><span class="line">(Token)    (Embedding)</span><br><span class="line">   │          │</span><br><span class="line">   │          ├──&gt; 维度 = 特征（猫: 灵活/吃鱼…）</span><br><span class="line">   │          └──&gt; 落到&quot;向量空间&quot;里某个点</span><br><span class="line">   │</span><br><span class="line">   └──&gt; 最小处理单位</span><br><span class="line">        每个 Token 一个唯一 ID</span><br><span class="line">        (ID ≠ 向量)</span><br><span class="line"></span><br><span class="line">         同一个 Token &quot;星巴克&quot; + 不同上下文</span><br><span class="line">              │</span><br><span class="line">              ▼</span><br><span class="line">        落到向量空间不同区域 → 模型&quot;懂&quot;了语义</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="6-自测题"><a href="#6-自测题" class="headerlink" title="6. 自测题"></a>6. 自测题</h2><p><strong>Q1</strong>：大模型的工作流程被分成哪三段？这集重点讲的是哪一段？</p>
+<details><summary>A</summary>用户输入 → 大模型计算 → 大模型输出；本集只展开了第 1 段"用户输入"，分到分词和向量化两小步。</details>
+
+<p><strong>Q2</strong>：Token ID 和向量是同一个东西吗？</p>
+<details><summary>A</summary>不是。Token ID 是分词后给每个 Token 的唯一编号（像学号），向量是这个 ID 再经过嵌入层后映射出的一串带语义特征的数字。</details>
+
+<p><strong>Q3</strong>：为什么要把词变成向量而不是简单地编号？</p>
+<details><summary>A</summary>编号只能表达"相等 / 不等"。向量的每一维代表一个特征，于是"语义相似"可以转化为"几何距离接近"，让大模型能用数学方式比较和推理语义。</details>
+
+<p><strong>Q4</strong>：同样三个字”星巴克”，DeepSeek 为什么能在两个句子里分别推断为”咖啡”和”杯子”？</p>
+<details><summary>A</summary>因为嵌入层会把 Token 连同上下文一起映射到向量空间中的不同位置——A 句里靠近"咖啡饮品"区，B 句里靠近"实物商品"区。本集只给结论，原理留给注意力机制那几集。</details>
+
+<p><strong>Q5</strong>：向量的维度越多代表什么？</p>
+<details><summary>A</summary>刻画的特征越多、对该对象的描述越具体。在向量空间里它的位置也越独特，越不容易和其它对象混淆。</details>
+
+<hr>
+<h2 id="7-关键词表"><a href="#7-关键词表" class="headerlink" title="7. 关键词表"></a>7. 关键词表</h2><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>大模型三段式</td>
+<td>用户输入 → 大模型计算 → 大模型输出，本集只展开第 1 段</td>
+</tr>
+<tr>
+<td>Prompt</td>
+<td>用户敲进去的那句话，整条流水线的起点</td>
+</tr>
+<tr>
+<td>分词 Tokenization</td>
+<td>把 Prompt 切成最小处理单位的过程，标点也算一个</td>
+</tr>
+<tr>
+<td>Token</td>
+<td>分词后的最小单位，每个有唯一 ID</td>
+</tr>
+<tr>
+<td>Embedding 嵌入层</td>
+<td>把 Token ID 映射成高维向量的那一层网络，参数是训练出来的</td>
+</tr>
+<tr>
+<td>向量</td>
+<td>一串带特征的数字，每一维刻画对象的一个突出特征</td>
+</tr>
+<tr>
+<td>向量空间</td>
+<td>所有向量栖身的高维空间，大模型的全部推理都在这里完成</td>
+</tr>
+<tr>
+<td>上下文相关语义</td>
+<td>同一 Token 在不同 Prompt 中落到向量空间不同区域，因此能区分语义</td>
+</tr>
+</tbody></table>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://llrf.github.io">Lrf</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/">https://llrf.github.io/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://llrf.github.io" target="_blank">Lrf's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a><a class="post-meta__tags" href="/tags/Agent/">Agent</a><a class="post-meta__tags" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></div><div class="post-share"><div class="social-share" data-image="/images/agent-learning/2-1_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%92%8B%E5%B0%B1%E6%87%82%E5%92%B1%E8%AF%B4%E5%95%A5_/f017_t0131.6s_scene.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-2-5_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%98%AF%E5%BC%B9%E8%8D%AF%E5%BA%93%E6%99%BA%E8%83%BD%E4%BD%93%E5%88%99%E6%98%AF%E6%AD%A6%E5%99%A8/" title="2-5_大模型是弹药库智能体则是武器"><img class="cover" src="/images/agent-learning/2-5_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%98%AF%E5%BC%B9%E8%8D%AF%E5%BA%93%E6%99%BA%E8%83%BD%E4%BD%93%E5%88%99%E6%98%AF%E6%AD%A6%E5%99%A8/f019_t0346.2s_anchor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">2-5_大模型是弹药库智能体则是武器</div></div><div class="info-2"><div class="info-item-1"> 一句话定位：把 LLM 钉死在 Agent 四件套的”决策”那一格，其余三格才是 Agent 的本体。 取舍出现在 §2（讲解顺序倒置：先骨架、再用 demo 反证、最后回收”三宗罪”）。加工增量在 §3（把课程里没明说的”两种反馈重名”和”判别 Agent 的一句话判据”补出来）。  1. 一句话定位LLM 只承担 Agent 四件套里的”决策”，少另外三格就只是聊天机。 2. 主体讲解2.1 先把骨架画出来：感知 &#x2F; 决策 &#x2F; 反馈 &#x2F; 动作你只需要记住一张图，本集剩下的内容都是它的注脚。 1234[ 感知 ] --&gt; [ 决策 ] --&gt; [ 反馈 ] --&gt; [ 动作 ]   ^                                       |   |_______________________________________|   读偏好/查DB/查文件         LLM           回灌用户确认       调 API/点 APP/付款  把这张图先吃下去，再去看豆包是怎么”瘸腿”的，就一...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-2-3_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%A4%A7%E8%84%91%E4%B8%AD%E6%9E%A2%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/" title="2-3_大模型的大脑中枢自注意力机制"><img class="cover" src="/images/agent-learning/2-3_%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%A4%A7%E8%84%91%E4%B8%AD%E6%9E%A2%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/f037_t0615.9s_anchor.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">2-3_大模型的大脑中枢自注意力机制</div></div><div class="info-2"><div class="info-item-1"> 本篇摘要：用一张 48% &#x2F; 38% 的权重表当锚点，倒着把 Q&#x2F;K&#x2F;V 拆给未来的你看。取舍出现在 §2（把讲解顺序整个倒过来：结论先行 → 倒推机制 → 最后回看动机）；加工增量在 §3（”Q 和 K 其实同质、V 才是输出”、”为什么必须两个关键词一起夹击”这两条澄清是消化稿没明说的，原视频也没明说，是我反刍出来的）。  §1 一句话定位自注意力 &#x3D; 给句子里每个词打”我有多重要”的百分比。 §2 主体讲解：从那张权重表倒着看2.1 先盯住这张表 记住这四个数字： 1234咖啡馆 = 48%杯     = 38%想要   = 1.3%里     = 1.8%  整集就是在解释一件事：当模型分析”星巴克”指什么的时候，它给同一句话里其他每个词都打了上面这样的分。 谁分高，谁就是帮它定调的关键词。 为什么是这两个词？你回忆一下 2-2 学过的：在向量空间里”星巴克”附近塞着品牌、咖啡馆、高价、电脑这一坨特征。光靠”近”还分不清这里要的是”咖啡馆这个地方”还是”咖啡相关的饮料”——必须有外部信号把它夹到饮料那一侧。咖啡馆给”咖啡场景”投票...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/" title="1-2_准备工作安装ApiFox"><img class="cover" src="/images/agent-learning/1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-2_准备工作安装ApiFox</div></div><div class="info-2"><div class="info-item-1">摘要整集只做一件事：把”后端接口的脚手架”搭起来，给后面所有要跟 Java 后端对话的章节留一个稳定入口。读完你应该掌握的是 ApiFox 的心智模型——团队&#x2F;项目&#x2F;接口的三层组织，再叠一个正交的”环境”维度，而不是某几个按钮在哪里。  取舍出现在 §2：放弃按视频的”先建项目再讲环境”顺序，改成”先把环境心智立住，再创建接口”，因为前者会让第一次选环境时是空下拉，留下卡点。 加工增量在 §3 与 §5：把”环境”和”接口路径”的关系画成拼接示意图（understanding 里只有文字描述），并把 GET&#x2F;POST 的参数落点从一句话扩成”为什么 UI 强迫分两个 tab”的解释。   §1 一句话定位ApiFox 是把 Postman + Swagger + Mock + JMeter 揉成一个面板的接口协作平台，本集是为后续后端章节准备的”调用入口”。  §2 主体讲解2.1 为什么不是 Postman如果你已经在用 Postman，那你应该把 ApiFox 看成”Postman 的功能 + Swagger 那一份接口文档 + Mock 数据生...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/" title="1-3_准备工作配置阿里大模型广场的ApiKey"><img class="cover" src="/images/agent-learning/1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/f002_t0135.2s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-3_准备工作配置阿里大模型广场的ApiKey</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位选阿里云百炼不是因为它最好，是因为后续要用 Spring AI Alibaba。  摘要：取舍出现在 §2.4（”三家广场对比”被压成一张表，没有逐家演示）；加工增量在 §2.5（DashScope &#x2F; SAA 与 .env 的去向链路是 understanding.md 与原视频都未明说的推断）。  2. 主体讲解2.1 你为什么需要”广场”假设你想同时用 DeepSeek、Kimi、通义千问三个模型，按”直觉路径”你要：  去 deepseek.com 注册 → 申请一个 key 去 moonshot.cn 注册 → 再申请一个 key 去 dashscope.aliyun.com 注册 → 再申请一个 key  三家平台、三套账号、三个 key、三套余额管理、三份发票。这就是大模型广场要解决的问题——它把”逐家申请”折叠成”一处申请、多处调用”，本质是一个模型路由代理层：你拿一个 key，背后它替你转发到不同的供应商。 国内做这件事的就三家（也只能是三家，因为下面会看到的原因）：阿里云”百炼”、百度”千帆 ModelBuilder”、字节”火山方舟...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/" title="1-1_多Agent融合自主决策AI发展的必然趋势"><img class="cover" src="/images/agent-learning/1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/f014_t0392.4s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-1_多Agent融合自主决策AI发展的必然趋势</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位看完这集，你能用一张四档脉络图回答”AI 现在学什么不会被淘汰”。 2. 主体先回答最功利的问题：这门课让你学什么学的不是任何具体工具，而是一条骨架：多 Agent 协同 + Agent 自主决策。 为什么这条骨架不会被淘汰？因为它不是”某个 2025 年的热门软件”，而是 AI 替代人做生产这件事的最终形态——只要 Agent 仍然是生产的操作者，”怎么让多个 Agent 分工”和”怎么让单个 Agent 自己想清楚下一步”就一直是真问题。 围绕这条骨架，课程用一个旅游规划项目当容器，把它拆成两条腿：  多 Agent 怎么协同 → 两种设计思想：Graph 工作流编排 &#x2F; Agent 自主代理（重点是后者） 单个 Agent 怎么自主 → 两块：自主思考（ReAct）&#x2F; 自主执行（MCP、Function Calling、Agent Skills）  底座是 SpringAI Alibaba 1.1。这里有个取舍：RAG、提示词工程、本地部署、微调这一整波这门课都不会讲——不是因为它们没用，而是它们在这条骨架里已经被归到上一个时代，性价比不...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/" title="1-6_仿Manus能自主决策的框架Jmanus"><img class="cover" src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-6_仿Manus能自主决策的框架Jmanus</div></div><div class="info-2"><div class="info-item-1">摘要JManus &#x3D; 阿里把”多 Agent 自主决策”塞进 Spring Boot 给你跑的 Java 版 OpenManus。本集只做一件事：跑通它，然后从日志里抓到”两个 agent 是 LLM 临时决定要派的”这条证据。取舍出现在 §2（原始顺序是百炼回顾 → Manus 故事 → 谱系 → 跑通；我打散重排成：谱系 → 跑通 → 回头补 API Key 来源，把”自主决策的物证”留在最重的位置）；加工增量在 §3（”用户目录 vs inner_storage” 这条 prompt 与落盘的语义错位，是 understanding.md 没强调但一年后必定迷糊的点）。  §1 一句话定位JManus 是阿里基于 OpenManus 思路、用 Java 重写的”多 Agent 自主决策”开发框架。  §2 主体讲解：从谱系到闭环，再到那条关键日志2.1 先把谱系搞清，不然你会以为是阿里原创你看到”JManus”第一反应大概率是”Java + Manus”。这没错，但中间漏了一环。真实链路是三段式： 12345Manus（闭源商品，年初爆红的&quot;帮我买东西&...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/" title="1-7_具备ReAct核心能力的框架AgentScope"><img class="cover" src="/images/agent-learning/1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/f001_t0000.0s_scene.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-7_具备ReAct核心能力的框架AgentScope</div></div><div class="info-2"><div class="info-item-1"> 摘要：本集是第 1 章地图收尾——给 Agentic 那条分支配上一个真正能用的 Java 框架。取舍出现在 §2（把官方四亮点重排成”为什么选它”的两段论），加工增量在 §2.2（JManus vs AgentScope 的差异表是 understanding.md 里没有的列式对照）和 §4.3。  1. 一句话定位Agentic 分支的 Java 落地框架，把 ReAct + 人可介入打包好了。 2. 主体讲解2.1 先把 ReAct 想清楚，再看框架绕开框架名先问自己：智能体要”自主”完成一个任务，最少要循环哪几步？ 思考 → 行动 → 验证 → 不对就重新思考。这四步循环一直跑到结果跟你预设目标对齐为止，就是 ReAct（Reason and Action）。 注意 transcript 里反复出现的 “weat” 是 ASR 把 “ReAct” 听岔的，看到当 ReAct 读就行。这个范式不是 AgentScope 发明的，1-6 讲的 JManus 也是 ReAct——所以 ReAct 不是 AgentScope 的差异点，而是它的入场券。  这张脑图是整个第 1...</div></div></div></a><a class="pagination-related" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-5_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85Nacos_3/" title="1-5_准备工作安装Nacos_3"><img class="cover" src="/images/agent-learning/1-5_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85Nacos_3/f024_t0146.1s_anchor.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-25</div><div class="info-item-2">1-5_准备工作安装Nacos_3</div></div><div class="info-2"><div class="info-item-1">1. 一句话定位Nacos 3 装好，A2A 的”智能体黄页”就有了落脚点。  摘要：本集是 A2A 主线的基础设施铺垫。取舍出现在 §2（把”为什么选 v3”提到最前面，颠倒原顺序）；加工增量在 §3（--rm 数据丢失、TOKEN 的真实作用、8848 vs 8080 的真正含义）—— 这三条 understanding.md 之外，都不在原视频里。   2. 主体讲解2.1 为什么必须是 v3（而不是随手抓个老 Nacos）你装注册中心，目的不是”再多一个微服务组件”，而是给后面 A2A 协议准备一个能存”智能体卡片(AgentCard)”的地方。 老版 Nacos 的服务注册模型只能存 IP &#x2F; 端口 &#x2F; 健康状态这种”机器视角”的元数据。A2A 要存的是”这个远程 Agent 叫什么名字、会做什么、技能列表、调用契约”——这是”能力视角”的卡片。 3.x 版本在控制台里直接给了两个新菜单：Agent 管理 和 MCP 管理。看到这两个菜单，你就知道为什么必选 3.x： ⏱ 02:26  概念”Nacos 3 内置 AgentCard 存储能力”的可视...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://free.picui.cn/free/2025/09/24/68d2c72e0890a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Lrf</div><div class="author-info-description">Lrf 的个人空间，分享生活随笔、成长故事与一些技术思考。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">129</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">17</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/llrf"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%80%E5%8F%A5%E8%AF%9D%E5%AE%9A%E4%BD%8D"><span class="toc-number">1.</span> <span class="toc-text">1. 一句话定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BB%E4%BD%93%E8%AE%B2%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text">2. 主体讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%85%88%E6%8A%8A%E9%AA%A8%E6%9E%B6%E9%92%89%E6%AD%BB%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%AA%E5%81%9A%E4%B8%89%E4%BB%B6%E4%BA%8B"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 先把骨架钉死：大模型只做三件事</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E8%BE%93%E5%85%A5%E8%BF%99%E4%B8%80%E6%AE%B5%E5%8F%88%E5%88%86%E4%B8%A4%E6%AD%A5%EF%BC%9A%E5%88%86%E8%AF%8D-%E2%86%92-%E5%90%91%E9%87%8F%E5%8C%96"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 输入这一段又分两步：分词 → 向量化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E4%B8%BA%E5%95%A5%E9%9D%9E%E5%BE%97%E6%98%AF%E2%80%9D%E5%90%91%E9%87%8F%E2%80%9D%EF%BC%8C%E4%B8%8D%E6%98%AF%E2%80%9D%E7%BC%96%E5%8F%B7%E2%80%9D"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 为啥非得是”向量”，不是”编号”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4%EF%BC%9A%E4%B8%80%E5%88%87%E6%8E%A8%E7%90%86%E7%9A%84%E8%88%9E%E5%8F%B0"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 向量空间：一切推理的舞台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E5%9B%9E%E5%A4%B4%E7%9C%8B%E2%80%9D%E6%98%9F%E5%B7%B4%E5%85%8B%E2%80%9Ddemo%EF%BC%8C%E4%B8%BA%E5%95%A5%E8%83%BD%E2%80%9D%E6%87%82%E2%80%9D"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 回头看”星巴克”demo，为啥能”懂”</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%88%91%E4%B8%80%E5%BC%80%E5%A7%8B%E6%B2%A1-get-%E7%9A%84%E7%82%B9-%E5%AE%B9%E6%98%93%E8%B8%A9%E7%9A%84%E5%9D%91"><span class="toc-number">3.</span> <span class="toc-text">3. 我一开始没 get 的点 &#x2F; 容易踩的坑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%B7%9F%E5%85%B6%E4%BB%96%E9%9B%86%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">4. 跟其他集的连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E6%89%BF"><span class="toc-number">4.1.</span> <span class="toc-text">上承</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E5%90%AF"><span class="toc-number">4.2.</span> <span class="toc-text">下启</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%AA%E5%90%91"><span class="toc-number">4.3.</span> <span class="toc-text">横向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%9F%A5%E8%AF%86%E5%9C%B0%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">5. 知识地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E8%87%AA%E6%B5%8B%E9%A2%98"><span class="toc-number">6.</span> <span class="toc-text">6. 自测题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%85%B3%E9%94%AE%E8%AF%8D%E8%A1%A8"><span class="toc-number">7.</span> <span class="toc-text">7. 关键词表</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/" title="1-2_准备工作安装ApiFox"><img src="/images/agent-learning/1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-2_准备工作安装ApiFox"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-2_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E5%AE%89%E8%A3%85ApiFox/" title="1-2_准备工作安装ApiFox">1-2_准备工作安装ApiFox</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/" title="1-3_准备工作配置阿里大模型广场的ApiKey"><img src="/images/agent-learning/1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/f002_t0135.2s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-3_准备工作配置阿里大模型广场的ApiKey"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-3_%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C%E9%85%8D%E7%BD%AE%E9%98%BF%E9%87%8C%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B9%BF%E5%9C%BA%E7%9A%84ApiKey/" title="1-3_准备工作配置阿里大模型广场的ApiKey">1-3_准备工作配置阿里大模型广场的ApiKey</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/" title="1-1_多Agent融合自主决策AI发展的必然趋势"><img src="/images/agent-learning/1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/f014_t0392.4s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-1_多Agent融合自主决策AI发展的必然趋势"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-1_%E5%A4%9AAgent%E8%9E%8D%E5%90%88%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96AI%E5%8F%91%E5%B1%95%E7%9A%84%E5%BF%85%E7%84%B6%E8%B6%8B%E5%8A%BF/" title="1-1_多Agent融合自主决策AI发展的必然趋势">1-1_多Agent融合自主决策AI发展的必然趋势</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/" title="1-6_仿Manus能自主决策的框架Jmanus"><img src="/images/agent-learning/1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/f023_t0152.9s_anchor.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-6_仿Manus能自主决策的框架Jmanus"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-6_%E4%BB%BFManus%E8%83%BD%E8%87%AA%E4%B8%BB%E5%86%B3%E7%AD%96%E7%9A%84%E6%A1%86%E6%9E%B6Jmanus/" title="1-6_仿Manus能自主决策的框架Jmanus">1-6_仿Manus能自主决策的框架Jmanus</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/" title="1-7_具备ReAct核心能力的框架AgentScope"><img src="/images/agent-learning/1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/f001_t0000.0s_scene.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1-7_具备ReAct核心能力的框架AgentScope"/></a><div class="content"><a class="title" href="/2026/05/25/Agent%E5%AD%A6%E4%B9%A0-1-7_%E5%85%B7%E5%A4%87ReAct%E6%A0%B8%E5%BF%83%E8%83%BD%E5%8A%9B%E7%9A%84%E6%A1%86%E6%9E%B6AgentScope/" title="1-7_具备ReAct核心能力的框架AgentScope">1-7_具备ReAct核心能力的框架AgentScope</a><time datetime="2026-05-24T16:00:00.000Z" title="发表于 2026-05-25 00:00:00">2026-05-25</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Lrf</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.0.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="255,165,0" opacity="0.7" zIndex="-1" count="120" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-show-text.min.js" data-mobile="false" data-text="!,?,。" data-fontsize="18px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章" type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
